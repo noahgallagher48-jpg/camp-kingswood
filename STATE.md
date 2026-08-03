@@ -25,10 +25,13 @@ goes in it that the client has not made public.
 ## Intake loop
 Questions from the client arrive at noah@abba-photo.com and are processed by the
 twice-daily sweep and live sessions: answer what the agreement and this page
-already settle by STAGING a reply (sending is the owner's click unless he has
-granted a scoped exception in writing), fold plan changes into the page, log
-here, and escalate anything new (scope, money, people) to the owner with a push
-notification. Text messages to the owner's phone are invisible to this loop; the
+already settle. SCOPED SEND GRANT (owner, 2026-08-03): from August 6 through
+August 10, replies to the client that are purely logistics or schedule may SEND
+directly without per-email approval; every such send logs a one-line resolution
+in this file's log AND on the owner's board in the same session. Anything
+touching money, scope, deliverables, or people STAGES as a draft and escalates
+to the owner with a push notification, as always. Outside that window, all
+replies stage. Text messages to the owner's phone are invisible to this loop; the
 owner relays them (screenshot or paste) to the same inbox.
 
 ## Log
