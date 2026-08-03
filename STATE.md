@@ -26,7 +26,7 @@ goes in it that the client has not made public.
 Questions from the client arrive at noah@abba-photo.com and are processed by the
 twice-daily sweep and live sessions: answer what the agreement and this page
 already settle. SCOPED SEND GRANT (owner, 2026-08-03): from August 6 through
-August 10, replies to the client that are purely logistics or schedule may SEND
+August 10, replies to the client OR HER DESIGNEE (anyone she directs to coordinate, once identified in the thread) that are purely logistics or schedule may SEND
 directly without per-email approval; every such send logs a one-line resolution
 in this file's log AND on the owner's board in the same session. Anything
 touching money, scope, deliverables, or people STAGES as a draft and escalates
