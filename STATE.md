@@ -31,7 +31,9 @@ directly without per-email approval; every such send logs a one-line resolution
 in this file's log AND on the owner's board in the same session. Anything
 touching money, scope, deliverables, or people STAGES as a draft and escalates
 to the owner with a push notification, as always. Outside that window, all
-replies stage. Text messages to the owner's phone are invisible to this loop; the
+replies stage. Context for the grant: the owner shoots midnight to dawn during
+the residency and rests in daytime pockets, so client communication must not
+wait on his hours; the loop answers while he is dark. Text messages to the owner's phone are invisible to this loop; the
 owner relays them (screenshot or paste) to the same inbox.
 
 ## Log
