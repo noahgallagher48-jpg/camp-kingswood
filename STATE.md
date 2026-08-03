@@ -5,8 +5,9 @@ bottom, one line each, newest first. This file is public with the repo: nothing
 goes in it that the client has not made public.
 
 ## Facts a session needs
-- Engagement: photography weekend, Friday August 7 to Sunday August 9, 2026, on
-  site at Camp Kingswood. Booked 2026-08-02.
+- Engagement: full residency, arrival Thursday evening August 6 through Sunday
+  August 9, 2026, on site at Camp Kingswood. Booked 2026-08-02; dates corrected
+  to the Thursday arrival 2026-08-03.
 - Client contact: Jodi Sperling, Owner/Director. Contact details and money terms
   live in the private `abba-dashboard` repo (`docs/CLIENT_CONTACTS.md` and
   `docs/KINGSWOOD_AGREEMENT_DRAFT.md`), not here.
@@ -41,5 +42,6 @@ wait on his hours; the loop answers while he is dark. Text messages to the owner
 owner relays them (screenshot or paste) to the same inbox.
 
 ## Log
+- 2026-08-03: Arrival corrected to Thursday night Aug 6; the page now carries the full residency shape with Thursday as the first working night.
 - 2026-08-03: Hub launched: the weekend plan, deliverables, media-team framing,
   the walk, intake line. No images yet; none shot.
