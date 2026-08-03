@@ -17,6 +17,10 @@ goes in it that the client has not made public.
 - The media team shoots alongside Noah all weekend; support framing is the
   engagement's condition. Do not name the team members on this page.
 - The walk: camp provides walking companions with long attachment to Kingswood.
+- AUTHOR MODE (owner, 2026-08-03): no specific assignments, no shot lists. The
+  camp's team covers daily camp; the owner captures what is special. If a
+  shot-list or assignment request arrives by email, that is SCOPE: stage the
+  reply and escalate, never absorb it into the plan.
 - Releases NOT confirmed: no camper or minor faces on this page until STATE
   records the camp's confirmation.
 - No donor or patron names on this page, ever (the dedicated book's recipients
