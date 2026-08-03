@@ -1,0 +1,36 @@
+# Engagement state — Camp Kingswood
+
+Read this together with CLAUDE.md before touching the page. Log entries at the
+bottom, one line each, newest first. This file is public with the repo: nothing
+goes in it that the client has not made public.
+
+## Facts a session needs
+- Engagement: photography weekend, Friday August 7 to Sunday August 9, 2026, on
+  site at Camp Kingswood. Booked 2026-08-02.
+- Client contact: Jodi Sperling, Owner/Director. Contact details and money terms
+  live in the private `abba-dashboard` repo (`docs/CLIENT_CONTACTS.md` and
+  `docs/KINGSWOOD_AGREEMENT_DRAFT.md`), not here.
+- Deliverables (public, from the agreement): a finished library of no fewer than
+  30 frames by Aug 23; the camp's summer media library closed and organized with
+  written instructions by Aug 30; two photo books scoped on site (layouts for the
+  camp's approval); a community print store to follow.
+- The media team shoots alongside Noah all weekend; support framing is the
+  engagement's condition. Do not name the team members on this page.
+- The walk: camp provides walking companions with long attachment to Kingswood.
+- Releases NOT confirmed: no camper or minor faces on this page until STATE
+  records the camp's confirmation.
+- No donor or patron names on this page, ever (the dedicated book's recipients
+  are named only in private docs).
+
+## Intake loop
+Questions from the client arrive at noah@abba-photo.com and are processed by the
+twice-daily sweep and live sessions: answer what the agreement and this page
+already settle by STAGING a reply (sending is the owner's click unless he has
+granted a scoped exception in writing), fold plan changes into the page, log
+here, and escalate anything new (scope, money, people) to the owner with a push
+notification. Text messages to the owner's phone are invisible to this loop; the
+owner relays them (screenshot or paste) to the same inbox.
+
+## Log
+- 2026-08-03: Hub launched: the weekend plan, deliverables, media-team framing,
+  the walk, intake line. No images yet; none shot.
