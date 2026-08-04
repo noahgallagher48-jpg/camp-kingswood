@@ -42,6 +42,11 @@ wait on his hours; the loop answers while he is dark. Text messages to the owner
 owner relays them (screenshot or paste) to the same inbox.
 
 ## Log
+- 2026-08-04: Dates correction SENT to the client (Aug 5-9, Wednesday arrival). Her auto-reply
+  says she is unplugged during camp days and names her assistant as the direct contact; that
+  assistant is the send-grant designee (addresses in the private contacts file). Sky read for the
+  residency pulled: the two clearest nights are Wednesday and Thursday; Friday and Saturday trend
+  to storms.
 - 2026-08-03: Dates settled Aug 5-9 (Wednesday-night arrival); day rail rebuilt; send-grant window now Aug 5-10.
 - 2026-08-03: Arrival corrected to Thursday night Aug 6; the page now carries the full residency shape with Thursday as the first working night.
 - 2026-08-03: Hub launched: the weekend plan, deliverables, media-team framing,
