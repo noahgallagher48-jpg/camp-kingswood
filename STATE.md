@@ -11,7 +11,13 @@ goes in it that the client has not made public.
 - Client contact: Jodi Sperling, Owner/Director. Contact details and money terms
   live in the private `abba-dashboard` repo (`docs/CLIENT_CONTACTS.md` and
   `docs/KINGSWOOD_AGREEMENT_DRAFT.md`), not here.
-- Deliverables (public, from the agreement): the forty-two (twelve mastered
+- DELIVERABLES ARE OPEN (Noah, night of 8/4): the agreement is SENT but NOT SIGNED.
+  Jodi confirmed the dates and asked to talk through the deliverables; that conversation
+  is the residency's first item (page carries a "First, the deliverables" section; a
+  check-off email to her is staged for Noah's send, cc her assistant). Until settled,
+  the list below is the working shape from the sent agreement, not final. Anything a
+  session writes about deliverables STAGES and escalates.
+- Working shape (from the sent agreement): the forty-two (twelve mastered
   campscapes and thirty storytelling candids) by Aug 23, additional usable images
   included; the camp's summer media library closed and organized with
   written instructions by Aug 30; two photo books scoped on site (layouts for the
@@ -44,6 +50,7 @@ wait on his hours; the loop answers while he is dark. Text messages to the owner
 owner relays them (screenshot or paste) to the same inbox.
 
 ## Log
+- 2026-08-05 (pre-departure, Noah dictating): "Last June" band added to the page: five of Noah's June 2025 Kingswood frames (Milky Way dock, the lit sign, moonlit docks, rowboat under stars, sunset), place-only, no faces, processed per the photo-web-processing skill (source: Drive June2025/kwood(hi-res)692025). "The sky over the weekend" section added: per-day full weather + overnight sky + moonrise/illumination + the new-moon note (Aug 12); MANUAL REFRESH ONLY, by hand in live sessions (stamp says as-of; sweeps stay paused). Deliverables moved to the top as an open conversation; the library count came off the page while they settle. Deliverables check-off email STAGED to Jodi cc assistant (draft r-2709146988948061084). Noah's own status: gear packed, cards cleared, batteries charged; personal packing open.
 - 2026-08-04: Dates correction SENT to the client (Aug 5-9, Wednesday arrival). Her auto-reply
   says she is unplugged during camp days and names her assistant as the direct contact; that
   assistant is the send-grant designee (addresses in the private contacts file). Sky read for the
