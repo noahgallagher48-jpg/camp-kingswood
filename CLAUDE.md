@@ -24,6 +24,10 @@ Client notes arrive by email at noah@abba-photo.com (engagement specifics are in
 The page is read by the client's whole team and the repo is public. Never put on the page or in this repo: pricing or any money amount, contact addresses or phone numbers, booking/confirmation references, personal-circumstance context, internal notes, other clients' names, or client details that are not yet public (campaign themes, gifts, donor names, unannounced plans). All of those live in the private `abba-dashboard` repo at `docs/CLIENT_CONTACTS.md`; this repo carries only a pointer. If a client note references something that does not already appear on the page, ask the owner before publishing it. When in doubt, leave it off.
 
 ## Images
+For any image set shipped on a page: follow `~/.claude/skills/photo-web-processing/SKILL.md`
+(full-resolution default, display files derived from masters, EXIF strip-then-stack with
+searchable credits, billboard-scale output escalates to the owner). The one-liner below is
+for quick thumbnails only.
 Cloud sandboxes are Linux: use Python/Pillow, not sips.
 
     python3 -c "from PIL import Image; im=Image.open('in.jpg'); im.thumbnail((1400,1400)); im.save('img/out.jpg', quality=82)"

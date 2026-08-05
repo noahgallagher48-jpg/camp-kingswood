@@ -6,13 +6,14 @@ goes in it that the client has not made public.
 
 ## Facts a session needs
 - Engagement: full residency, arrival Wednesday evening August 5 through Sunday
-  August 9, 2026, on site at Camp Kingswood. Booked 2026-08-02; dates settled at
+  August 9, 2026, on site at Camp Kingswood, Bridgton, Maine. Booked 2026-08-02; dates settled at
   Aug 5-9 on 2026-08-03.
 - Client contact: Jodi Sperling, Owner/Director. Contact details and money terms
   live in the private `abba-dashboard` repo (`docs/CLIENT_CONTACTS.md` and
   `docs/KINGSWOOD_AGREEMENT_DRAFT.md`), not here.
-- Deliverables (public, from the agreement): a finished library of no fewer than
-  30 frames by Aug 23; the camp's summer media library closed and organized with
+- Deliverables (public, from the agreement): the forty-two (twelve mastered
+  campscapes and thirty storytelling candids) by Aug 23, additional usable images
+  included; the camp's summer media library closed and organized with
   written instructions by Aug 30; two photo books scoped on site (layouts for the
   camp's approval); a community print store to follow.
 - The media team shoots alongside Noah all weekend; support framing is the
@@ -28,10 +29,11 @@ goes in it that the client has not made public.
   are named only in private docs).
 
 ## Intake loop
-Questions from the client arrive at noah@abba-photo.com and are processed by the
-twice-daily sweep and live sessions: answer what the agreement and this page
+Questions from the client arrive at noah@abba-photo.com. NOTE: the twice-daily sweep
+is PAUSED since 8/3, so intake is live sessions and manual sweeps only during the
+residency; check the inbox at session start. Answer what the agreement and this page
 already settle. SCOPED SEND GRANT (owner, 2026-08-03): from August 5 through
-August 10, replies to the client OR HER DESIGNEE (anyone she directs to coordinate, once identified in the thread) that are purely logistics or schedule may SEND
+August 10, replies to the client OR HER DESIGNEE (IDENTIFIED 8/4: her assistant, per her auto-reply; address in the private contacts file) that are purely logistics or schedule may SEND
 directly without per-email approval; every such send logs a one-line resolution
 in this file's log AND on the owner's board in the same session. Anything
 touching money, scope, deliverables, or people STAGES as a draft and escalates
