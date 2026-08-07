@@ -50,6 +50,12 @@ wait on his hours; the loop answers while he is dark. Text messages to the owner
 owner relays them (screenshot or paste) to the same inbox.
 
 ## Log
+- 2026-08-07 (via the morning interview, cloud session, merged here midday): Deliverables
+  scope SETTLED with Jodi on day two, and the night sky session RAN. The page's "Where
+  things stand" now says the deliverables are settled; the working-shape hedge language is
+  retired. The book's emphasis directive is recorded in the private repo, not here. Tour
+  specifics (the three buildings for the virtual-tour attempt, the must-capture list) are
+  still unrelayed.
 - 2026-08-07 (on site, Noah dictating, day two): PAGE MADE VERY CONCISE on Noah's direct
   instruction ("client page needs to be very concise"). The page dropped from fourteen
   sections to nine: open items became a three-line "Where things stand" (shots banked;
