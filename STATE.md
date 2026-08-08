@@ -50,6 +50,17 @@ wait on his hours; the loop answers while he is dark. Text messages to the owner
 owner relays them (screenshot or paste) to the same inbox.
 
 ## Log
+- 2026-08-08 (on site, Noah dictating, day three, third pass): FLEET CORRECTION. The Rebel
+  and the Nikon teaching body (D3500) were SOLD, and there are two EF 70-300 zooms in the
+  kit. Team page updated: teaching-bodies block removed (with its charger to-do and the
+  focus-motor note), the 70-300s join the rigs section (daylight reach on the 5D Mark IV,
+  second copy is the backup), run-sheet roles rewritten for two rigs (150 keepers each,
+  CITs shadow onto a rig for a block, which is how the shadowing program meets the bar),
+  the rounding-out list re-cut (AAA batteries and a card return the trip cameras; the only
+  candidate purchase left this summer is the Canon EF 50mm f/1.8 STM so both rigs can work
+  an evening room; the Nikon fifty is withdrawn), and the 2027 fifty item is now Canon
+  only. Inventory CSV (local): both bodies marked SOLD, the two 70-300s added, the Nikon
+  fifty suggestion withdrawn. Open question routed privately: what do CITs shoot on now.
 - 2026-08-08 (on site, Noah dictating, day three, second pass): THE REAL RIGS ARE ON THE
   PAGE. Working glass named by Noah: 5D Mark IV with the 24-105 f/4, D850 with the 24-70
   f/2.8 VR and the 70-200 f/2.8 VR (both pro zooms share the one Nikon body; the swap is
