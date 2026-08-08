@@ -50,6 +50,19 @@ wait on his hours; the loop answers while he is dark. Text messages to the owner
 owner relays them (screenshot or paste) to the same inbox.
 
 ## Log
+- 2026-08-08 (on site, Noah dictating, day three, second pass): THE REAL RIGS ARE ON THE
+  PAGE. Working glass named by Noah: 5D Mark IV with the 24-105 f/4, D850 with the 24-70
+  f/2.8 VR and the 70-200 f/2.8 VR (both pro zooms share the one Nikon body; the swap is
+  the cost), plus one excellent Manfrotto tripod. Kit section rewritten rig by rig with
+  what each is for; the fifty recommendation re-aimed at the TEACHING bodies since the
+  working rigs carry fast glass; the open block narrows to teaching-body glass. Run sheet
+  updated to Noah's operating design: MORNING DIVIDES BY CAMP SECTION (one shooter owns
+  each, trade daily), MIDDAY IS THE ENGINE (upload the morning, tag faces, generate the
+  list of campers present and not yet photographed), AFTERNOON SHOOTS THAT LIST IN GOOD
+  LIGHT. The numbers section names coverage as the second number next to the 300. New rule
+  line in the pose callout, Noah's words kept intact: candid comes first, "do not ask
+  permission unless it makes for a better photo." Inventory CSV (local, never in this
+  repo) gains the three lenses and the tripod.
 - 2026-08-08 (on site, Noah's direction, day three): THE GUIDE HAS A NEW BAR, set by Noah:
   team.html must be something camp can hand a media team and get 300 usable photos a day.
   The page restructured from a craft guide into an operating manual, now 13 sections: new
