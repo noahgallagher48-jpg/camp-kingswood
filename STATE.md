@@ -1,4 +1,4 @@
-# Engagement state — Camp Kingswood
+# Engagement state: Camp Kingswood
 
 Read this together with CLAUDE.md before touching the page. Log entries at the
 bottom, one line each, newest first. This file is public with the repo: nothing
@@ -50,6 +50,22 @@ wait on his hours; the loop answers while he is dark. Text messages to the owner
 owner relays them (screenshot or paste) to the same inbox.
 
 ## Log
+- 2026-08-08 (on site, Noah's direction, day three): THE GUIDE HAS A NEW BAR, set by Noah:
+  team.html must be something camp can hand a media team and get 300 usable photos a day.
+  The page restructured from a craft guide into an operating manual, now 13 sections: new
+  02 "The day" (the run sheet: block-by-block keeper quotas summing to 300), new 03 "The
+  numbers" (300 kept means roughly 900 shot at a one-in-three keep rate; per-shooter split;
+  the daily tally stays public inside the team), new 04 "Before dinner" (same-day sort,
+  absorbs the old After-the-shot section; no card rolls over). Kit section gains "Rounding
+  out the kit for 300 a day" (returns-to-service first, the two free facts, a fifty per
+  photographer, consumables, and what is NOT needed; no money amounts, prices stay
+  private). Night sky section rewritten evergreen (first run Thursday night, kept so a
+  future team can run it) and moved to sit with the craft sections. CORRECTION from Noah:
+  HAVDALAH AT KINGSWOOD IS BEFORE SUNDOWN, so it is a golden-hour ceremony, not a low-light
+  one; team page section 07 and the main page's Saturday line both fixed. Main page rolled
+  to Saturday (day three): Shabbat through the day, Havdalah before sundown, last working
+  night after dark; sky refreshed (storms easing by 8pm, partly cloudy night). The UHD
+  video builder Noah asked about is planned and PARKED until after the residency.
 - 2026-08-07 (via the morning interview, cloud session, merged here midday): Deliverables
   scope SETTLED with Jodi on day two, and the night sky session RAN. The page's "Where
   things stand" now says the deliverables are settled; the working-shape hedge language is
