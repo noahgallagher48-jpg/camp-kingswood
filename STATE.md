@@ -50,6 +50,22 @@ wait on his hours; the loop answers while he is dark. Text messages to the owner
 owner relays them (screenshot or paste) to the same inbox.
 
 ## Log
+- 2026-08-08 (on site, Noah dictating, day three, fourth pass): THE GUIDE IS A STARTING
+  MANUAL, standalone, "no connection to my being there." Every residency dependency came
+  off: the intro paragraphs about what the page is are DELETED on Noah's explicit
+  instruction (the guide is a guide and does not introduce itself), the old page-meta
+  section 13 is deleted (email moved to the footer), section counts drop to 12. The page
+  now OPENS with Noah's direction, his words kept: capture campers engaged in program,
+  ideally in good light; indulge campers when they ask for a photo, but do not ask
+  permission, it's the job; variety of angles and focal lengths, campers in context and
+  happy faces. The permission rule in the pose callout upgraded to this fuller version.
+  CAMPANION NAMED as the tracking tool in the midday engine (upload, Campanion tags
+  campers, list of who is not yet photographed). Division-of-labor section rewritten
+  around the team itself, with visitors as the occasional case. Canon/Nikon translated
+  inline where controls diverge: Auto ISO menu names for both, exposure compensation
+  location on both bodies, Tv/S and Av/A dual naming in the quick reference and the rule
+  line. Night section evergreen (any team member can run it). Main page's media-team
+  paragraph updated to the starting-manual framing.
 - 2026-08-08 (on site, Noah dictating, day three, third pass): FLEET CORRECTION. The Rebel
   and the Nikon teaching body (D3500) were SOLD, and there are two EF 70-300 zooms in the
   kit. Team page updated: teaching-bodies block removed (with its charger to-do and the
