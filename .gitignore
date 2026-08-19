@@ -1,0 +1,10 @@
+# Public repo. Nothing here that carries faces, full-res, or client-private data
+# may be committed until the releases decision is on file (see STATE.md).
+_work/
+img/present/
+img/thumb/
+downloads/
+forty_two.json
+links.json
+masters_delivery/
+.DS_Store
