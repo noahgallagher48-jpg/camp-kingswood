@@ -43,7 +43,11 @@ SEED_GROUPS = [
 
 
 def frame_no(f):
-    """The bare kwood819.jpg is frame 1; the rest run 2 to 122, 83 absent."""
+    """The bare kwood819.jpg is frame 1; numbers run 2 to 122 (83 absent). The _2
+    re-edit set (2026-08-19) is 201-206: kwood819_2.jpg is 201, kwood819_2-N is 200+N."""
+    m = re.search(r"_2-(\d+)\.jpg$", f)
+    if m: return 200 + int(m.group(1))
+    if f.endswith("_2.jpg"): return 201
     m = re.search(r"-(\d+)\.jpg$", f)
     return int(m.group(1)) if m else 1
 
@@ -64,6 +68,15 @@ def build(mode):
                   for g in a.get("groups", [])]
         aside = [n for n in a.get("aside", []) if n in by_num]
         seeded_from = "your saved arrangement"
+        # Frames ingested since the saved pass land in their own group so they
+        # are seen, not buried in the palette (first use: the _2 re-edit set).
+        known = set(aside)
+        for g in a.get("groups", []):
+            known.update(g["frames"])
+        known.update(a.get("ungrouped", []))
+        fresh = [n for n in allf if n not in known]
+        if fresh:
+            groups.insert(0, {"name": "New since your last pass", "frames": fresh})
     else:
         groups = []
         if proposed:

@@ -28,8 +28,11 @@ KEY = "kwood-select-v1"
 
 
 def frame_no(f):
-    """The bare kwood819.jpg is frame 1 (house convention, same as build_delivery
-    by_num). Numbers otherwise run 2 to 122, with 83 absent from the export."""
+    """The bare kwood819.jpg is frame 1; numbers run 2 to 122 (83 absent). The _2
+    re-edit set (2026-08-19) is 201-206: kwood819_2.jpg is 201, kwood819_2-N is 200+N."""
+    m = re.search(r"_2-(\d+)\.jpg$", f)
+    if m: return 200 + int(m.group(1))
+    if f.endswith("_2.jpg"): return 201
     m = re.search(r"-(\d+)\.jpg$", f)
     return int(m.group(1)) if m else 1
 
