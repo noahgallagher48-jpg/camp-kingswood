@@ -50,6 +50,7 @@ wait on his hours; the loop answers while he is dark. Text messages to the owner
 owner relays them (screenshot or paste) to the same inbox.
 
 ## Log
+- 2026-08-18: Delivery scaffold built ahead of Aug 23: build_delivery.py (ingest/build/zip, hard RELEASES GATE per the line above), delivery.template.html, process_masters.sh (EXIF strip+stack per the skill), DELIVERY_RUNBOOK.md. Pipeline smoke-tested end to end with dummy frames and cleaned. Nothing live changed; delivery.html does not exist until delivery day.
 - 2026-08-08 (on site, Noah dictating, day three, fourth pass): THE GUIDE IS A STARTING
   MANUAL, standalone, "no connection to my being there." Every residency dependency came
   off: the intro paragraphs about what the page is are DELETED on Noah's explicit
