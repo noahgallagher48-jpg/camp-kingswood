@@ -94,7 +94,7 @@ PAGE = """<meta charset=utf-8>
   .how{font-size:13.5px;color:var(--dim);margin:10px 0 0;max-width:64ch}
 
   .wall{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:10px;margin-top:20px}
-  .card{position:relative;margin:0}
+  .card{position:relative;margin:0;content-visibility:auto;contain-intrinsic-size:230px 172px}
   .card img{width:100%;height:auto;display:block;border-radius:4px;
             border:2px solid transparent;transition:border-color .12s}
   .card.on img{border-color:var(--gold)}

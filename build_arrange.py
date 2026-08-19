@@ -134,7 +134,7 @@ header button.go:hover{background:#ecb654}
 .lane{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;
       padding:12px 0 4px;min-height:60px}
 .lane.over{outline:2px dashed rgba(226,167,62,.6);outline-offset:4px}
-.th{position:relative;cursor:grab;border-radius:3px;overflow:hidden;background:#1d1913}
+.th{position:relative;cursor:grab;border-radius:3px;overflow:hidden;background:#1d1913;content-visibility:auto;contain-intrinsic-size:150px 112px}
 .th img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;pointer-events:none}
 .th .n{position:absolute;left:5px;bottom:4px;font-size:10.5px;color:#cfc6b4;
        text-shadow:0 1px 4px #000;pointer-events:none;font-family:"SF Mono",ui-monospace,Menlo,monospace}
