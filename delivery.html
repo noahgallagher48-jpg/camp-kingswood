@@ -190,7 +190,7 @@ $("selget").onclick=function(){
   var rows=$("getrows");rows.innerHTML="";
   ALL.filter(function(r){return sel[r.n];}).forEach(function(r){
     var d=document.createElement("div");d.className="row";
-    d.innerHTML='<b>#'+r.n+'</b><a href="img/present/'+r.f+'" download>Web</a>'+
+    d.innerHTML='<b>#'+r.n+'</b><a href="img/web/'+r.f+'" download>Web</a>'+
       (r.d?'<a href="'+r.d+'" target=_blank rel=noopener>Full res</a>':'');
     rows.appendChild(d);});
   $("getlist").className="on";};
@@ -201,7 +201,7 @@ function openLb(i){cur=i;paintLb();$("lb").className="on";}
 function paintLb(){if(cur<0)cur=ALL.length-1;if(cur>=ALL.length)cur=0;
   var r=ALL[cur];$("lbi").src="img/present/"+r.f;
   $("lbm").textContent="#"+r.n+"  \u00b7  "+(cur+1)+" / "+ALL.length;
-  $("lbw").href="img/present/"+r.f;$("lbw").setAttribute("download",r.f);
+  $("lbw").href="img/web/"+r.f;$("lbw").setAttribute("download",r.f);
   $("lbf").href=r.d||"https://drive.google.com/drive/folders/1XqShLle7YVldJ6zmcd36SLBIZ_auyHYL";}
 document.querySelector("#lb .zl").onclick=function(){cur--;paintLb();};
 document.querySelector("#lb .zr").onclick=function(){cur++;paintLb();};

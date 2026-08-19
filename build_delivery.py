@@ -54,6 +54,7 @@ def pool():
 def ingest(folder):
     import io
     from PIL import Image, ImageCms
+    os.makedirs(os.path.join(IMG, "web"), exist_ok=True)
     os.makedirs(os.path.join(IMG, "present"), exist_ok=True)
     os.makedirs(os.path.join(IMG, "thumb"), exist_ok=True)
     srgb = ImageCms.createProfile("sRGB")
@@ -69,6 +70,11 @@ def ingest(folder):
                 im = ImageCms.profileToProfile(im, src, srgb, outputMode="RGB",
                     renderingIntent=ImageCms.Intent.RELATIVE_COLORIMETRIC)
         out = os.path.splitext(n)[0] + ".jpg"
+        # Deliverable web tier, THE RULE (Noah, 2026-08-19): 3840px long edge,
+        # q90, 4:4:4. Anything smaller is display-only and never ships as "web".
+        # After ingest, run ./process_masters.sh img/web (credits; Pillow drops them).
+        w = im.copy(); w.thumbnail((3840, 3840), Image.LANCZOS)
+        w.save(os.path.join(IMG, "web", out), quality=90, icc_profile=srgb_icc, subsampling=0)
         a = im.copy(); a.thumbnail((2560, 2560), Image.LANCZOS)
         a.save(os.path.join(IMG, "present", out), quality=88, icc_profile=srgb_icc, subsampling=0)
         b = im.copy(); b.thumbnail((900, 900), Image.LANCZOS)
@@ -82,7 +88,7 @@ def make_zip():
     out = os.path.join(HERE, "downloads", "kingswood_web.zip")
     with zipfile.ZipFile(out, "w", zipfile.ZIP_STORED) as z:
         for n in keep:
-            z.write(os.path.join(IMG, "present", by_num[n]), by_num[n])
+            z.write(os.path.join(IMG, "web", by_num[n]), by_num[n])
     print(f"wrote {out} ({os.path.getsize(out)//1048576} MB, {len(keep)} frames)")
 
 
@@ -300,7 +306,7 @@ $("selget").onclick=function(){
   var rows=$("getrows");rows.innerHTML="";
   ALL.filter(function(r){return sel[r.n];}).forEach(function(r){
     var d=document.createElement("div");d.className="row";
-    d.innerHTML='<b>#'+r.n+'</b><a href="img/present/'+r.f+'" download>Web</a>'+
+    d.innerHTML='<b>#'+r.n+'</b><a href="img/web/'+r.f+'" download>Web</a>'+
       (r.d?'<a href="'+r.d+'" target=_blank rel=noopener>Full res</a>':'');
     rows.appendChild(d);});
   $("getlist").className="on";};
@@ -311,7 +317,7 @@ function openLb(i){cur=i;paintLb();$("lb").className="on";}
 function paintLb(){if(cur<0)cur=ALL.length-1;if(cur>=ALL.length)cur=0;
   var r=ALL[cur];$("lbi").src="img/present/"+r.f;
   $("lbm").textContent="#"+r.n+"  \\u00b7  "+(cur+1)+" / "+ALL.length;
-  $("lbw").href="img/present/"+r.f;$("lbw").setAttribute("download",r.f);
+  $("lbw").href="img/web/"+r.f;$("lbw").setAttribute("download",r.f);
   $("lbf").href=r.d||"__FOLDER__";}
 document.querySelector("#lb .zl").onclick=function(){cur--;paintLb();};
 document.querySelector("#lb .zr").onclick=function(){cur++;paintLb();};
