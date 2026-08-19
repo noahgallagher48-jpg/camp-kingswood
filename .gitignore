@@ -8,3 +8,4 @@ forty_two.json
 links.json
 masters_delivery/
 .DS_Store
+__pycache__/

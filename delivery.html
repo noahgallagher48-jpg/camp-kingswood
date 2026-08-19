@@ -1,0 +1,236 @@
+<!DOCTYPE html><html lang=en><head><meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<meta name=robots content=noindex>
+<title>Camp Kingswood &middot; Summer 2026</title><style>
+:root{--ground:#0E1B2C;--panel:#16273C;--line:rgba(243,241,236,.13);
+      --ink:#F3F1EC;--muted:#9CAABF;--faint:#6E7E94;--accent:#DB3A00;--accent2:#F04A0E}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);
+     font-family:"Avenir Next",Avenir,-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;
+     font-size:15.5px;line-height:1.55}
+a{color:var(--accent2);text-decoration:none}a:hover{text-decoration:underline}
+.home{position:absolute;top:16px;left:20px;font-size:12px;letter-spacing:.14em;
+      text-transform:uppercase;color:var(--faint)}
+.open{max-width:720px;margin:0 auto;padding:84px 20px 46px;text-align:center}
+h1{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-weight:500;
+   font-size:clamp(32px,6vw,46px);letter-spacing:.01em}
+.date{color:var(--muted);font-size:14.5px;margin-top:6px}
+.rule{width:56px;height:2px;background:var(--accent);margin:22px auto}
+.play{background:var(--accent);color:#fff;border:0;border-radius:5px;padding:13px 30px;
+      font-size:14px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+      cursor:pointer;font-family:inherit}
+.play:hover{background:var(--accent2)}
+.play:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+.play:focus:not(:focus-visible){outline:none}
+.play .tri{font-size:11px;margin-right:8px}
+.dlline{color:var(--muted);font-size:13.5px;margin-top:22px}
+.opts{margin-top:10px}
+.opts a,.lnk{background:none;border:1px solid rgba(219,58,0,.55);color:var(--accent2);
+     border-radius:4px;padding:8px 15px;font-size:12.5px;cursor:pointer;font-family:inherit;
+     display:inline-block;margin:3px 2px}
+.opts a:hover,.lnk:hover{background:rgba(219,58,0,.12);text-decoration:none}
+.dot{color:var(--faint);margin:0 4px}
+
+.reader{max-width:1100px;margin:0 auto;padding:0 16px}
+.reader figure{margin:0 0 14px}
+.reader img{width:100%;height:auto;display:block;border-radius:4px}
+.rhead{max-width:1100px;margin:20px auto 14px;padding:0 16px;display:flex;
+       align-items:baseline;gap:12px;flex-wrap:wrap}
+.rhead h2{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-weight:500;font-size:24px}
+.rhead span{font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:11px;
+            letter-spacing:.14em;color:var(--faint)}
+
+.wrap{max-width:1280px;margin:44px auto 0;padding:0 16px}
+.secthead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.secthead h2{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-weight:500;font-size:24px}
+.secthead span{font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:11px;
+               letter-spacing:.14em;color:var(--faint)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.grid .c{position:relative;cursor:pointer;border-radius:4px;overflow:hidden;background:var(--panel);
+         content-visibility:auto;contain-intrinsic-size:235px 176px}
+.grid img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block}
+.grid .n{position:absolute;left:7px;bottom:6px;font-family:"SF Mono",ui-monospace,Menlo,monospace;
+         font-size:10.5px;color:#fff;text-shadow:0 1px 5px #000;pointer-events:none}
+body.sel .grid .c::after{content:"";position:absolute;top:8px;left:8px;width:22px;height:22px;
+         border:2px solid #fff;border-radius:50%;background:rgba(14,27,44,.4)}
+body.sel .grid .c.on::after{background:var(--accent);border-color:var(--accent);
+         box-shadow:inset 0 0 0 3px var(--ground)}
+
+footer{max-width:1280px;margin:56px auto 0;padding:20px 16px 46px;border-top:1px solid var(--line);
+       display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;
+       color:var(--faint);font-size:12.5px}
+
+#selbar{position:fixed;left:0;right:0;bottom:0;z-index:25;display:none;gap:12px;align-items:center;
+        background:rgba(14,27,44,.97);border-top:1px solid var(--line);padding:12px 18px;
+        backdrop-filter:blur(8px)}
+body.sel #selbar{display:flex}
+#selbar .ct{font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:13px;color:var(--muted);
+            margin-right:auto}
+#getlist{position:fixed;inset:0;z-index:30;background:rgba(10,16,26,.97);display:none;
+         overflow-y:auto;padding:46px 18px}
+#getlist.on{display:block}
+#getlist .inner{max-width:640px;margin:0 auto}
+#getlist h3{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-weight:500;font-size:22px;
+            margin-bottom:6px}
+#getlist p{color:var(--muted);font-size:13px;margin-bottom:18px}
+#getlist .row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+#getlist .row b{font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:13px;font-weight:600;
+                min-width:52px}
+#getlist .row a{font-size:12.5px;border:1px solid rgba(219,58,0,.5);border-radius:4px;padding:5px 12px}
+#getlist .x{position:fixed;top:12px;right:18px;background:none;border:0;color:var(--muted);
+            font-size:30px;cursor:pointer}
+
+#lb{position:fixed;inset:0;z-index:40;background:#000;display:none}
+#lb.on{display:block}
+#lb img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+#lb .zone{position:absolute;top:0;bottom:0;width:28%;z-index:2;cursor:pointer;
+          background:none;border:0;padding:0;appearance:none}
+#lb .zl{left:0}#lb .zr{right:0}
+#lb .x{position:absolute;top:10px;right:16px;z-index:3;background:none;border:0;color:#9CAABF;
+       font-size:32px;cursor:pointer;line-height:1}
+#lb .bar{position:absolute;bottom:0;left:0;right:0;z-index:3;display:flex;gap:12px;align-items:center;
+         justify-content:center;padding:14px;background:linear-gradient(transparent,rgba(0,0,0,.75))}
+#lb .bar .m{font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:12px;color:#9CAABF}
+#lb .bar a{font-size:12px;border:1px solid rgba(240,74,14,.6);border-radius:4px;padding:6px 13px}
+
+#stage{position:fixed;inset:0;z-index:50;background:#000;display:none}
+#stage.on{display:block}
+#stage img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;
+           opacity:0;transition:opacity 900ms ease}
+#stage img.show{opacity:1}
+#stage .zone{position:absolute;top:0;bottom:0;width:30%;z-index:2;cursor:pointer;
+             background:none;border:0;padding:0;appearance:none}
+#stage .zl{left:0}#stage .zr{right:0}
+#stage .x{position:absolute;top:10px;right:16px;z-index:3;background:none;border:0;
+          color:#9CAABF;font-size:32px;cursor:pointer}
+@media (prefers-reduced-motion:reduce){#stage img,#lb img{transition:none}}
+</style></head><body>
+
+<a class=home href="https://www.abba-photo.com/">Abba Photo</a>
+<div class=open>
+  <h1>Camp Kingswood</h1>
+  <p class=date>Bridgton, Maine &middot; Summer 2026</p>
+  <div class=rule></div>
+  <button class=play id=play type=button><span class=tri>&#9654;</span> Play</button>
+  <p class=dlline>117 photographs in two sizes: full resolution for print, web for screens</p>
+  <p class="dlline opts">
+    <a href="https://drive.google.com/drive/folders/1XqShLle7YVldJ6zmcd36SLBIZ_auyHYL" target=_blank rel=noopener>All full res</a>
+    <span class=dot>&middot;</span>
+    <a id=zipall href="" style="display:none">All for web</a>
+    <button class=lnk id=selmode type=button>Select frames</button>
+  </p>
+  <p class=dlline style="font-size:12px">Full resolution comes from Google Drive. No sign-in needed.</p>
+</div>
+
+<div class=rhead><h2>The picks</h2><span>44</span></div>
+<div class=reader id=picks></div>
+
+<div class=wrap>
+  <div class=secthead><h2>Everything</h2><span>117 &middot; IN THE ORDER THEY WERE MADE</span></div>
+  <div class=grid id=grid></div>
+</div>
+
+<footer>
+  <span>Photographs by Noah Gallagher</span>
+  <span>Abba Photo &middot; <a href="https://www.abba-photo.com" target=_blank rel=noopener>abba-photo.com</a></span>
+</footer>
+
+<div id=selbar><span class=ct id=selct>0 selected</span>
+  <button class=lnk id=selget type=button disabled>Get these</button>
+  <button class=lnk id=seldone type=button>Done</button></div>
+
+<div id=getlist><button class=x type=button aria-label=Close>&times;</button>
+  <div class=inner><h3>Your frames</h3>
+  <p>Web is sized for screens and social; full res is the print file, from Drive.</p>
+  <div id=getrows></div></div></div>
+
+<div id=lb><img id=lbi alt="Camp Kingswood, Bridgton, Maine, Summer 2026">
+  <button class="zone zl" type=button aria-label=Previous></button>
+  <button class="zone zr" type=button aria-label=Next></button>
+  <button class=x type=button aria-label=Close>&times;</button>
+  <div class=bar><span class=m id=lbm></span><a id=lbw download>Web</a><a id=lbf target=_blank rel=noopener>Full res</a></div>
+</div>
+
+<div id=stage><img id=sa alt=""><img id=sb alt="">
+  <button class="zone zl" type=button aria-label=Previous></button>
+  <button class="zone zr" type=button aria-label=Next></button>
+  <button class=x type=button aria-label="End the show">&times;</button>
+</div>
+
+<script>
+var ALL=[{"n": 1, "f": "kwood819.jpg", "d": "https://drive.google.com/uc?export=download&id=1jyUhcjf4cY6jcyIe2I5h0_fIGaaqVDTD"}, {"n": 2, "f": "kwood819-2.jpg", "d": "https://drive.google.com/uc?export=download&id=1gkSY8F35hAy3Z2CC5rho3WwDqB70FclJ"}, {"n": 3, "f": "kwood819-3.jpg", "d": "https://drive.google.com/uc?export=download&id=18RyTA7VkMVOjDl9TBxu3iGlmiBc7ZRu_"}, {"n": 4, "f": "kwood819-4.jpg", "d": "https://drive.google.com/uc?export=download&id=1inIi6Fh1BYCb09IGeokLqCeb2WjXKf-L"}, {"n": 5, "f": "kwood819-5.jpg", "d": "https://drive.google.com/uc?export=download&id=1upcVjmDXvuSfOm2MOHtgTN8_6h1YXoTG"}, {"n": 6, "f": "kwood819-6.jpg", "d": "https://drive.google.com/uc?export=download&id=1acmJuIqKBtUZqjphd9E1FRXU3WL2Q1GB"}, {"n": 7, "f": "kwood819-7.jpg", "d": "https://drive.google.com/uc?export=download&id=15qsON_p8wU9ALc_BUvYJi27p0KZKa6N0"}, {"n": 8, "f": "kwood819-8.jpg", "d": "https://drive.google.com/uc?export=download&id=17Uhl0g7XUZHiUD8HYycIPf3f2Bdw365-"}, {"n": 9, "f": "kwood819-9.jpg", "d": "https://drive.google.com/uc?export=download&id=1TVq7lz70UKIpNE1Y9pXKwa32FJbs3YUn"}, {"n": 10, "f": "kwood819-10.jpg", "d": "https://drive.google.com/uc?export=download&id=18nAdKWcblhB1fpqNZJ2CTsNTgqjRL1bw"}, {"n": 11, "f": "kwood819-11.jpg", "d": "https://drive.google.com/uc?export=download&id=1w2EnDfTbqyOUaUVJlKV6iKiQIy-VmLBs"}, {"n": 12, "f": "kwood819-12.jpg", "d": "https://drive.google.com/uc?export=download&id=1tseqEcidclPjlddlFON4UaVIpjQPcOib"}, {"n": 13, "f": "kwood819-13.jpg", "d": "https://drive.google.com/uc?export=download&id=1jc_OFNZvDAyTFjU-xz353gIntewfCwMU"}, {"n": 14, "f": "kwood819-14.jpg", "d": "https://drive.google.com/uc?export=download&id=1CDD4wDkZut1JihGgw4FzZHXHYLKsbRUf"}, {"n": 15, "f": "kwood819-15.jpg", "d": "https://drive.google.com/uc?export=download&id=1VObly2gazaW6v3kWeGZfHZTdoO08sIO5"}, {"n": 16, "f": "kwood819-16.jpg", "d": "https://drive.google.com/uc?export=download&id=1RYCOQfT_tOwg0IeVzFhJhrjEewUQdMrp"}, {"n": 17, "f": "kwood819-17.jpg", "d": "https://drive.google.com/uc?export=download&id=1hcq4FBExh6bZ2UPE_0R60DEEP82d1zPc"}, {"n": 18, "f": "kwood819-18.jpg", "d": "https://drive.google.com/uc?export=download&id=1EHsj9mcISfsKiyADLr7mk0TIwoOwYIoG"}, {"n": 19, "f": "kwood819-19.jpg", "d": "https://drive.google.com/uc?export=download&id=12QKpvd68tlh1agIp2I9YJOrPga3aJtLx"}, {"n": 20, "f": "kwood819-20.jpg", "d": "https://drive.google.com/uc?export=download&id=1riI9ayKLD5v8ZW86_dmdLS4qQGCC9uOV"}, {"n": 21, "f": "kwood819-21.jpg", "d": "https://drive.google.com/uc?export=download&id=1HtoViBdNuCKvxe9qYvu32CFDho45QqRE"}, {"n": 22, "f": "kwood819-22.jpg", "d": "https://drive.google.com/uc?export=download&id=1Vv4GyVtm8UnhL1QCyIP7jOaqBrBhkc4N"}, {"n": 23, "f": "kwood819-23.jpg", "d": "https://drive.google.com/uc?export=download&id=1oOGu2xpvD-P8IlPp7-AvykLM-TJOntPU"}, {"n": 24, "f": "kwood819-24.jpg", "d": "https://drive.google.com/uc?export=download&id=1L7J9ajehVpoO7BphPPuGMDbQ_pVnVVwE"}, {"n": 25, "f": "kwood819-25.jpg", "d": "https://drive.google.com/uc?export=download&id=1JrJNuuhw9-3Me_39-K3aVWoPtScd3ief"}, {"n": 26, "f": "kwood819-26.jpg", "d": "https://drive.google.com/uc?export=download&id=11vI_dXniTY83BA4GIk1pogiiLxtjc14Z"}, {"n": 27, "f": "kwood819-27.jpg", "d": "https://drive.google.com/uc?export=download&id=1rJx0bxxqX1jMRplA5qzLqubYD1acnZHj"}, {"n": 28, "f": "kwood819-28.jpg", "d": "https://drive.google.com/uc?export=download&id=10OhnwmACX5iYHiflBn-9EZD0U5AoU_2v"}, {"n": 29, "f": "kwood819-29.jpg", "d": "https://drive.google.com/uc?export=download&id=1FxR5Yy9cmFaJNpYD6oz3Ov_V7IbtxgCi"}, {"n": 30, "f": "kwood819-30.jpg", "d": "https://drive.google.com/uc?export=download&id=1rjBOYUm_Rhz4a4lIz2SVH03xZ0GrWVOx"}, {"n": 31, "f": "kwood819-31.jpg", "d": "https://drive.google.com/uc?export=download&id=1lJCvkZQrO_ZCaCTXqv36KxVxTgI5H5Lc"}, {"n": 32, "f": "kwood819-32.jpg", "d": "https://drive.google.com/uc?export=download&id=1763Fg3TkPFow8FNH_f-WuyPjqd3_6yGc"}, {"n": 33, "f": "kwood819-33.jpg", "d": "https://drive.google.com/uc?export=download&id=1vrqRpl-wVmQqgAcpZ04ncvjaNinjUmtD"}, {"n": 34, "f": "kwood819-34.jpg", "d": "https://drive.google.com/uc?export=download&id=1uqkQzDFVrS2UWp86jPMrRJk2nGdsjFOm"}, {"n": 35, "f": "kwood819-35.jpg", "d": "https://drive.google.com/uc?export=download&id=1bR0IxD42jqAbQRsDczKlz9a8dS1cSvwL"}, {"n": 36, "f": "kwood819-36.jpg", "d": "https://drive.google.com/uc?export=download&id=1Rah1T-_-OWTykyNy4Gh_dx9EVf7C1Xer"}, {"n": 37, "f": "kwood819-37.jpg", "d": "https://drive.google.com/uc?export=download&id=13yMg1uo8M8VK8CjeDUqVOSwiXlcIq7vO"}, {"n": 38, "f": "kwood819-38.jpg", "d": "https://drive.google.com/uc?export=download&id=1TiuArEPUYj0f7oWtuF4zlZh2pmxHvqK3"}, {"n": 40, "f": "kwood819-40.jpg", "d": "https://drive.google.com/uc?export=download&id=1qA1t53OrEQQ2twddsBDw5s68C1hHW2u8"}, {"n": 41, "f": "kwood819-41.jpg", "d": "https://drive.google.com/uc?export=download&id=1CdJHWzIdv4aEMIqHSCx1l8Ap0UEOoZhe"}, {"n": 42, "f": "kwood819-42.jpg", "d": "https://drive.google.com/uc?export=download&id=1gz2hZuYh1cDD7nVXBiTdo4slE1P7rh8d"}, {"n": 43, "f": "kwood819-43.jpg", "d": "https://drive.google.com/uc?export=download&id=1X1BihbuV2d6HXak2NWR1ycVV6OfndQ_5"}, {"n": 44, "f": "kwood819-44.jpg", "d": "https://drive.google.com/uc?export=download&id=176k67Ga2rdSVslleK_X6c7BOF8QoTw47"}, {"n": 45, "f": "kwood819-45.jpg", "d": "https://drive.google.com/uc?export=download&id=1GplkXX9wjHWVtc9uRmZh7rAGtGZxWK5O"}, {"n": 46, "f": "kwood819-46.jpg", "d": "https://drive.google.com/uc?export=download&id=1uWfES6U-F3UQXQP2MPyErb9NoYLfaiTK"}, {"n": 47, "f": "kwood819-47.jpg", "d": "https://drive.google.com/uc?export=download&id=1gU8ETqp6GbxWerAQJBxr8ZcHtUnIv_71"}, {"n": 48, "f": "kwood819-48.jpg", "d": "https://drive.google.com/uc?export=download&id=1UnuVaOnkbIwVwphCttvfKseHDwSDRMWm"}, {"n": 49, "f": "kwood819-49.jpg", "d": "https://drive.google.com/uc?export=download&id=1pbv_pgA2pxnpwnGv7BnJsAeJaTqg2N3I"}, {"n": 50, "f": "kwood819-50.jpg", "d": "https://drive.google.com/uc?export=download&id=13FA5RrPoBaq9N9323GTeWSDWQIq81UmO"}, {"n": 51, "f": "kwood819-51.jpg", "d": "https://drive.google.com/uc?export=download&id=1RSjaGfGwlonZlyAyi8TVtTjWESW4IBSt"}, {"n": 52, "f": "kwood819-52.jpg", "d": "https://drive.google.com/uc?export=download&id=1bFOMcNftVPii8k2VgY4BbOrBHzWTJvPa"}, {"n": 53, "f": "kwood819-53.jpg", "d": "https://drive.google.com/uc?export=download&id=1zP0xGkY4aMryiNoAuDpg6PQdHGA4z3V6"}, {"n": 54, "f": "kwood819-54.jpg", "d": "https://drive.google.com/uc?export=download&id=145T-AhTKCrO3m_qe7g7dlIXsjxitj2QV"}, {"n": 55, "f": "kwood819-55.jpg", "d": "https://drive.google.com/uc?export=download&id=1itfyypDH_0plSJ84tiEy-qYFRere8fr1"}, {"n": 56, "f": "kwood819-56.jpg", "d": "https://drive.google.com/uc?export=download&id=1qokIHmkDol0WlAnqh6-_WOyEGnr_XNwu"}, {"n": 57, "f": "kwood819-57.jpg", "d": "https://drive.google.com/uc?export=download&id=1KB4mqco5Ndee7JwrTI5vu9U7M-5cV_zW"}, {"n": 58, "f": "kwood819-58.jpg", "d": "https://drive.google.com/uc?export=download&id=1nRzyhwgrn6gvtGjNKq7hRw0Uo5LKCsY_"}, {"n": 59, "f": "kwood819-59.jpg", "d": "https://drive.google.com/uc?export=download&id=1Ev94YcvHd11-XskgX1hsgwX5IugBRJ_n"}, {"n": 60, "f": "kwood819-60.jpg", "d": "https://drive.google.com/uc?export=download&id=1BWaMsIHb58zWDDQTmN4eV8wtla-SCEhH"}, {"n": 61, "f": "kwood819-61.jpg", "d": "https://drive.google.com/uc?export=download&id=1v7pR9-pPtHftC2zjozjSH29Y9sSNIrIY"}, {"n": 62, "f": "kwood819-62.jpg", "d": "https://drive.google.com/uc?export=download&id=1gmY617PiZwVtv5JhwYRPxCQ4falLSZ-8"}, {"n": 63, "f": "kwood819-63.jpg", "d": "https://drive.google.com/uc?export=download&id=1973_L38gSjqD-wXrYOQb3xBs5RQc5YVg"}, {"n": 64, "f": "kwood819-64.jpg", "d": "https://drive.google.com/uc?export=download&id=1Bj2ouSMcHVLieDMLoVT9504HAqNKD9fd"}, {"n": 65, "f": "kwood819-65.jpg", "d": "https://drive.google.com/uc?export=download&id=1T9QbAA8ijfTfRjPbVnZyQ-xM3CYWY9IZ"}, {"n": 66, "f": "kwood819-66.jpg", "d": "https://drive.google.com/uc?export=download&id=1fC3iqXlMW4mMjsHwBbx2CqB6VIyKgCpJ"}, {"n": 67, "f": "kwood819-67.jpg", "d": "https://drive.google.com/uc?export=download&id=1paj8TSabHfLOtL2PZb5YTTmUds177kru"}, {"n": 68, "f": "kwood819-68.jpg", "d": "https://drive.google.com/uc?export=download&id=1XtaUIin6Z1gk24i946v5N94teFrdyzMS"}, {"n": 69, "f": "kwood819-69.jpg", "d": "https://drive.google.com/uc?export=download&id=1uybzai6j0wuE_85GeMmh8fVFzWrCLwIW"}, {"n": 70, "f": "kwood819-70.jpg", "d": "https://drive.google.com/uc?export=download&id=1a4RGQFpycbHY4x--qqnSH-W_4LAaEf3-"}, {"n": 73, "f": "kwood819-73.jpg", "d": "https://drive.google.com/uc?export=download&id=1n1eyIkj_GNSUvjmVYXQwsfyOfT6BaRQw"}, {"n": 74, "f": "kwood819-74.jpg", "d": "https://drive.google.com/uc?export=download&id=1JXFxPEwjGwZ6xlnLKudwMJcbt6KIcROt"}, {"n": 75, "f": "kwood819-75.jpg", "d": "https://drive.google.com/uc?export=download&id=1XpSNokOe2lFS7vg3kMrsQfJSu6uL-2ud"}, {"n": 76, "f": "kwood819-76.jpg", "d": "https://drive.google.com/uc?export=download&id=1llAA7KwYvJUJFQZVmy1QspnQIgHxuRIG"}, {"n": 78, "f": "kwood819-78.jpg", "d": "https://drive.google.com/uc?export=download&id=1T9FLjsRieDs9WKkl3QZMZW51P7g7SJU5"}, {"n": 79, "f": "kwood819-79.jpg", "d": "https://drive.google.com/uc?export=download&id=1DS6GqNcZ_FU1lHkim3vKYDJJzhp_ool0"}, {"n": 80, "f": "kwood819-80.jpg", "d": "https://drive.google.com/uc?export=download&id=1nvpvZXOIj4KVU4tfXSz8p_8PzknuFHlL"}, {"n": 81, "f": "kwood819-81.jpg", "d": "https://drive.google.com/uc?export=download&id=1Qijv_Q71eqPn2ZZR1jYFtUQsbM28JXsL"}, {"n": 82, "f": "kwood819-82.jpg", "d": "https://drive.google.com/uc?export=download&id=1SQyegmqMRZ2QxP36LsW3fC_V432Emg6U"}, {"n": 84, "f": "kwood819-84.jpg", "d": "https://drive.google.com/uc?export=download&id=1gLlWKPNCJI1yay45JopbgvD84NfJhZLJ"}, {"n": 85, "f": "kwood819-85.jpg", "d": "https://drive.google.com/uc?export=download&id=1VWMsgtwf_ii1b_Yg7zyPdnLdRhv0dWu_"}, {"n": 86, "f": "kwood819-86.jpg", "d": "https://drive.google.com/uc?export=download&id=1pFFoXiBVidifdcdGtEhoPhaZ_5cq7oNe"}, {"n": 87, "f": "kwood819-87.jpg", "d": "https://drive.google.com/uc?export=download&id=1gbvYiAXVGmdEGKBxTMA8rbPJhq-Gfpbm"}, {"n": 88, "f": "kwood819-88.jpg", "d": "https://drive.google.com/uc?export=download&id=1iAPhXynuzbXL6y2FgrGwwfeOQH7r6U6d"}, {"n": 89, "f": "kwood819-89.jpg", "d": "https://drive.google.com/uc?export=download&id=10OEL2L7acUPsamitfihXsuKXXKY2q-zb"}, {"n": 90, "f": "kwood819-90.jpg", "d": "https://drive.google.com/uc?export=download&id=12TDeV_4PevkMGTF7sWPVs4MUl0YlXMkO"}, {"n": 91, "f": "kwood819-91.jpg", "d": "https://drive.google.com/uc?export=download&id=1vDycrPzTVXtvvw9L5aHWlwlKRbiJBYIq"}, {"n": 92, "f": "kwood819-92.jpg", "d": "https://drive.google.com/uc?export=download&id=1AXL3fEs42jYwODRGvm01GfxskwBsvNbm"}, {"n": 93, "f": "kwood819-93.jpg", "d": "https://drive.google.com/uc?export=download&id=1CapNghnjT09Si2WpNAsZyi-MLhXJKsYi"}, {"n": 94, "f": "kwood819-94.jpg", "d": "https://drive.google.com/uc?export=download&id=1KsTACP5KPPq_VRyaqZTS8vHNtVVfQIb7"}, {"n": 95, "f": "kwood819-95.jpg", "d": "https://drive.google.com/uc?export=download&id=1JBPKlLtk0lvMFM9EQTTSrf43kdQC0JPS"}, {"n": 96, "f": "kwood819-96.jpg", "d": "https://drive.google.com/uc?export=download&id=1VNw5eYOhzJzyptfVojT92dLslc9KKCKl"}, {"n": 97, "f": "kwood819-97.jpg", "d": "https://drive.google.com/uc?export=download&id=1jqL4_LL9bLMeYlURRkSVIfs26ABR2Ehf"}, {"n": 98, "f": "kwood819-98.jpg", "d": "https://drive.google.com/uc?export=download&id=12YQ7JI7scXm8OeNAObjvWvY7FS0qIH32"}, {"n": 99, "f": "kwood819-99.jpg", "d": "https://drive.google.com/uc?export=download&id=1L1La8_QYkbCu63ZNK_pIwAJuPpn7mp1x"}, {"n": 100, "f": "kwood819-100.jpg", "d": "https://drive.google.com/uc?export=download&id=1C5sQPQFB2QAFeeOiztVHfCkttRXI050u"}, {"n": 101, "f": "kwood819-101.jpg", "d": "https://drive.google.com/uc?export=download&id=19SkhczHrrhKaoNQSb7ZwgtFsZwK9FN9J"}, {"n": 102, "f": "kwood819-102.jpg", "d": "https://drive.google.com/uc?export=download&id=1tEs-9vFrUqm_vA5byRAtmmVlqKIXlI5e"}, {"n": 103, "f": "kwood819-103.jpg", "d": "https://drive.google.com/uc?export=download&id=1PwRQfxc8_hDtEeSax1EhC0A2OJcbrCea"}, {"n": 104, "f": "kwood819-104.jpg", "d": "https://drive.google.com/uc?export=download&id=181Suj0eioefEyxMUW4XG0vrdDrTaNkgf"}, {"n": 105, "f": "kwood819-105.jpg", "d": "https://drive.google.com/uc?export=download&id=1feLoLgzAijmAiUdP6LC-drrtxVrkJxWh"}, {"n": 106, "f": "kwood819-106.jpg", "d": "https://drive.google.com/uc?export=download&id=1bPG2KKfZstx-55nXNvmeK1wy5GQYFbA2"}, {"n": 107, "f": "kwood819-107.jpg", "d": "https://drive.google.com/uc?export=download&id=1Vt63_acyYOo4ARL5opHjWbhe_d0av26x"}, {"n": 108, "f": "kwood819-108.jpg", "d": "https://drive.google.com/uc?export=download&id=1mTMi6F5kyjM_P0K7ynqWzIPM6jOSvRux"}, {"n": 109, "f": "kwood819-109.jpg", "d": "https://drive.google.com/uc?export=download&id=1KTx1CLpo2exVS-s2u4adUXgYHB9HhzXD"}, {"n": 110, "f": "kwood819-110.jpg", "d": "https://drive.google.com/uc?export=download&id=1m5T0ZmhNl57iD_lZEE2DGPG5a4h_mmZ6"}, {"n": 112, "f": "kwood819-112.jpg", "d": "https://drive.google.com/uc?export=download&id=1CX5Mr066Ob8tco0QZPYld1HF37YKXozw"}, {"n": 115, "f": "kwood819-115.jpg", "d": "https://drive.google.com/uc?export=download&id=1b8sYuO5PMr1QeKkco9oMhiAj49nMBiFn"}, {"n": 118, "f": "kwood819-118.jpg", "d": "https://drive.google.com/uc?export=download&id=1HmcX0lcYkwC9btCE5eHkQ_hUEMOlz7BG"}, {"n": 119, "f": "kwood819-119.jpg", "d": "https://drive.google.com/uc?export=download&id=1S9-Z5BXoyUQgHaHumLPDP2NDcBjAcWbY"}, {"n": 121, "f": "kwood819-121.jpg", "d": "https://drive.google.com/uc?export=download&id=1TxDj6VCUJlFL31MLE7dyMUFEqGXqi_Ft"}, {"n": 122, "f": "kwood819-122.jpg", "d": "https://drive.google.com/uc?export=download&id=1Cne6K5pCeqNTKd8-YlrLJiQk6W__15kD"}, {"n": 201, "f": "kwood819_2.jpg", "d": null}, {"n": 202, "f": "kwood819_2-2.jpg", "d": null}, {"n": 203, "f": "kwood819_2-3.jpg", "d": null}, {"n": 204, "f": "kwood819_2-4.jpg", "d": null}, {"n": 205, "f": "kwood819_2-5.jpg", "d": null}, {"n": 206, "f": "kwood819_2-6.jpg", "d": null}], PICKS=[{"n": 104, "f": "kwood819-104.jpg", "d": "https://drive.google.com/uc?export=download&id=181Suj0eioefEyxMUW4XG0vrdDrTaNkgf"}, {"n": 110, "f": "kwood819-110.jpg", "d": "https://drive.google.com/uc?export=download&id=1m5T0ZmhNl57iD_lZEE2DGPG5a4h_mmZ6"}, {"n": 31, "f": "kwood819-31.jpg", "d": "https://drive.google.com/uc?export=download&id=1lJCvkZQrO_ZCaCTXqv36KxVxTgI5H5Lc"}, {"n": 35, "f": "kwood819-35.jpg", "d": "https://drive.google.com/uc?export=download&id=1bR0IxD42jqAbQRsDczKlz9a8dS1cSvwL"}, {"n": 38, "f": "kwood819-38.jpg", "d": "https://drive.google.com/uc?export=download&id=1TiuArEPUYj0f7oWtuF4zlZh2pmxHvqK3"}, {"n": 13, "f": "kwood819-13.jpg", "d": "https://drive.google.com/uc?export=download&id=1jc_OFNZvDAyTFjU-xz353gIntewfCwMU"}, {"n": 108, "f": "kwood819-108.jpg", "d": "https://drive.google.com/uc?export=download&id=1mTMi6F5kyjM_P0K7ynqWzIPM6jOSvRux"}, {"n": 119, "f": "kwood819-119.jpg", "d": "https://drive.google.com/uc?export=download&id=1S9-Z5BXoyUQgHaHumLPDP2NDcBjAcWbY"}, {"n": 88, "f": "kwood819-88.jpg", "d": "https://drive.google.com/uc?export=download&id=1iAPhXynuzbXL6y2FgrGwwfeOQH7r6U6d"}, {"n": 42, "f": "kwood819-42.jpg", "d": "https://drive.google.com/uc?export=download&id=1gz2hZuYh1cDD7nVXBiTdo4slE1P7rh8d"}, {"n": 9, "f": "kwood819-9.jpg", "d": "https://drive.google.com/uc?export=download&id=1TVq7lz70UKIpNE1Y9pXKwa32FJbs3YUn"}, {"n": 10, "f": "kwood819-10.jpg", "d": "https://drive.google.com/uc?export=download&id=18nAdKWcblhB1fpqNZJ2CTsNTgqjRL1bw"}, {"n": 17, "f": "kwood819-17.jpg", "d": "https://drive.google.com/uc?export=download&id=1hcq4FBExh6bZ2UPE_0R60DEEP82d1zPc"}, {"n": 28, "f": "kwood819-28.jpg", "d": "https://drive.google.com/uc?export=download&id=10OhnwmACX5iYHiflBn-9EZD0U5AoU_2v"}, {"n": 33, "f": "kwood819-33.jpg", "d": "https://drive.google.com/uc?export=download&id=1vrqRpl-wVmQqgAcpZ04ncvjaNinjUmtD"}, {"n": 44, "f": "kwood819-44.jpg", "d": "https://drive.google.com/uc?export=download&id=176k67Ga2rdSVslleK_X6c7BOF8QoTw47"}, {"n": 50, "f": "kwood819-50.jpg", "d": "https://drive.google.com/uc?export=download&id=13FA5RrPoBaq9N9323GTeWSDWQIq81UmO"}, {"n": 51, "f": "kwood819-51.jpg", "d": "https://drive.google.com/uc?export=download&id=1RSjaGfGwlonZlyAyi8TVtTjWESW4IBSt"}, {"n": 53, "f": "kwood819-53.jpg", "d": "https://drive.google.com/uc?export=download&id=1zP0xGkY4aMryiNoAuDpg6PQdHGA4z3V6"}, {"n": 54, "f": "kwood819-54.jpg", "d": "https://drive.google.com/uc?export=download&id=145T-AhTKCrO3m_qe7g7dlIXsjxitj2QV"}, {"n": 57, "f": "kwood819-57.jpg", "d": "https://drive.google.com/uc?export=download&id=1KB4mqco5Ndee7JwrTI5vu9U7M-5cV_zW"}, {"n": 59, "f": "kwood819-59.jpg", "d": "https://drive.google.com/uc?export=download&id=1Ev94YcvHd11-XskgX1hsgwX5IugBRJ_n"}, {"n": 62, "f": "kwood819-62.jpg", "d": "https://drive.google.com/uc?export=download&id=1gmY617PiZwVtv5JhwYRPxCQ4falLSZ-8"}, {"n": 63, "f": "kwood819-63.jpg", "d": "https://drive.google.com/uc?export=download&id=1973_L38gSjqD-wXrYOQb3xBs5RQc5YVg"}, {"n": 64, "f": "kwood819-64.jpg", "d": "https://drive.google.com/uc?export=download&id=1Bj2ouSMcHVLieDMLoVT9504HAqNKD9fd"}, {"n": 66, "f": "kwood819-66.jpg", "d": "https://drive.google.com/uc?export=download&id=1fC3iqXlMW4mMjsHwBbx2CqB6VIyKgCpJ"}, {"n": 67, "f": "kwood819-67.jpg", "d": "https://drive.google.com/uc?export=download&id=1paj8TSabHfLOtL2PZb5YTTmUds177kru"}, {"n": 76, "f": "kwood819-76.jpg", "d": "https://drive.google.com/uc?export=download&id=1llAA7KwYvJUJFQZVmy1QspnQIgHxuRIG"}, {"n": 74, "f": "kwood819-74.jpg", "d": "https://drive.google.com/uc?export=download&id=1JXFxPEwjGwZ6xlnLKudwMJcbt6KIcROt"}, {"n": 92, "f": "kwood819-92.jpg", "d": "https://drive.google.com/uc?export=download&id=1AXL3fEs42jYwODRGvm01GfxskwBsvNbm"}, {"n": 95, "f": "kwood819-95.jpg", "d": "https://drive.google.com/uc?export=download&id=1JBPKlLtk0lvMFM9EQTTSrf43kdQC0JPS"}, {"n": 99, "f": "kwood819-99.jpg", "d": "https://drive.google.com/uc?export=download&id=1L1La8_QYkbCu63ZNK_pIwAJuPpn7mp1x"}, {"n": 106, "f": "kwood819-106.jpg", "d": "https://drive.google.com/uc?export=download&id=1bPG2KKfZstx-55nXNvmeK1wy5GQYFbA2"}, {"n": 96, "f": "kwood819-96.jpg", "d": "https://drive.google.com/uc?export=download&id=1VNw5eYOhzJzyptfVojT92dLslc9KKCKl"}, {"n": 5, "f": "kwood819-5.jpg", "d": "https://drive.google.com/uc?export=download&id=1upcVjmDXvuSfOm2MOHtgTN8_6h1YXoTG"}, {"n": 16, "f": "kwood819-16.jpg", "d": "https://drive.google.com/uc?export=download&id=1RYCOQfT_tOwg0IeVzFhJhrjEewUQdMrp"}, {"n": 80, "f": "kwood819-80.jpg", "d": "https://drive.google.com/uc?export=download&id=1nvpvZXOIj4KVU4tfXSz8p_8PzknuFHlL"}, {"n": 90, "f": "kwood819-90.jpg", "d": "https://drive.google.com/uc?export=download&id=12TDeV_4PevkMGTF7sWPVs4MUl0YlXMkO"}, {"n": 107, "f": "kwood819-107.jpg", "d": "https://drive.google.com/uc?export=download&id=1Vt63_acyYOo4ARL5opHjWbhe_d0av26x"}, {"n": 34, "f": "kwood819-34.jpg", "d": "https://drive.google.com/uc?export=download&id=1uqkQzDFVrS2UWp86jPMrRJk2nGdsjFOm"}, {"n": 121, "f": "kwood819-121.jpg", "d": "https://drive.google.com/uc?export=download&id=1TxDj6VCUJlFL31MLE7dyMUFEqGXqi_Ft"}, {"n": 52, "f": "kwood819-52.jpg", "d": "https://drive.google.com/uc?export=download&id=1bFOMcNftVPii8k2VgY4BbOrBHzWTJvPa"}, {"n": 89, "f": "kwood819-89.jpg", "d": "https://drive.google.com/uc?export=download&id=10OEL2L7acUPsamitfihXsuKXXKY2q-zb"}, {"n": 47, "f": "kwood819-47.jpg", "d": "https://drive.google.com/uc?export=download&id=1gU8ETqp6GbxWerAQJBxr8ZcHtUnIv_71"}];
+function $(i){return document.getElementById(i);}
+if("".length>8){$("zipall").style.display="";}
+
+var reader=$("picks");
+PICKS.forEach(function(r){
+  var f=document.createElement("figure");
+  f.innerHTML='<img loading=lazy src="img/present/'+r.f+'" alt="Camp Kingswood, Summer 2026">';
+  f.onclick=function(){openLb(idxOf(r.n));};
+  reader.appendChild(f);});
+
+var grid=$("grid"), sel={}, selMode=false;
+ALL.forEach(function(r,i){
+  var c=document.createElement("div");c.className="c";c.dataset.n=r.n;
+  c.innerHTML='<img loading=lazy src="img/thumb/'+r.f+'" alt="frame '+r.n+'">'+
+              '<span class=n>'+r.n+'</span>';
+  c.onclick=function(){
+    if(selMode){ if(sel[r.n])delete sel[r.n];else sel[r.n]=1;
+      c.className=sel[r.n]?"c on":"c";paintSel();return;}
+    openLb(i);};
+  grid.appendChild(c);});
+function idxOf(n){for(var i=0;i<ALL.length;i++)if(ALL[i].n===n)return i;return 0;}
+
+function paintSel(){var k=Object.keys(sel).length;
+  $("selct").textContent=k+" selected";$("selget").disabled=!k;}
+$("selmode").onclick=function(){selMode=true;document.body.className="sel";};
+$("seldone").onclick=function(){selMode=false;document.body.className="";
+  sel={};document.querySelectorAll(".grid .c.on").forEach(function(c){c.className="c";});paintSel();};
+$("selget").onclick=function(){
+  var rows=$("getrows");rows.innerHTML="";
+  ALL.filter(function(r){return sel[r.n];}).forEach(function(r){
+    var d=document.createElement("div");d.className="row";
+    d.innerHTML='<b>#'+r.n+'</b><a href="img/present/'+r.f+'" download>Web</a>'+
+      (r.d?'<a href="'+r.d+'" target=_blank rel=noopener>Full res</a>':'');
+    rows.appendChild(d);});
+  $("getlist").className="on";};
+document.querySelector("#getlist .x").onclick=function(){$("getlist").className="";};
+
+var cur=0;
+function openLb(i){cur=i;paintLb();$("lb").className="on";}
+function paintLb(){if(cur<0)cur=ALL.length-1;if(cur>=ALL.length)cur=0;
+  var r=ALL[cur];$("lbi").src="img/present/"+r.f;
+  $("lbm").textContent="#"+r.n+"  \u00b7  "+(cur+1)+" / "+ALL.length;
+  $("lbw").href="img/present/"+r.f;$("lbw").setAttribute("download",r.f);
+  $("lbf").href=r.d||"https://drive.google.com/drive/folders/1XqShLle7YVldJ6zmcd36SLBIZ_auyHYL";}
+document.querySelector("#lb .zl").onclick=function(){cur--;paintLb();};
+document.querySelector("#lb .zr").onclick=function(){cur++;paintLb();};
+document.querySelector("#lb .x").onclick=function(){$("lb").className="";};
+
+var sIdx=0,sTimer=null,sFront=null;
+function sRender(){if(sIdx<0)sIdx=PICKS.length-1;if(sIdx>=PICKS.length)sIdx=0;
+  var inc=(sFront===$("sa"))?$("sb"):$("sa"),out=(sFront===$("sa"))?$("sa"):$("sb");
+  inc.className="";void inc.offsetWidth;
+  inc.onload=function(){inc.className="show";out.className="";sFront=inc;};
+  inc.src="img/present/"+PICKS[sIdx].f;
+  if(inc.complete)inc.onload();}
+function sTick(){sTimer=setTimeout(function(){sIdx++;sRender();sTick();},5000);}
+function sEnd(){clearTimeout(sTimer);$("stage").className="";}
+$("play").onclick=function(){sIdx=0;sFront=null;
+  $("sa").className="";$("sb").className="";$("stage").className="on";sRender();sTick();};
+document.querySelector("#stage .x").onclick=sEnd;
+document.querySelector("#stage .zl").onclick=function(){clearTimeout(sTimer);sIdx--;sRender();sTick();};
+document.querySelector("#stage .zr").onclick=function(){clearTimeout(sTimer);sIdx++;sRender();sTick();};
+document.addEventListener("keydown",function(e){
+  if($("stage").className==="on"){
+    if(e.key==="Escape")sEnd();
+    else if(e.key==="ArrowRight"){clearTimeout(sTimer);sIdx++;sRender();sTick();}
+    else if(e.key==="ArrowLeft"){clearTimeout(sTimer);sIdx--;sRender();sTick();}
+    return;}
+  if($("lb").className==="on"){
+    if(e.key==="Escape")$("lb").className="";
+    else if(e.key==="ArrowRight"){cur++;paintLb();}
+    else if(e.key==="ArrowLeft"){cur--;paintLb();}}});
+</script>
+<script data-goatcounter="https://abbaphoto.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body></html>
