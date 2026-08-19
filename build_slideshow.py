@@ -122,9 +122,9 @@ input[type=range]{flex:1;accent-color:#e2a73e}
 #golive:hover{background:#ecb654}
 .hint{font-size:12px;color:#7a7060;margin-top:12px;line-height:1.55}
 
-#stage{position:fixed;inset:0;background:#0a0806;display:none;z-index:20}
+#stage{position:fixed;inset:0;background:#000;display:none;z-index:20}
 #stage.on{display:block}
-#stage img{position:absolute;inset:0;margin:auto;max-width:100vw;max-height:100vh;
+#stage img{position:absolute;inset:0;width:100%;height:100%;
            object-fit:contain;opacity:0;transition:opacity var(--fade,900ms) ease}
 #stage img.show{opacity:1}
 #stage img.drift{animation:drift var(--driftms,14s) ease-out forwards}
