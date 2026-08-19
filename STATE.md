@@ -50,6 +50,7 @@ wait on his hours; the loop answers while he is dark. Text messages to the owner
 owner relays them (screenshot or paste) to the same inbox.
 
 ## Log
+- 2026-08-19 (owner dispositions, by voice): ALL 121 deliver; the two B&W and every flagged frame stay ("No objections to the frames. They look great."); Jodi decides usage, "there's more than she needs here." Frame 16 tagged POTENTIAL COVER WITH TEXT (heard as "sixty," read as sixteen from context; owner corrects if 60 was meant). DRAFT forty_two.json written (Claude's proposed 12 scapes + 30 candids) awaiting owner's kill/swap pass on the review gallery. Masters copy EXIF-processed at ~/Desktop/ABBA/kingswood/masters_delivery, ready for owner's Drive upload. Open before build: releases decision, Drive share link.
 - 2026-08-19: Evaluative pass run on the 121 (contact sheets + full-res floor checks). Set opinion delivered in session; internal review gallery published (private artifact). Files at ~/Abba_Photo/kwood819; img/ tiers ingested locally, NOT committed (faces, releases open).
 - 2026-08-18: Delivery scaffold built ahead of Aug 23: build_delivery.py (ingest/build/zip, hard RELEASES GATE per the line above), delivery.template.html, process_masters.sh (EXIF strip+stack per the skill), DELIVERY_RUNBOOK.md. Pipeline smoke-tested end to end with dummy frames and cleaned. Nothing live changed; delivery.html does not exist until delivery day.
 - 2026-08-08 (on site, Noah dictating, day three, fourth pass): THE GUIDE IS A STARTING
