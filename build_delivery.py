@@ -18,12 +18,9 @@ Three commands, in delivery-day order:
     python3 build_delivery.py zip
         Builds downloads/kingswood_web.zip from img/present.
 
-THE RELEASES GATE (STATE.md: releases NOT confirmed as of 8/18): `build`
-refuses to run until _work/releases.txt exists and states the decision, e.g.
-"confirmed 2026-08-22 by Jodi, email on file" or "place-only delivery".
-No camper or minor faces reach this public repo without that line. If releases
-are still open on delivery day, the page ships place-only frames and the full
-set goes by Drive links alone.
+RELEASES: not connected to this delivery (Noah, 2026-08-19). The delivery is a
+camp receiving photographs of its own community, and the camp holds that
+relationship. The build carries no releases gate.
 
 Inputs the day supplies:
     forty_two.json   ["<filename>.jpg", ...] in Noah's presentation order
@@ -81,11 +78,10 @@ def card(fname):
 
 
 def build():
-    if not os.path.exists(GATE):
-        sys.exit("RELEASES GATE: _work/releases.txt missing. STATE.md says releases "
-                 "are NOT confirmed. Write the decision line to that file first "
-                 "(who confirmed, when, or 'place-only delivery'), then build.")
-    print(f"releases gate: {open(GATE).read().strip()}")
+    # Releases are NOT connected to this delivery (Noah, 2026-08-19). Delivering a
+    # camp photographs of its own community is not publication; the camp holds the
+    # relationship with its families. No gate here. A frame moving to one of Noah's
+    # own promotional surfaces is a separate question, decided separately.
     forty = json.load(open(os.path.join(HERE, "forty_two.json")))
     links = json.load(open(os.path.join(HERE, "links.json")))
     present = sorted(os.listdir(os.path.join(IMG, "present")))

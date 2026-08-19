@@ -3,13 +3,11 @@
 Scaffolded 2026-08-18 so delivery day is one hour of mechanics, not a build.
 Everything below is tooling in this repo; nothing is live until step 7 pushes.
 
-## Before anything: the releases gate
-STATE.md (8/18): releases NOT confirmed. No camper or minor faces reach this
-public repo without a decision. Write the decision to `_work/releases.txt`
-("confirmed <date> by Jodi, <where it is on file>" or "place-only delivery").
-`build_delivery.py build` refuses to run until that file exists. If releases
-are still open Sunday, the page carries place-only frames and the full set
-goes by Drive links alone.
+## Releases
+Not connected to this delivery (Noah, 2026-08-19). The camp is receiving
+photographs of its own community and holds that relationship. No gate in the
+build. A frame moving to one of Noah's own promotional surfaces is a separate
+decision, made separately.
 
 ## The day, in order
 1. Noah exports the cull from Lightroom, sRGB, full resolution, one folder.
