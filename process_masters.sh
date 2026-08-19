@@ -1,15 +1,22 @@
 #!/bin/zsh
-# EXIF strip-and-stack for the Kingswood full-resolution masters, per the
-# photo-web-processing skill. Run on the masters folder BEFORE Drive upload.
-#   ./process_masters.sh /path/to/masters
+# EXIF strip-and-stack for Camp Kingswood image sets, per the photo-web-processing
+# skill. Run on the masters folder BEFORE Drive upload, and on every derived tier
+# after generation (Pillow drops metadata on save).
+#   ./process_masters.sh /path/to/folder
 # Strips everything including Lightroom tags and the C2PA manifest (lossless,
-# pixels untouched), then writes the searchable credit set in ONE pass
+# pixels untouched), then writes the searchable credit + location set in ONE pass
 # (keywords replace, never append; the complete list goes in a single command).
 # NO caption or description fields, ever: the frame is never narrated.
 set -e
 DIR="$1"
-[ -d "$DIR" ] || { echo "usage: process_masters.sh /path/to/masters"; exit 1; }
+[ -d "$DIR" ] || { echo "usage: process_masters.sh /path/to/folder"; exit 1; }
 command -v exiftool >/dev/null || { echo "exiftool not installed (brew install exiftool)"; exit 1; }
+
+# Location, added 2026-08-19. Coordinates geocoded from the camp's own published
+# street address (104 Wildwood Road, Bridgton, ME 04009); the camera wrote no GPS.
+# Nothing here is private: the camp publishes this address itself.
+LAT=44.027979
+LON=70.723265   # west, sign carried by GPSLongitudeRef
 
 exiftool -all= --icc_profile:all -overwrite_original "$DIR"
 
@@ -21,7 +28,36 @@ exiftool -overwrite_original \
   -XMP-xmpRights:Marked=True \
   -XMP-xmpRights:WebStatement="https://www.abba-photo.com" \
   -XMP-iptcCore:CreatorWorkURL="https://www.abba-photo.com" \
-  -IPTC:City="Bridgton" -IPTC:Province-State="Maine" -IPTC:Country-PrimaryLocationName="United States" \
+  -XMP-iptcCore:CreatorWorkEmail="noah@abba-photo.com" \
+  -XMP-plus:ImageCreatorName="Noah Gallagher" \
+  -XMP-plus:CopyrightOwnerName="Noah Gallagher, Abba Photo" \
+  -XMP-plus:LicensorName="Abba Photo" \
+  -XMP-plus:LicensorURL="https://www.abba-photo.com" \
+  -XMP-plus:LicensorEmail="noah@abba-photo.com" \
+  -XMP-iptcExt:DigitalSourceType="http://cv.iptc.org/newscodes/digitalsourcetype/digitalCapture" \
+  -IPTC:City="Bridgton" -IPTC:Province-State="Maine" \
+  -IPTC:Country-PrimaryLocationName="United States" \
+  -IPTC:Country-PrimaryLocationCode="USA" \
+  -IPTC:Sub-location="Camp Kingswood" \
+  -XMP-photoshop:City="Bridgton" -XMP-photoshop:State="Maine" \
+  -XMP-photoshop:Country="United States" \
+  -EXIF:GPSLatitude="$LAT" -EXIF:GPSLatitudeRef=N \
+  -EXIF:GPSLongitude="$LON" -EXIF:GPSLongitudeRef=W \
+  -XMP:GPSLatitude="$LAT" -XMP:GPSLongitude="-$LON" \
+  -XMP-iptcExt:LocationCreatedSublocation="Camp Kingswood" \
+  -XMP-iptcExt:LocationCreatedCity="Bridgton" \
+  -XMP-iptcExt:LocationCreatedProvinceState="Maine" \
+  -XMP-iptcExt:LocationCreatedCountryName="United States" \
+  -XMP-iptcExt:LocationCreatedCountryCode="US" \
+  -XMP-iptcExt:LocationCreatedGPSLatitude="$LAT" \
+  -XMP-iptcExt:LocationCreatedGPSLongitude="-$LON" \
+  -XMP-iptcExt:LocationShownSublocation="Camp Kingswood" \
+  -XMP-iptcExt:LocationShownCity="Bridgton" \
+  -XMP-iptcExt:LocationShownProvinceState="Maine" \
+  -XMP-iptcExt:LocationShownCountryName="United States" \
+  -XMP-iptcExt:LocationShownCountryCode="US" \
+  -XMP-iptcExt:LocationShownGPSLatitude="$LAT" \
+  -XMP-iptcExt:LocationShownGPSLongitude="-$LON" \
   -IPTC:Keywords="Camp Kingswood" -IPTC:Keywords="campkingswood.org" \
   -IPTC:Keywords="Bridgton Maine" -IPTC:Keywords="Jewish summer camp" \
   -IPTC:Keywords="summer camp photography" -IPTC:Keywords="Abba Photo" \
@@ -35,4 +71,7 @@ exiftool -overwrite_original \
   "$DIR"
 
 echo "verify one file:"
-exiftool -By-line -Credit -Keywords -Caption-Abstract -Software "$DIR"/*.jpg(N[1])
+exiftool -By-line -Credit -CopyrightNotice -CreatorWorkURL -CreatorWorkEmail \
+  -ImageCreatorName -CopyrightOwnerName -LicensorName -DigitalSourceType \
+  -Sub-location -GPSPosition -Keywords \
+  -Caption-Abstract -Software "$DIR"/*.jpg(N[1])
