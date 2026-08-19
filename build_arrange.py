@@ -78,9 +78,9 @@ def build(mode):
         src = {}
         for n, f in by_num.items():
             im = Image.open(os.path.join(PRESENT, f))
-            im.thumbnail((700, 700), Image.LANCZOS)
+            im.thumbnail((560, 560), Image.LANCZOS)
             buf = io.BytesIO()
-            im.save(buf, "JPEG", quality=68, optimize=True)
+            im.save(buf, "JPEG", quality=63, optimize=True)
             # One copy per frame, not two: the viewer falls back to the thumb source.
             # Storing it under both keys doubled the page and blew the size ceiling.
             src[n] = {"t": "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode()}

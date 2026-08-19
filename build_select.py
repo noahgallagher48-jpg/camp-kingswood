@@ -46,9 +46,9 @@ def build(mode):
         from PIL import Image
         for f in files:
             im = Image.open(os.path.join(PRESENT, f))
-            im.thumbnail((760, 760), Image.LANCZOS)
+            im.thumbnail((560, 560), Image.LANCZOS)
             buf = io.BytesIO()
-            im.save(buf, "JPEG", quality=68, optimize=True)
+            im.save(buf, "JPEG", quality=63, optimize=True)
             srcs[f] = "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode()
     else:
         for f in files:
