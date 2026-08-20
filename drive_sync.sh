@@ -2,64 +2,49 @@
 # Make the client's Drive delivery folder match the local pool, exactly.
 #
 #   ./drive_sync.sh check     what differs, changes nothing
-#   ./drive_sync.sh push      upload changed/new, trash what is not in the pool
+#   ./drive_sync.sh push      copy the pool up (overwrite in place)
 #
 # WHY THIS EXISTS: dragging files by hand leaves the folder silently stale.
-# Twice now the Drive copies were a build behind the local masters (first the
+# Twice the Drive copies were a build behind the local masters (first the
 # unprocessed export, then the pre-credential metadata). The folder is the
 # client's "All full res" link, so stale there means the client gets the wrong
-# files while every local check says fine. This script is the answer: one
-# command, the folder matches, and `check` proves it.
+# files while every local check says fine.
 #
-# ACCOUNT REQUIREMENT (the thing that blocks a fresh machine):
-# the delivery folder is owned by noah@abba-photo.com. A remote authenticated
-# as any other Google account can READ it (it is shared "anyone: reader") and
-# will fail every write with 403 insufficientFilePermissions. Configure the
-# right account once:
-#     rclone config          # new remote named "abba", type drive, sign in AS
-#                            # noah@abba-photo.com, scope: drive
-# Or add noah@abba-photo.com in Google Drive for Desktop, which makes the
-# folder a plain local path and this script unnecessary for uploads.
+# Drive is a LOCAL MOUNT since 2026-08-19 (Drive for Desktop, account
+# noah@abba-photo.com), so this is plain cp. Overwriting preserves Drive file
+# IDs, which is why the delivery page's per-frame links survive a resync.
+#
+# DELETIONS ARE NOT DONE HERE. Removing files is refused by the Claude Code
+# auto-mode classifier, so `check` REPORTS what should come out and stops.
+# Noah removes those, or adds a Bash permission rule.
 set -e
 CMD="${1:-check}"
-REMOTE="${ABBA_DRIVE_REMOTE:-abba}"
-FOLDER_ID="1XqShLle7YVldJ6zmcd36SLBIZ_auyHYL"
-POOL="$HOME/Desktop/ABBA/kingswood/DRIVE_UPLOAD_117"   # built by build_delivery.py pool
-R="$REMOTE: --drive-root-folder-id=$FOLDER_ID"
+DRIVE="$HOME/Library/CloudStorage/GoogleDrive-noah@abba-photo.com/My Drive/Kingswood/kwood819"
+POOL="$HOME/Desktop/ABBA/kingswood/DRIVE_UPLOAD_117"
 
-command -v rclone >/dev/null || { echo "rclone not installed"; exit 1; }
-[ -d "$POOL" ] || { echo "pool folder missing: $POOL"; exit 1; }
-rclone listremotes | grep -q "^${REMOTE}:$" || {
-  echo "no rclone remote named '$REMOTE'. See ACCOUNT REQUIREMENT at the top of this file."
-  exit 1; }
+[ -d "$POOL" ]  || { echo "pool folder missing: $POOL"; exit 1; }
+[ -d "$DRIVE" ] || { echo "Drive not mounted at: $DRIVE
+Add noah@abba-photo.com in Google Drive for Desktop."; exit 1; }
 
-echo "local pool: $(ls "$POOL"/*.jpg | wc -l | tr -d ' ') files"
+echo "pool:  $(ls "$POOL"/*.jpg | wc -l | tr -d ' ') files"
+echo "drive: $(ls "$DRIVE"/*.jpg 2>/dev/null | wc -l | tr -d ' ') files"
 
 case "$CMD" in
   check)
-    echo "--- differences (local vs Drive), nothing is changed:"
-    rclone check "$POOL" ${=R} --size-only --one-way 2>&1 | grep -vE "client_id|^$" || true
-    echo "--- files on Drive that are NOT in the pool (these would be trashed):"
-    comm -13 <(ls "$POOL" | sort) <(rclone lsf ${=R} 2>/dev/null | sort)
+    echo "--- differ or missing on Drive:"
+    for f in "$POOL"/*.jpg; do
+      n=$(basename "$f"); d="$DRIVE/$n"
+      if [ ! -f "$d" ]; then echo "   MISSING  $n"
+      elif [ "$(stat -f%z "$f")" != "$(stat -f%z "$d")" ]; then echo "   DIFFERS  $n"; fi
+    done
+    echo "--- on Drive but not in the pool (should be removed, Noah's call):"
+    for f in "$DRIVE"/*.jpg; do
+      n=$(basename "$f"); [ -f "$POOL/$n" ] || echo "   EXTRA    $n"
+    done
     ;;
   push)
-    # --ignore-times: metadata-only edits do not change size, so a size/time
-    # comparison would skip them. Every credential restack must re-upload.
-    # rclone updates an existing name IN PLACE, so Drive file IDs survive and
-    # the delivery page's per-frame links keep working.
-    echo "--- uploading (IDs preserved, metadata-only changes included):"
-    rclone copy "$POOL" ${=R} --ignore-times --progress 2>&1 | grep -v client_id
-    echo "--- trashing what is not in the pool (recoverable from Drive trash):"
-    rclone lsf ${=R} 2>/dev/null | sort > /tmp/_drive_now.$$
-    ls "$POOL" | sort > /tmp/_pool_now.$$
-    comm -13 /tmp/_pool_now.$$ /tmp/_drive_now.$$ | while read -r f; do
-      case "$f" in
-        *.zip) echo "   keeping $f (zip lives here on purpose)" ;;
-        *)     echo "   trashing $f"; rclone delete "${REMOTE}:$f" --drive-root-folder-id="$FOLDER_ID" ;;
-      esac
-    done
-    rm -f /tmp/_drive_now.$$ /tmp/_pool_now.$$
-    echo "--- verifying:"
+    cp "$POOL"/*.jpg "$DRIVE"/
+    echo "copied $(ls "$POOL"/*.jpg | wc -l | tr -d ' ') files (IDs preserved)"
     "$0" check
     ;;
   *) echo "usage: drive_sync.sh [check|push]"; exit 1 ;;
