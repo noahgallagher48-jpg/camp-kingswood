@@ -36,9 +36,7 @@ FOLDER_URL = "https://drive.google.com/drive/folders/1XqShLle7YVldJ6zmcd36SLBIZ_
 # click Download in Drive's own UI, which handles the confirmation.
 #   https://drive.google.com/file/d/<id>/view
 # The uc form is still correct for the per-frame masters; those are under the limit.
-# Currently EMPTY on purpose: the zip on Drive predates the credential stack, and a
-# delivered file without the credit block is the thing this build exists to prevent.
-ZIP_URL = ""
+ZIP_URL = "https://drive.google.com/file/d/1RZ2ykFNMpubJC84WznWllI0ugxsVr5Rd/view"
 
 
 def frame_no(f):
