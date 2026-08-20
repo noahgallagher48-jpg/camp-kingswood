@@ -29,14 +29,16 @@ PAGE_OUT = os.path.join(HERE, "delivery.html")
 ARR = os.path.join(HERE, "_work", "arrangement_kw.json")
 DRIVE_IDS = os.path.join(HERE, "_work", "drive_ids_kw.json")
 FOLDER_URL = "https://drive.google.com/drive/folders/1XqShLle7YVldJ6zmcd36SLBIZ_auyHYL"
-# Zip link, once the CORRECT (credential-stacked) pool zip is on Drive.
-# USE THE FILE-VIEW FORM, NOT uc?export=download: Drive cannot virus-scan a file
-# this large, so the uc link serves a "Virus scan warning" interstitial instead of
-# the zip (verified 2026-08-19 on the 372MB pool zip). The view URL lets the client
-# click Download in Drive's own UI, which handles the confirmation.
-#   https://drive.google.com/file/d/<id>/view
-# The uc form is still correct for the per-frame masters; those are under the limit.
-ZIP_URL = "https://drive.google.com/file/d/1RZ2ykFNMpubJC84WznWllI0ugxsVr5Rd/view"
+# Zip link. NOT DRIVE, for a large file: Drive cannot virus-scan anything this
+# big, so uc?export=download serves a "Virus scan warning" page, and the
+# file-view form makes the client click Download a SECOND time. Noah, 2026-08-19:
+# "I have to click twice to get to the thing, and that can't happen."
+# A GitHub release asset streams the bytes on the first click (verified: 206,
+# application/octet-stream) with no wrapper and no account. Zips ship from
+# releases; per-frame masters stay on Drive, where uc?export=download is a real
+# one-click download under the ~100MB scan limit.
+ZIP_URL = ("https://github.com/noahgallagher48-jpg/camp-kingswood/releases/"
+           "download/kingswood-2026-web/kingswood_web.zip")
 
 
 def frame_no(f):
