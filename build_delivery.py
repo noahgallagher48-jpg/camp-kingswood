@@ -29,7 +29,16 @@ PAGE_OUT = os.path.join(HERE, "delivery.html")
 ARR = os.path.join(HERE, "_work", "arrangement_kw.json")
 DRIVE_IDS = os.path.join(HERE, "_work", "drive_ids_kw.json")
 FOLDER_URL = "https://drive.google.com/drive/folders/1XqShLle7YVldJ6zmcd36SLBIZ_auyHYL"
-ZIP_URL = ""  # Drive uc?export=download url once the pool zip is uploaded
+# Zip link, once the CORRECT (credential-stacked) pool zip is on Drive.
+# USE THE FILE-VIEW FORM, NOT uc?export=download: Drive cannot virus-scan a file
+# this large, so the uc link serves a "Virus scan warning" interstitial instead of
+# the zip (verified 2026-08-19 on the 372MB pool zip). The view URL lets the client
+# click Download in Drive's own UI, which handles the confirmation.
+#   https://drive.google.com/file/d/<id>/view
+# The uc form is still correct for the per-frame masters; those are under the limit.
+# Currently EMPTY on purpose: the zip on Drive predates the credential stack, and a
+# delivered file without the credit block is the thing this build exists to prevent.
+ZIP_URL = ""
 
 
 def frame_no(f):
