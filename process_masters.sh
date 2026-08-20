@@ -18,7 +18,17 @@ command -v exiftool >/dev/null || { echo "exiftool not installed (brew install e
 LAT=44.027979
 LON=70.723265   # west, sign carried by GPSLongitudeRef
 
-exiftool -all= --icc_profile:all -overwrite_original "$DIR"
+# Strip Lightroom/C2PA, but KEEP the capture facts. Plain -all= also erased
+# the date, camera, lens and exposure; the Kingswood set shipped without them
+# before this was caught (2026-08-20). The client archive needs those.
+exiftool -all= --icc_profile:all \
+  -tagsfromfile @ \
+  -EXIF:DateTimeOriginal -EXIF:CreateDate -EXIF:ModifyDate \
+  -EXIF:Make -EXIF:Model -EXIF:LensModel -EXIF:LensMake -EXIF:LensInfo \
+  -EXIF:ISO -EXIF:FNumber -EXIF:ExposureTime -EXIF:FocalLength \
+  -EXIF:FocalLengthIn35mmFormat -EXIF:ExposureProgram -EXIF:ExposureCompensation \
+  -EXIF:MeteringMode -EXIF:Flash -EXIF:Orientation -EXIF:ColorSpace \
+  -overwrite_original "$DIR"
 
 exiftool -overwrite_original \
   -IPTC:By-line="Noah Gallagher" -XMP-dc:Creator="Noah Gallagher" \
