@@ -104,11 +104,23 @@ def make_zip():
 def build():
     by_num, keep, picks = pool()
     drive = json.load(open(DRIVE_IDS)) if os.path.exists(DRIVE_IDS) else {}
+    # Print guidance is a STANDING component of every client delivery page
+    # (Noah, 2026-08-19), sized off the master's true resolution and limited to
+    # sizes a client can buy without a custom order. Shared rules so every
+    # engagement gives the same answer: dashboard/tools/print_sizes.py
+    sys.path.insert(0, os.path.expanduser("~/Abba_Photo/dashboard/tools"))
+    from print_sizes import print_line
+    dims = json.load(open(os.path.join(HERE, "_work", "dims_kw.json")))
+
     def rec(n):
         f = by_num[n]
         d = drive.get(f)
+        w, h = dims.get(f, (0, 0))
+        p = print_line(w, h) if w else {"metal": None, "paper": None,
+                                        "canvas": None, "note": None}
         return {"n": n, "f": f,
-                "d": f"https://drive.google.com/uc?export=download&id={d}" if d else None}
+                "d": f"https://drive.google.com/uc?export=download&id={d}" if d else None,
+                "p": [p["metal"], p["paper"], p["canvas"]], "pn": p["note"]}
     data_all = [rec(n) for n in keep]
     data_picks = [rec(n) for n in picks]
     html = (PAGE.replace("__ALL__", json.dumps(data_all))
@@ -216,6 +228,13 @@ body.sel #selbar{display:flex}
 #lb .bar{position:absolute;bottom:0;left:0;right:0;z-index:3;display:flex;gap:12px;align-items:center;
          justify-content:center;padding:14px;background:linear-gradient(transparent,rgba(0,0,0,.75))}
 #lb .bar .m{font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:12px;color:#9CAABF}
+#lb .bar .sz{font-size:12px;color:#C9D2DF}
+#lb .bar .sz b{color:#fff;font-weight:600}
+#getlist .row .sz{font-size:11.5px;color:var(--muted);flex-basis:100%;margin-top:2px}
+#getlist .row{flex-wrap:wrap}
+.printnote{max-width:720px;margin:26px auto 0;padding:14px 18px;border:1px solid var(--line);
+     border-radius:5px;color:var(--muted);font-size:13px;line-height:1.6}
+.printnote b{color:var(--ink);font-weight:600}
 #lb .bar a{font-size:12px;border:1px solid rgba(240,74,14,.6);border-radius:4px;padding:6px 13px}
 
 #stage{position:fixed;inset:0;z-index:50;background:#000;display:none}
@@ -255,6 +274,13 @@ body.sel #selbar{display:flex}
   <div class=grid id=grid></div>
 </div>
 
+<p class=printnote>Every frame carries the largest size it prints at on each material:
+<b>metal</b> and <b>acrylic</b> hold the most detail and ask the most resolution,
+<b>photo paper</b> a little less, <b>canvas</b> least because the weave and the
+viewing distance forgive it. These are stock sizes, orderable as listed with no
+custom cutting, and each one matches that frame's own proportions, so nothing is
+cropped to fit. A few frames print true only as a custom cut; those say so.</p>
+
 <footer>
   <span>Photographs by Noah Gallagher</span>
   <span>Abba Photo &middot; <a href="https://www.abba-photo.com" target=_blank rel=noopener>abba-photo.com</a></span>
@@ -266,14 +292,15 @@ body.sel #selbar{display:flex}
 
 <div id=getlist><button class=x type=button aria-label=Close>&times;</button>
   <div class=inner><h3>Your frames</h3>
-  <p>Web is sized for screens and social; full res is the print file, from Drive.</p>
+  <p>Web is sized for screens and social; full res is the print file, from Drive.
+     Each frame lists the largest size it prints at on each material.</p>
   <div id=getrows></div></div></div>
 
 <div id=lb><img id=lbi alt="Camp Kingswood, Bridgton, Maine, Summer 2026">
   <button class="zone zl" type=button aria-label=Previous></button>
   <button class="zone zr" type=button aria-label=Next></button>
   <button class=x type=button aria-label=Close>&times;</button>
-  <div class=bar><span class=m id=lbm></span><a id=lbw download>Web</a><a id=lbf target=_blank rel=noopener>Full res</a></div>
+  <div class=bar><span class=m id=lbm></span><span class=sz id=lbsz></span><a id=lbw download>Web</a><a id=lbf target=_blank rel=noopener>Full res</a></div>
 </div>
 
 <div id=stage><img id=sa alt=""><img id=sb alt="">
@@ -285,6 +312,15 @@ body.sel #selbar{display:flex}
 <script>
 var ALL=__ALL__, PICKS=__PICKS__;
 function $(i){return document.getElementById(i);}
+// Largest size each frame prints at, off the master file, in sizes orderable
+// without a custom cut. Absent when the frame's proportions have no true
+// standard size; it says so rather than implying a crop.
+function printText(r){
+  if(r.pn) return r.pn;
+  var m=["metal","paper","canvas"],out=[];
+  for(var i=0;i<3;i++) if(r.p[i]) out.push("<b>"+r.p[i].replace("x","\\u00d7")+"\\u2033</b> "+m[i]);
+  return out.length? "Prints to "+out.join(" \\u00b7 ") : "";
+}
 if("__ZIP__".length>8){$("zipall").style.display="";}
 
 var reader=$("picks");
@@ -316,7 +352,8 @@ $("selget").onclick=function(){
   ALL.filter(function(r){return sel[r.n];}).forEach(function(r){
     var d=document.createElement("div");d.className="row";
     d.innerHTML='<b>#'+r.n+'</b><a href="img/web/'+r.f+'" download>Web</a>'+
-      (r.d?'<a href="'+r.d+'" target=_blank rel=noopener>Full res</a>':'');
+      (r.d?'<a href="'+r.d+'" target=_blank rel=noopener>Full res</a>':'')+
+      '<span class=sz>'+printText(r)+'</span>';
     rows.appendChild(d);});
   $("getlist").className="on";};
 document.querySelector("#getlist .x").onclick=function(){$("getlist").className="";};
@@ -326,6 +363,7 @@ function openLb(i){cur=i;paintLb();$("lb").className="on";}
 function paintLb(){if(cur<0)cur=ALL.length-1;if(cur>=ALL.length)cur=0;
   var r=ALL[cur];$("lbi").src="img/present/"+r.f;
   $("lbm").textContent="#"+r.n+"  \\u00b7  "+(cur+1)+" / "+ALL.length;
+  $("lbsz").innerHTML=printText(r);
   $("lbw").href="img/web/"+r.f;$("lbw").setAttribute("download",r.f);
   $("lbf").href=r.d||"__FOLDER__";}
 document.querySelector("#lb .zl").onclick=function(){cur--;paintLb();};
