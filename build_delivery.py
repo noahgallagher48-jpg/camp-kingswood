@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """Builds the Camp Kingswood delivery page (delivery.html), in the shape of the
-Interlaken delivery page, in Kingswood's own colors (their site: deep navy
-#112337, vermilion #DB3A00, warm white #F3F1EC). Rebuilt 2026-08-19.
+Interlaken delivery page, wearing the camp's OWN brand: ground #062A40,
+vermilion #DB3A00, warm white #F3F1EC, typeface Raleway. Those values were read
+off campkingswood.org's live computed styles on 2026-08-20, replacing colours I
+had matched by eye (the ground was wrong: #112337 vs their #062A40).
 
 The pool comes from the owner's arrangement (_work/arrangement_kw.json): every
 frame EXCEPT the set-aside ten (replaced by the _2 re-edits, his call 8/19).
@@ -139,17 +141,27 @@ PAGE = """<!DOCTYPE html><html lang=en><head><meta charset=utf-8>
 <meta name=viewport content="width=device-width,initial-scale=1">
 <meta name=robots content=noindex>
 <title>Camp Kingswood &middot; Summer 2026</title><style>
-:root{--ground:#0E1B2C;--panel:#16273C;--line:rgba(243,241,236,.13);
+/* The camp's own brand, read off campkingswood.org's live computed styles
+   2026-08-20, not eyeballed: ground #062A40, accent #DB3A00, warm white
+   #F3F1EC, typeface Raleway (400/600/800). Noah's rule: when the client has a
+   palette and a face, the delivery wears theirs, not ours. */
+@font-face{font-family:Raleway;src:url(fonts/raleway-400.woff2) format('woff2');
+           font-weight:400;font-display:swap}
+@font-face{font-family:Raleway;src:url(fonts/raleway-600.woff2) format('woff2');
+           font-weight:600;font-display:swap}
+@font-face{font-family:Raleway;src:url(fonts/raleway-800.woff2) format('woff2');
+           font-weight:800;font-display:swap}
+:root{--ground:#062A40;--panel:#0C3A55;--line:rgba(243,241,236,.13);
       --ink:#F3F1EC;--muted:#9CAABF;--faint:#6E7E94;--accent:#DB3A00;--accent2:#F04A0E}
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:var(--ground);color:var(--ink);
-     font-family:"Avenir Next",Avenir,-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;
+     font-family:Raleway,"Avenir Next",-apple-system,Helvetica,Arial,sans-serif;
      font-size:15.5px;line-height:1.55}
 a{color:var(--accent2);text-decoration:none}a:hover{text-decoration:underline}
 .home{position:absolute;top:16px;left:20px;font-size:12px;letter-spacing:.14em;
       text-transform:uppercase;color:var(--faint)}
 .open{max-width:720px;margin:0 auto;padding:84px 20px 46px;text-align:center}
-h1{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-weight:500;
+h1{font-family:Raleway,"Avenir Next",sans-serif;font-weight:800;letter-spacing:-.01em;
    font-size:clamp(32px,6vw,46px);letter-spacing:.01em}
 .date{color:var(--muted);font-size:14.5px;margin-top:6px}
 .rule{width:56px;height:2px;background:var(--accent);margin:22px auto}
@@ -173,13 +185,13 @@ h1{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-weight:500;
 .reader img{width:100%;height:auto;display:block;border-radius:4px}
 .rhead{max-width:1100px;margin:20px auto 14px;padding:0 16px;display:flex;
        align-items:baseline;gap:12px;flex-wrap:wrap}
-.rhead h2{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-weight:500;font-size:24px}
+.rhead h2{font-family:Raleway,"Avenir Next",sans-serif;font-weight:800;font-size:24px}
 .rhead span{font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:11px;
             letter-spacing:.14em;color:var(--faint)}
 
 .wrap{max-width:1280px;margin:44px auto 0;padding:0 16px}
 .secthead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:14px}
-.secthead h2{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-weight:500;font-size:24px}
+.secthead h2{font-family:Raleway,"Avenir Next",sans-serif;font-weight:800;font-size:24px}
 .secthead span{font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:11px;
                letter-spacing:.14em;color:var(--faint)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
@@ -207,7 +219,7 @@ body.sel #selbar{display:flex}
          overflow-y:auto;padding:46px 18px}
 #getlist.on{display:block}
 #getlist .inner{max-width:640px;margin:0 auto}
-#getlist h3{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-weight:500;font-size:22px;
+#getlist h3{font-family:Raleway,"Avenir Next",sans-serif;font-weight:800;font-size:22px;
             margin-bottom:6px}
 #getlist p{color:var(--muted);font-size:13px;margin-bottom:18px}
 #getlist .row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
@@ -266,7 +278,7 @@ body.sel #selbar{display:flex}
   <p class=dlline style="font-size:12px">Full resolution comes from Google Drive. No sign-in needed.</p>
 </div>
 
-<div class=rhead><h2>The picks</h2><span>__NP__</span></div>
+<div class=rhead><h2>The picks</h2><span>__NP__ FRAMES &middot; EVERYTHING ELSE FOLLOWS BELOW</span></div>
 <div class=reader id=picks></div>
 
 <div class=wrap>
