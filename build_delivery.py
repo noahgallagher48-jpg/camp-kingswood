@@ -65,7 +65,12 @@ def pool():
     a = json.load(open(ARR))
     aside = set(a.get("aside", []))
     keep = [n for n in sorted(by_num) if n not in aside]
-    picks = [n for n in a["groups"][0]["frames"] if n in by_num and n not in aside]
+    # picks selected BY NAME: groups[0] silently became "New since your last
+    # pass" when the arrange tool reordered groups (same trap as the client
+    # slideshow cut, caught 2026-08-20).
+    by_name = {g["name"]: g["frames"] for g in a["groups"]}
+    picks_src = by_name.get("Proposed forty-two", a["groups"][0]["frames"])
+    picks = [n for n in picks_src if n in by_num and n not in aside]
     return by_num, keep, picks
 
 

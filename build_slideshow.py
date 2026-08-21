@@ -28,6 +28,9 @@ def frame_no(f):
     m = re.search(r"_2-(\d+)\.jpg$", f)
     if m: return 200 + int(m.group(1))
     if f.endswith("_2.jpg"): return 201
+    m = re.search(r"kwood820-(\d+)\.jpg$", f)
+    if m: return 300 + int(m.group(1))
+    if f.endswith("kwood820.jpg"): return 301
     m = re.search(r"-(\d+)\.jpg$", f)
     return int(m.group(1)) if m else 1
 
@@ -49,7 +52,10 @@ def build(mode):
     if mode == "client":
         # The cut for Jodi: one show, his top choices, clean labels, no process
         # names. Shared only by Noah, from the artifact share menu.
-        top = shows[0]["frames"] if shows else allf
+        # Selected BY NAME: taking shows[0] silently became "New since your last
+        # pass" when the group order changed (caught 2026-08-20).
+        by_name = {g["name"]: g["frames"] for g in shows}
+        top = by_name.get("Proposed forty-two") or (shows[0]["frames"] if shows else allf)
         shows = [{"name": "Summer 2026", "frames": top}]
 
     if mode in ("artifact", "client"):
