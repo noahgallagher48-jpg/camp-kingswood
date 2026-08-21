@@ -141,10 +141,18 @@ def build():
         return {"n": n, "f": f,
                 "d": f"https://drive.google.com/uc?export=download&id={d}" if d else None,
                 "w": f"https://drive.google.com/uc?export=download&id={wd}" if wd else None,
-                "p": [p["metal"], p["paper"], p["canvas"]], "pn": p["note"]}
+                "p": [p["metal"], p["paper"], p["canvas"]], "pn": p["note"],
+                "wpx": w, "hpx": h}
     data_all = [rec(n) for n in keep]
     data_picks = [rec(n) for n in picks]
-    html = (PAGE.replace("__ALL__", json.dumps(data_all))
+    page = (PAGE.replace("</style>", SEL_CSS + "</style>")
+                .replace("</body>", SEL_HTML + "<script>" + SEL_JS + """
+$("seldl").onclick=downloadAll;
+$("selplay").onclick=playSelection;
+$("selwall").onclick=openWall;
+$("selbook").onclick=openBook;
+</script></body>"""))
+    html = (page.replace("__ALL__", json.dumps(data_all))
                 .replace("__PICKS__", json.dumps(data_picks))
                 .replace("__N__", str(len(keep)))
                 .replace("__NP__", str(len(picks)))
@@ -155,6 +163,9 @@ def build():
     print(f"wrote delivery.html ({len(keep)} frames, {len(picks)} picks; "
           f"full-res pending for {missing if missing else 'none'})")
 
+
+sys.path.insert(0, os.path.expanduser("~/Abba_Photo/dashboard/tools"))
+from selection_actions import CSS as SEL_CSS, HTML as SEL_HTML, JS as SEL_JS
 
 PAGE = """<!DOCTYPE html><html lang=en><head><meta charset=utf-8>
 <meta name=viewport content="width=device-width,initial-scale=1">
@@ -318,7 +329,13 @@ cropped to fit. A few frames print true only as a custom cut; those say so.</p>
 </footer>
 
 <div id=selbar><span class=ct id=selct>0 selected</span>
-  <button class=lnk id=selget type=button disabled>Get these</button>
+  <span class=act>
+    <button class=lnk id=selget type=button disabled>Get these</button>
+    <button class=lnk id=seldl type=button disabled>Download all</button>
+    <button class=lnk id=selplay type=button disabled>Play these</button>
+    <button class=lnk id=selwall type=button disabled>See it on a wall</button>
+    <button class=lnk id=selbook type=button disabled>Book preview</button>
+  </span>
   <button class=lnk id=seldone type=button>Done</button></div>
 
 <div id=getlist><button class=x type=button aria-label=Close>&times;</button>
@@ -374,7 +391,8 @@ ALL.forEach(function(r,i){
 function idxOf(n){for(var i=0;i<ALL.length;i++)if(ALL[i].n===n)return i;return 0;}
 
 function paintSel(){var k=Object.keys(sel).length;
-  $("selct").textContent=k+" selected";$("selget").disabled=!k;}
+  $("selct").textContent=k+" selected";
+  ["selget","seldl","selplay","selwall","selbook"].forEach(function(i){$(i).disabled=!k;});}
 $("selmode").onclick=function(){selMode=true;document.body.className="sel";};
 $("seldone").onclick=function(){selMode=false;document.body.className="";
   sel={};document.querySelectorAll(".grid .c.on").forEach(function(c){c.className="c";});paintSel();};
