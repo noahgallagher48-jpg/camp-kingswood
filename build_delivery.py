@@ -47,13 +47,20 @@ def frame_no(f):
     m = re.search(r"_2-(\d+)\.jpg$", f)
     if m: return 200 + int(m.group(1))
     if f.endswith("_2.jpg"): return 201
+    m = re.search(r"kwood820-(\d+)\.jpg$", f)
+    if m: return 300 + int(m.group(1))
+    if f.endswith("kwood820.jpg"): return 301
     m = re.search(r"-(\d+)\.jpg$", f)
     return int(m.group(1)) if m else 1
 
 
 def pool():
+    # The delivered pool is the ARRANGED set only. The 2026-08-20 export
+    # (frames 300+) sits in the tiers for the arrange/slideshow tools but stays
+    # OFF the client's delivery page until Noah places it; an export landing in
+    # img/ must never leak into a delivery by mere existence.
     files = sorted((f for f in os.listdir(os.path.join(IMG, "present"))
-                    if f.endswith(".jpg")), key=frame_no)
+                    if f.endswith(".jpg") and frame_no(f) < 300), key=frame_no)
     by_num = {frame_no(f): f for f in files}
     a = json.load(open(ARR))
     aside = set(a.get("aside", []))
@@ -106,6 +113,12 @@ def make_zip():
 def build():
     by_num, keep, picks = pool()
     drive = json.load(open(DRIVE_IDS)) if os.path.exists(DRIVE_IDS) else {}
+    # Web tier lives on DRIVE since 2026-08-20, not in git: JPEGs do not delta-
+    # compress, so re-stamping metadata and re-committing tripled the repo and
+    # pushed it to 95% of the 1GB Pages limit. Per-frame files are 3-7MB, under
+    # Drive's ~100MB scan limit, so uc?export=download is a true one-click.
+    webids = os.path.join(HERE, "_work", "drive_web_ids_kw.json")
+    web = json.load(open(webids)) if os.path.exists(webids) else {}
     # Print guidance is a STANDING component of every client delivery page
     # (Noah, 2026-08-19), sized off the master's true resolution and limited to
     # sizes a client can buy without a custom order. Shared rules so every
@@ -120,8 +133,10 @@ def build():
         w, h = dims.get(f, (0, 0))
         p = print_line(w, h) if w else {"metal": None, "paper": None,
                                         "canvas": None, "note": None}
+        wd = web.get(f)
         return {"n": n, "f": f,
                 "d": f"https://drive.google.com/uc?export=download&id={d}" if d else None,
+                "w": f"https://drive.google.com/uc?export=download&id={wd}" if wd else None,
                 "p": [p["metal"], p["paper"], p["canvas"]], "pn": p["note"]}
     data_all = [rec(n) for n in keep]
     data_picks = [rec(n) for n in picks]
@@ -363,7 +378,7 @@ $("selget").onclick=function(){
   var rows=$("getrows");rows.innerHTML="";
   ALL.filter(function(r){return sel[r.n];}).forEach(function(r){
     var d=document.createElement("div");d.className="row";
-    d.innerHTML='<b>#'+r.n+'</b><a href="img/web/'+r.f+'" download>Web</a>'+
+    d.innerHTML='<b>#'+r.n+'</b>'+(r.w?'<a href="'+r.w+'" target=_blank rel=noopener>Web</a>':'')+
       (r.d?'<a href="'+r.d+'" target=_blank rel=noopener>Full res</a>':'')+
       '<span class=sz>'+printText(r)+'</span>';
     rows.appendChild(d);});
@@ -376,7 +391,7 @@ function paintLb(){if(cur<0)cur=ALL.length-1;if(cur>=ALL.length)cur=0;
   var r=ALL[cur];$("lbi").src="img/present/"+r.f;
   $("lbm").textContent="#"+r.n+"  \\u00b7  "+(cur+1)+" / "+ALL.length;
   $("lbsz").innerHTML=printText(r);
-  $("lbw").href="img/web/"+r.f;$("lbw").setAttribute("download",r.f);
+  if(r.w){$("lbw").style.display="";$("lbw").href=r.w;}else{$("lbw").style.display="none";}
   $("lbf").href=r.d||"__FOLDER__";}
 document.querySelector("#lb .zl").onclick=function(){cur--;paintLb();};
 document.querySelector("#lb .zr").onclick=function(){cur++;paintLb();};
