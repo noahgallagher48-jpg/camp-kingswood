@@ -48,6 +48,10 @@ def frame_no(f):
     m = re.search(r"_2-(\d+)\.jpg$", f)
     if m: return 200 + int(m.group(1))
     if f.endswith("_2.jpg"): return 201
+    # The 2026-08-20 export (kwood820-*) is 300-341; the bare file is 301.
+    m = re.search(r"kwood820-(\d+)\.jpg$", f)
+    if m: return 300 + int(m.group(1))
+    if f.endswith("kwood820.jpg"): return 301
     m = re.search(r"-(\d+)\.jpg$", f)
     return int(m.group(1)) if m else 1
 
@@ -178,6 +182,19 @@ header button.go:hover{background:#ecb654}
     justify-content:center;z-index:10}
 #lb.on{display:flex}
 #lb img{max-width:100vw;max-height:100vh;object-fit:contain}
+/* Play a group as a slideshow without leaving the arranger (Noah, 2026-08-20:
+   "connect it to the arranger"). Zones are stripped buttons: default ButtonFace
+   chrome painted white bars on the stage once already. */
+#stage{position:fixed;inset:0;z-index:60;background:#000;display:none}
+#stage.on{display:block}
+#stage img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;
+           opacity:0;transition:opacity 800ms ease}
+#stage img.show{opacity:1}
+#stage .zone{position:absolute;top:0;bottom:0;width:30%;z-index:2;cursor:pointer;
+             background:none;border:0;padding:0;appearance:none}
+#stage .zl{left:0}#stage .zr{right:0}
+#stage .x{position:fixed;top:8px;right:12px;z-index:3;font-size:30px;color:#a69b8a;
+          background:none;border:0;cursor:pointer}
 #lb .x{position:fixed;top:8px;right:12px;font-size:30px;color:#a69b8a;background:none;border:0;
        cursor:pointer;padding:6px 10px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -202,6 +219,10 @@ header button.go:hover{background:#ecb654}
 <div id=dock></div>
 <div id=toast></div>
 <div id=lb><img id=lbi alt=""><button class=x type=button aria-label="Close">&times;</button></div>
+<div id=stage><img id=sa alt=""><img id=sb alt="">
+  <button class="zone zl" type=button aria-label=Previous></button>
+  <button class="zone zr" type=button aria-label=Next></button>
+  <button class=x type=button aria-label="End the show">&times;</button></div>
 <script>
 var SRC=__SRC__, ALL=__ALL__, SEED=__SEED__, KEY="__KEY__";
 var state=null, sel=null, dragEl=null, tt=null;
@@ -268,6 +289,11 @@ function section(kind,name,ns){var g=document.createElement("div");
   h.innerHTML='<span class="gname"></span><span class="gcnt"></span>';
   h.querySelector(".gname").textContent=name;
   if(kind==="g"){var t=document.createElement("span");t.className="tools";
+    var pb=document.createElement("button");pb.type="button";pb.textContent="\u25b6 play";
+    pb.onclick=function(e){e.stopPropagation();
+      var ns=[].map.call(g.querySelectorAll(".lane .th"),function(t){return +t.dataset.n;});
+      if(ns.length)playShow(ns);};
+    t.appendChild(pb);
     ["\\u2191","\\u2193"].forEach(function(a,i){var b=document.createElement("button");
       b.type="button";b.textContent=a;
       b.onclick=function(e){e.stopPropagation();
@@ -344,7 +370,26 @@ $("cp").onclick=function(){read();
   else window.prompt("Copy this:",s);};
 document.querySelector("#lb .x").onclick=function(){$("lb").className="";};
 $("lb").onclick=function(e){if(e.target.id==="lb")$("lb").className="";};
+var shFrames=[],shIdx=0,shTimer=null,shFront=null;
+function shRender(){if(shIdx<0)shIdx=shFrames.length-1;if(shIdx>=shFrames.length)shIdx=0;
+  var inc=(shFront===$("sa"))?$("sb"):$("sa"),out=(shFront===$("sa"))?$("sa"):$("sb");
+  inc.className="";void inc.offsetWidth;
+  inc.onload=function(){inc.className="show";out.className="";shFront=inc;};
+  var n=shFrames[shIdx];inc.src=SRC[n].p||SRC[n].t;
+  if(inc.complete)inc.onload();}
+function shTick(){shTimer=setTimeout(function(){shIdx++;shRender();shTick();},5000);}
+function shEnd(){clearTimeout(shTimer);$("stage").className="";}
+function playShow(ns){shFrames=ns;shIdx=0;shFront=null;
+  $("sa").className="";$("sb").className="";$("stage").className="on";shRender();shTick();}
+document.querySelector("#stage .x").onclick=shEnd;
+document.querySelector("#stage .zl").onclick=function(){clearTimeout(shTimer);shIdx--;shRender();shTick();};
+document.querySelector("#stage .zr").onclick=function(){clearTimeout(shTimer);shIdx++;shRender();shTick();};
 document.addEventListener("keydown",function(e){
+  if($("stage").className==="on"){
+    if(e.key==="Escape")shEnd();
+    else if(e.key==="ArrowRight"){clearTimeout(shTimer);shIdx++;shRender();shTick();}
+    else if(e.key==="ArrowLeft"){clearTimeout(shTimer);shIdx--;shRender();shTick();}
+    return;}
   if(e.key==="Escape"&&$("lb").className==="on")$("lb").className="";});
 </script>
 """
