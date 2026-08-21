@@ -55,12 +55,11 @@ def frame_no(f):
 
 
 def pool():
-    # The delivered pool is the ARRANGED set only. The 2026-08-20 export
-    # (frames 300+) sits in the tiers for the arrange/slideshow tools but stays
-    # OFF the client's delivery page until Noah places it; an export landing in
-    # img/ must never leak into a delivery by mere existence.
+    # The 2026-08-20 export is IN the delivery (Noah, 2026-08-20: "put all the
+    # new ones in ... give me the whole thing"). The pool is everything on disk
+    # minus the set-aside list; the aside list in the RECORD is the only fence.
     files = sorted((f for f in os.listdir(os.path.join(IMG, "present"))
-                    if f.endswith(".jpg") and frame_no(f) < 300), key=frame_no)
+                    if f.endswith(".jpg")), key=frame_no)
     by_num = {frame_no(f): f for f in files}
     a = json.load(open(ARR))
     aside = set(a.get("aside", []))
