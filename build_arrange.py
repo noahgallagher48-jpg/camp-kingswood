@@ -107,7 +107,17 @@ def build(mode):
                for n, f in by_num.items()}
         out = os.path.join(HERE, "_work", "arrange.html")
 
-    html = (PAGE.replace("__SRC__", json.dumps(src))
+    # THE RESOLUTION STANDARD (Noah, 2026-08-20): fullscreen play renders the
+    # 2560 tier. The portable build can only embed small previews (16MB artifact
+    # cap), so it declares itself on its face; judgment happens on the Mac
+    # build, where play is sharp.
+    banner = ("" if mode != "artifact" else
+              '<div style="position:sticky;top:0;z-index:40;background:#3a2f14;'
+              'color:#e2c46a;font-size:11.5px;padding:5px 12px;text-align:center">'
+              'PREVIEW BUILD: arrange anywhere. Playback here is preview quality; '
+              'sharp play lives on the Mac build.</div>')
+    html = (PAGE.replace('</style>', '</style>' + banner, 1)
+                .replace("__SRC__", json.dumps(src))
                 .replace("__ALL__", json.dumps(allf))
                 .replace("__SEED__", json.dumps({"groups": groups, "aside": aside}))
                 .replace("__KEY__", KEY)
