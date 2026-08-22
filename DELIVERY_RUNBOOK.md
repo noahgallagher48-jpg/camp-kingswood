@@ -33,5 +33,5 @@ decision, made separately.
 
 ## What this covers and what it does not
 The Aug 23 delivery is the photo library. The media-library handback (Aug 30)
-and the two photo books (scoped on site, Bader book in the deal) are separate
+and the photo book (scoped on site) is separate
 deliverables with their own dates; do not fold them into this page.

@@ -34,7 +34,7 @@ THUMB = os.path.join(HERE, "img", "thumb")
 SAVED = os.path.join(HERE, "_work", "arrangement_kw.json")
 KEY = "kwood-arrange-v1"
 
-BOOK_GROUP = "Bader book"
+BOOK_GROUP = "The book"
 
 SEED_GROUPS = [
     ("Shabbat", list(range(49, 65))),
@@ -83,7 +83,7 @@ def build(mode):
         fresh = [n for n in allf if n not in known]
         if fresh:
             groups.insert(0, {"name": "New since your last pass", "frames": fresh})
-        # The Bader book lane. ORDER IN THIS LANE IS THE BOOK'S SEQUENCE, first
+        # The dedicated book's lane. ORDER IN THIS LANE IS THE BOOK'S SEQUENCE, first
         # frame to last, which is why it is a lane and not a checkbox: a book is
         # an order, not a set. Seeded empty and only when absent, so a pass that
         # already filled it is never overwritten. Constraint on file (2026-08-07):

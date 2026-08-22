@@ -1,23 +1,21 @@
 #!/usr/bin/env python3
-"""Builds the Bader book layout from the arrange board's "Bader book" lane.
+"""Builds the dedicated book layout from the arrange board's book lane.
 
-ONE book, not two. Jodi by text 2026-08-05: no separate sales book, "if your
-motivation is the sales of a book I'm not sure we'll be aligned." Scope settled
-with her 2026-08-07. This is the dedicated book, and the presentation exists so
-she can approve a layout, which is the contracted deliverable: Noah designs the
-layouts and delivers them for Kingswood's approval.
+ONE book, not the two the sent agreement described. Scope settled with the
+client 2026-08-07; the reasons are client-private and live in the private
+abba-dashboard repo, not here. This repo is public.
 
 THE SEQUENCE IS THE LANE'S ORDER. A book is an order, not a set, so the frames
-come out of _work/arrangement_kw.json in exactly the order they sit in the
-"Bader book" group. Reordering happens on the arrange board, not here.
+come out of _work/arrangement_kw.json in exactly the order they sit in the book
+lane. Reordering happens on the arrange board, not here.
 
 CONSTRAINT ON FILE (2026-08-07): non-identifiable kids only. This script cannot
 see faces and does not pretend to. It reports the constraint next to the count
-so the claim is never made on the machine's behalf; the lane's contents are
-Noah's call and his alone.
+so the claim is never made on the machine's behalf; the lane's contents are the
+owner's call and his alone.
 
-The recipients are not named on any client-facing surface. The filename and the
-title page say Camp Kingswood.
+The book's recipients are never named on any surface in this repo, filenames
+included. They are named only in private docs.
 
     python3 build_book.py              preview PDF, 150 DPI, spreads
     python3 build_book.py --press      300 DPI single pages for the lab
@@ -35,7 +33,7 @@ from build_delivery import frame_no
 ARR = os.path.join(HERE, "_work", "arrangement_kw.json")
 MASTER = os.path.expanduser("~/Desktop/ABBA/kingswood/_delivery_2026/master")
 OUTDIR = os.path.join(HERE, "book")
-BOOK_GROUP = "Bader book"
+BOOK_GROUP = "The book"
 
 PAGE_IN = (12, 8)                 # inches, landscape, the Ramah standard
 GROUND = (243, 241, 236)          # #F3F1EC, the camp's warm white
@@ -203,14 +201,14 @@ def build(press=False):
         spreads[0].save(out, save_all=True, append_images=spreads[1:],
                         resolution=dpi, quality=88)
 
-    with open(os.path.join(OUTDIR, "sequence_bader.txt"), "w") as fh:
-        fh.write(f"Bader book, {len(seq)} frames, {len(pages)} pages\n\n")
+    with open(os.path.join(OUTDIR, "sequence_book.txt"), "w") as fh:
+        fh.write(f"The book, {len(seq)} frames, {len(pages)} pages\n\n")
         for k, (_, label, how) in enumerate(pages, 1):
             fh.write(f"{k:3d}. {label:<12} {how}\n")
 
     print(f"wrote {out}")
     print(f"  {len(seq)} frames · {len(pages)} pages · {len(sheets)} sheets at {dpi} DPI")
-    print(f"  sequence: {OUTDIR}/sequence_bader.txt")
+    print(f"  sequence: {OUTDIR}/sequence_book.txt")
     if dropped:
         print(f"  NOT INCLUDED, they sit in your aside lane: {dropped}")
     for nt in notes:

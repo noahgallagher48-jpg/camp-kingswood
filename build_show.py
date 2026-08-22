@@ -20,7 +20,7 @@ shuffle is seeded off the group name, so the same lane always plays in the same
 order and a link that was already sent does not reshuffle under the viewer.
 
     python3 build_show.py
-    python3 build_show.py --group "Bader book" --shuffle --out bader-preview.html
+    python3 build_show.py --group "The book" --shuffle --out book-preview.html
 
 Playback renders the present tier (2560px), per the resolution standard;
 thumbs are never presented full screen.
