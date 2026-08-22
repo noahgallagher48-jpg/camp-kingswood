@@ -34,28 +34,41 @@ button.play:hover{background:#F04A0E}
      flex-direction:column;align-items:center;justify-content:center;gap:18px}
 .end button{background:none;border:1px solid rgba(219,58,0,.6);color:#F3F1EC;border-radius:5px;
      padding:12px 26px;font-family:inherit;font-size:14px;cursor:pointer}
-@media (prefers-reduced-motion:reduce){#stage img{transition:none}}
+#tl{position:absolute;inset:0;z-index:5;opacity:0;transition:opacity 1200ms ease;
+    pointer-events:none;background:#000}
+#tl.show{opacity:1;pointer-events:auto;cursor:pointer}
+#tl img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:1;transition:none}
+#tl::after{content:"";position:absolute;inset:0;background:rgba(6,42,64,.42)}
+.tlx{position:absolute;inset:0;z-index:1;display:flex;flex-direction:column;
+     align-items:center;justify-content:center;gap:14px;text-align:center}
+.tlx h2{font-weight:800;font-size:clamp(34px,7vw,64px);letter-spacing:-.01em;
+        color:#F3F1EC;text-shadow:0 2px 22px rgba(0,0,0,.45)}
+.tlx .tlr{display:block;width:64px;height:3px;background:#DB3A00}
+.tlx p{font-weight:400;font-size:clamp(15px,2.4vw,20px);letter-spacing:.22em;
+       color:#F3F1EC;text-shadow:0 1px 14px rgba(0,0,0,.5)}
+@media (prefers-reduced-motion:reduce){#stage img{transition:none}#tl{transition:none}}
 </style></head><body>
 
 <div class=open id=open>
   <h1>Camp Kingswood</h1>
   <p>The book, first pass</p>
   <button class=play id=go type=button>&#9654;&nbsp; Play</button>
-  <p class=hint>34 photographs, about 3 minutes. Best full screen with the sound off.</p>
+  <p class=hint>36 photographs, about 3 minutes. Best full screen with the sound off.</p>
 </div>
 
 <div id=stage>
+  <div id=tl><img src="img/present/kwood819-108.jpg" alt=""><div class=tlx><h2>Camp Kingswood</h2><span class=tlr></span><p>2026</p></div></div>
   <img id=a alt="Camp Kingswood, Summer 2026"><img id=b alt="Camp Kingswood, Summer 2026">
   <span class=n id=num></span>
   <button class="zone zl" type=button aria-label=Previous></button>
   <button class="zone zr" type=button aria-label=Next></button>
   <button class=x type=button aria-label=Close>&times;</button>
-  <div class=end><p style="color:#F3F1EC;font-size:17px">That is the first pass.</p>
+  <div class=end><p style="color:#F3F1EC;font-size:17px">More to come...</p>
     <button id=again type=button>Play it again</button></div>
 </div>
 
 <script>
-var F=["kwood819-76.jpg", "kwood819-96.jpg", "kwood819-106.jpg", "kwood820-37.jpg", "kwood820-41.jpg", "kwood820-27.jpg", "kwood820-7.jpg", "kwood819-33.jpg", "kwood819-59.jpg", "kwood819-110.jpg", "kwood819-45.jpg", "kwood819-28.jpg", "kwood819-67.jpg", "kwood819-13.jpg", "kwood819-85.jpg", "kwood820-12.jpg", "kwood819-5.jpg", "kwood819-91.jpg", "kwood819-80.jpg", "kwood819_2-5.jpg", "kwood819-95.jpg", "kwood819-70.jpg", "kwood819-63.jpg", "kwood819-107.jpg", "kwood819-44.jpg", "kwood819-88.jpg", "kwood819-89.jpg", "kwood820-26.jpg", "kwood820-29.jpg", "kwood819-118.jpg", "kwood820-8.jpg", "kwood819_2-6.jpg", "kwood819-64.jpg", "kwood819-35.jpg"], i=0, t=null, front=null;
+var F=["kwood819-107.jpg", "kwood820-41.jpg", "kwood819-95.jpg", "kwood820-27.jpg", "kwood819-67.jpg", "kwood820-29.jpg", "kwood819-110.jpg", "kwood819-85.jpg", "kwood819-13.jpg", "kwood819-59.jpg", "kwood819-28.jpg", "kwood819-80.jpg", "kwood819-91.jpg", "kwood819-25.jpg", "kwood819-45.jpg", "kwood819-33.jpg", "kwood819-90.jpg", "kwood820-12.jpg", "kwood819-5.jpg", "kwood819-31.jpg", "kwood819-96.jpg", "kwood819_2-5.jpg", "kwood820-37.jpg", "kwood819-70.jpg", "kwood820-7.jpg", "kwood819-63.jpg", "kwood820-8.jpg", "kwood819-44.jpg", "kwood819-88.jpg", "kwood819-89.jpg", "kwood820-26.jpg", "kwood819-106.jpg", "kwood819-92.jpg", "kwood819_2-6.jpg", "kwood819-64.jpg", "kwood819-35.jpg"], i=0, t=null, front=null, TL=true, tt=null;
 function $(x){return document.getElementById(x);}
 function render(){
   var inc=(front===$('a'))?$('b'):$('a'), out=(front===$('a'))?$('a'):$('b');
@@ -73,15 +86,24 @@ function next(){
   i++;render();tick();
 }
 function prev(){clearTimeout(t); if(i>0)i--; render(); tick();}
+function begin(){render();tick();}
+function skipTitle(){clearTimeout(tt);$('tl').className='';begin();}
 function start(){
   i=0;front=null;$('a').className='';$('b').className='';
-  $('stage').className='on';render();tick();
+  $('stage').className='on';
+  if(TL){
+    $('tl').className='show';
+    var p=new Image();p.src='img/present/'+F[0];
+    tt=setTimeout(function(){$('tl').className='';begin();},4200);
+    $('tl').onclick=skipTitle;
+  }else{begin();}
   if($('stage').requestFullscreen)$('stage').requestFullscreen().catch(function(){});
 }
 $('go').onclick=start;
 $('again').onclick=function(){$('stage').className='on';start();};
 document.querySelector('#stage .x').onclick=function(){
-  clearTimeout(t);$('stage').className='';
+  clearTimeout(t);clearTimeout(tt);if(TL)$('tl').className='';
+  $('stage').className='';
   if(document.fullscreenElement&&document.exitFullscreen)document.exitFullscreen().catch(function(){});
 };
 document.querySelector('#stage .zr').onclick=function(){clearTimeout(t);next();};

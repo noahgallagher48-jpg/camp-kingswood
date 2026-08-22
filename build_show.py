@@ -47,7 +47,7 @@ def frame_no(f):
 
 
 def build(group=PICKS_GROUP, shuffle=False, out=OUT, sub="Summer 2026",
-          end="That is the summer.", keep_aside=False):
+          end="That is the summer.", keep_aside=False, title_frame=None):
     a = json.load(open(ARR))
     by_num = {frame_no(f): f for f in os.listdir(os.path.join(IMG, "present"))
               if f.endswith(".jpg")}
@@ -65,17 +65,33 @@ def build(group=PICKS_GROUP, shuffle=False, out=OUT, sub="Summer 2026",
         seed = int(hashlib.sha1(group.encode()).hexdigest()[:8], 16)
         random.Random(seed).shuffle(kept)
     files = [by_num[n] for n in kept]
+    # The title card: the named frame full-bleed under "Camp Kingswood 2026",
+    # held, then faded into the slides. It rides OUTSIDE the lane, so it can be
+    # a frame the lane does not carry and it never counts toward the mix.
+    tfile = ""
+    if title_frame is not None:
+        if title_frame not in by_num:
+            raise SystemExit(f"No frame {title_frame} in img/present")
+        tfile = by_num[title_frame]
     mins = len(files) * HOLD / 60
     hint = (f"{len(files)} photographs, about {mins:.0f} minutes. "
             f"Best full screen with the sound off.")
+    title_html = ""
+    if tfile:
+        title_html = ('<div id=tl><img src="img/present/' + tfile + '" alt="">'
+                      '<div class=tlx><h2>Camp Kingswood</h2>'
+                      '<span class=tlr></span><p>2026</p></div></div>')
     html = (PAGE.replace("__FRAMES__", json.dumps(files))
                 .replace("__HINT__", hint)
                 .replace("__SUB__", sub)
                 .replace("__END__", end)
+                .replace("__TITLE__", title_html)
+                .replace("__TL__", "true" if tfile else "false")
                 .replace("__N__", str(len(files))))
     open(out, "w").write(html)
     print(f"wrote {out}  ({len(files)} frames from '{group}', "
-          f"{'mixed' if shuffle else 'in his order'})")
+          f"{'mixed' if shuffle else 'in his order'}"
+          + (f"; title card over frame {title_frame}" if tfile else "") + ")")
     if dropped:
         print(f"  HELD BACK, they sit in your aside lane too: {dropped}")
     return kept, dropped
@@ -117,7 +133,19 @@ button.play:hover{background:#F04A0E}
      flex-direction:column;align-items:center;justify-content:center;gap:18px}
 .end button{background:none;border:1px solid rgba(219,58,0,.6);color:#F3F1EC;border-radius:5px;
      padding:12px 26px;font-family:inherit;font-size:14px;cursor:pointer}
-@media (prefers-reduced-motion:reduce){#stage img{transition:none}}
+#tl{position:absolute;inset:0;z-index:5;opacity:0;transition:opacity 1200ms ease;
+    pointer-events:none;background:#000}
+#tl.show{opacity:1;pointer-events:auto;cursor:pointer}
+#tl img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:1;transition:none}
+#tl::after{content:"";position:absolute;inset:0;background:rgba(6,42,64,.42)}
+.tlx{position:absolute;inset:0;z-index:1;display:flex;flex-direction:column;
+     align-items:center;justify-content:center;gap:14px;text-align:center}
+.tlx h2{font-weight:800;font-size:clamp(34px,7vw,64px);letter-spacing:-.01em;
+        color:#F3F1EC;text-shadow:0 2px 22px rgba(0,0,0,.45)}
+.tlx .tlr{display:block;width:64px;height:3px;background:#DB3A00}
+.tlx p{font-weight:400;font-size:clamp(15px,2.4vw,20px);letter-spacing:.22em;
+       color:#F3F1EC;text-shadow:0 1px 14px rgba(0,0,0,.5)}
+@media (prefers-reduced-motion:reduce){#stage img{transition:none}#tl{transition:none}}
 </style></head><body>
 
 <div class=open id=open>
@@ -128,6 +156,7 @@ button.play:hover{background:#F04A0E}
 </div>
 
 <div id=stage>
+  __TITLE__
   <img id=a alt="Camp Kingswood, Summer 2026"><img id=b alt="Camp Kingswood, Summer 2026">
   <span class=n id=num></span>
   <button class="zone zl" type=button aria-label=Previous></button>
@@ -138,7 +167,7 @@ button.play:hover{background:#F04A0E}
 </div>
 
 <script>
-var F=__FRAMES__, i=0, t=null, front=null;
+var F=__FRAMES__, i=0, t=null, front=null, TL=__TL__, tt=null;
 function $(x){return document.getElementById(x);}
 function render(){
   var inc=(front===$('a'))?$('b'):$('a'), out=(front===$('a'))?$('a'):$('b');
@@ -156,15 +185,24 @@ function next(){
   i++;render();tick();
 }
 function prev(){clearTimeout(t); if(i>0)i--; render(); tick();}
+function begin(){render();tick();}
+function skipTitle(){clearTimeout(tt);$('tl').className='';begin();}
 function start(){
   i=0;front=null;$('a').className='';$('b').className='';
-  $('stage').className='on';render();tick();
+  $('stage').className='on';
+  if(TL){
+    $('tl').className='show';
+    var p=new Image();p.src='img/present/'+F[0];
+    tt=setTimeout(function(){$('tl').className='';begin();},4200);
+    $('tl').onclick=skipTitle;
+  }else{begin();}
   if($('stage').requestFullscreen)$('stage').requestFullscreen().catch(function(){});
 }
 $('go').onclick=start;
 $('again').onclick=function(){$('stage').className='on';start();};
 document.querySelector('#stage .x').onclick=function(){
-  clearTimeout(t);$('stage').className='';
+  clearTimeout(t);clearTimeout(tt);if(TL)$('tl').className='';
+  $('stage').className='';
   if(document.fullscreenElement&&document.exitFullscreen)document.exitFullscreen().catch(function(){});
 };
 document.querySelector('#stage .zr').onclick=function(){clearTimeout(t);next();};
@@ -189,5 +227,7 @@ if __name__ == "__main__":
     ap.add_argument("--end", default="That is the summer.")
     ap.add_argument("--keep-aside", action="store_true",
                     help="the group wins over the aside lane (separate deliverables)")
+    ap.add_argument("--title-frame", type=int, default=None,
+                    help="frame for the opening title card (outside the lane)")
     g = ap.parse_args()
-    build(g.group, g.shuffle, g.out, g.sub, g.end, g.keep_aside)
+    build(g.group, g.shuffle, g.out, g.sub, g.end, g.keep_aside, g.title_frame)
