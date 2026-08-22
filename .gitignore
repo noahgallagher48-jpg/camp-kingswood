@@ -14,3 +14,4 @@ __pycache__/
 # STATE.md records no releases, so the book ships as a PDF to the camp and never
 # as a commit (hub CLAUDE.md, Images).
 book/
+guide.html
