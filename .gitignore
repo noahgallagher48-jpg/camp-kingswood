@@ -10,3 +10,7 @@ links.json
 masters_delivery/
 .DS_Store
 __pycache__/
+# The book layout renders camper faces onto every page. This repo is public and
+# STATE.md records no releases, so the book ships as a PDF to the camp and never
+# as a commit (hub CLAUDE.md, Images).
+book/

@@ -34,6 +34,8 @@ THUMB = os.path.join(HERE, "img", "thumb")
 SAVED = os.path.join(HERE, "_work", "arrangement_kw.json")
 KEY = "kwood-arrange-v1"
 
+BOOK_GROUP = "Bader book"
+
 SEED_GROUPS = [
     ("Shabbat", list(range(49, 65))),
     ("The sign", [13, 14, 21, 23, 24, 25, 26, 27, 30, 45, 108, 109, 122]),
@@ -81,6 +83,13 @@ def build(mode):
         fresh = [n for n in allf if n not in known]
         if fresh:
             groups.insert(0, {"name": "New since your last pass", "frames": fresh})
+        # The Bader book lane. ORDER IN THIS LANE IS THE BOOK'S SEQUENCE, first
+        # frame to last, which is why it is a lane and not a checkbox: a book is
+        # an order, not a set. Seeded empty and only when absent, so a pass that
+        # already filled it is never overwritten. Constraint on file (2026-08-07):
+        # non-identifiable kids only.
+        if not any(g["name"] == BOOK_GROUP for g in groups):
+            groups.insert(0, {"name": BOOK_GROUP, "frames": []})
     else:
         groups = []
         if proposed:
@@ -125,6 +134,14 @@ def build(mode):
                 .replace("__FROM__", seeded_from))
     os.makedirs(os.path.dirname(out), exist_ok=True)
     open(out, "w").write(html)
+    # Local builds sit in _work/ and reference ../img/, and browsers refuse that
+    # parent traversal over file://, so the board opens with every frame blank.
+    # Serve the hub instead; nothing about the page needs fixing.
+    if mode != "artifact":
+        print("  serve it, do not double-click it:")
+        print("    cd " + HERE)
+        print("    python3 -m http.server 8899 --bind 127.0.0.1")
+        print("    open http://127.0.0.1:8899/_work/arrange.html")
     print(f"wrote {out} ({os.path.getsize(out)//1048576} MB, {len(allf)} frames, "
           f"{len(groups)} groups seeded from {seeded_from})")
 

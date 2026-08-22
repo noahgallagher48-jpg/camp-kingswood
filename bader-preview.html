@@ -1,84 +1,4 @@
-#!/usr/bin/env python3
-"""A slideshow at its own URL: one link, press play, the frames in Noah's order.
-
-    python3 build_show.py     ->  show.html
-
-For texting a director a link. No sign-in, no downloads, no grid to browse,
-no share menu: she taps the link, taps play, and watches the set in the order
-it was arranged. That order is the argument, which is why this show does not
-shuffle and does not let her jump around.
-
-Frames come from a group in _work/arrangement_kw.json. By default that is the
-delivery picks, IN HIS SEQUENCE, and the show neither shuffles nor lets a viewer
-jump around, because there the order is the argument.
-
---shuffle exists for the opposite case. A book preview shows the CANDIDATES, and
-its real sequence is the thing the client has not approved yet, so playing them
-in book order would quietly present a layout decision as settled. Mixed, the
-frames read as a body of work and the sequence stays an open question. The
-shuffle is seeded off the group name, so the same lane always plays in the same
-order and a link that was already sent does not reshuffle under the viewer.
-
-    python3 build_show.py
-    python3 build_show.py --group "Bader book" --shuffle --out bader-preview.html
-
-Playback renders the present tier (2560px), per the resolution standard;
-thumbs are never presented full screen.
-"""
-import argparse, hashlib, json, os, random, re
-
-HERE = os.path.dirname(os.path.abspath(__file__))
-IMG = os.path.join(HERE, "img")
-ARR = os.path.join(HERE, "_work", "arrangement_kw.json")
-OUT = os.path.join(HERE, "show.html")
-PICKS_GROUP = "Proposed forty-two"
-HOLD = 5  # seconds a frame is held, matching tick() below
-
-
-def frame_no(f):
-    m = re.search(r"_2-(\d+)\.jpg$", f)
-    if m: return 200 + int(m.group(1))
-    if f.endswith("_2.jpg"): return 201
-    m = re.search(r"kwood820-(\d+)\.jpg$", f)
-    if m: return 300 + int(m.group(1))
-    if f.endswith("kwood820.jpg"): return 301
-    m = re.search(r"-(\d+)\.jpg$", f)
-    return int(m.group(1)) if m else 1
-
-
-def build(group=PICKS_GROUP, shuffle=False, out=OUT, sub="Summer 2026",
-          end="That is the summer."):
-    a = json.load(open(ARR))
-    by_num = {frame_no(f): f for f in os.listdir(os.path.join(IMG, "present"))
-              if f.endswith(".jpg")}
-    aside = set(a.get("aside", []))
-    by_name = {g["name"]: g["frames"] for g in a["groups"]}
-    if group not in by_name:
-        raise SystemExit(f"No '{group}' lane in {ARR}")
-    order = by_name[group]
-    dropped = [n for n in order if n in aside]
-    kept = [n for n in order if n in by_num and n not in aside]
-    if shuffle:
-        seed = int(hashlib.sha1(group.encode()).hexdigest()[:8], 16)
-        random.Random(seed).shuffle(kept)
-    files = [by_num[n] for n in kept]
-    mins = len(files) * HOLD / 60
-    hint = (f"{len(files)} photographs, about {mins:.0f} minutes. "
-            f"Best full screen with the sound off.")
-    html = (PAGE.replace("__FRAMES__", json.dumps(files))
-                .replace("__HINT__", hint)
-                .replace("__SUB__", sub)
-                .replace("__END__", end)
-                .replace("__N__", str(len(files))))
-    open(out, "w").write(html)
-    print(f"wrote {out}  ({len(files)} frames from '{group}', "
-          f"{'mixed' if shuffle else 'in his order'})")
-    if dropped:
-        print(f"  HELD BACK, they sit in your aside lane too: {dropped}")
-    return kept, dropped
-
-
-PAGE = """<!DOCTYPE html><html lang=en><head><meta charset=utf-8>
+<!DOCTYPE html><html lang=en><head><meta charset=utf-8>
 <meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name=robots content=noindex>
 <title>Camp Kingswood &middot; Summer 2026</title><style>
@@ -119,9 +39,9 @@ button.play:hover{background:#F04A0E}
 
 <div class=open id=open>
   <h1>Camp Kingswood</h1>
-  <p>__SUB__</p>
+  <p>The book, first pass</p>
   <button class=play id=go type=button>&#9654;&nbsp; Play</button>
-  <p class=hint>__HINT__</p>
+  <p class=hint>32 photographs, about 3 minutes. Best full screen with the sound off.</p>
 </div>
 
 <div id=stage>
@@ -130,12 +50,12 @@ button.play:hover{background:#F04A0E}
   <button class="zone zl" type=button aria-label=Previous></button>
   <button class="zone zr" type=button aria-label=Next></button>
   <button class=x type=button aria-label=Close>&times;</button>
-  <div class=end><p style="color:#F3F1EC;font-size:17px">__END__</p>
+  <div class=end><p style="color:#F3F1EC;font-size:17px">That is the first pass.</p>
     <button id=again type=button>Play it again</button></div>
 </div>
 
 <script>
-var F=__FRAMES__, i=0, t=null, front=null;
+var F=["kwood819-118.jpg", "kwood819-70.jpg", "kwood819-95.jpg", "kwood819-85.jpg", "kwood819-89.jpg", "kwood819-107.jpg", "kwood820-41.jpg", "kwood819-44.jpg", "kwood819-45.jpg", "kwood820-8.jpg", "kwood819_2-5.jpg", "kwood819-28.jpg", "kwood819-80.jpg", "kwood819-76.jpg", "kwood819-64.jpg", "kwood820-27.jpg", "kwood819-5.jpg", "kwood819-13.jpg", "kwood819-33.jpg", "kwood819-96.jpg", "kwood819-67.jpg", "kwood819-35.jpg", "kwood819-91.jpg", "kwood819-63.jpg", "kwood819-110.jpg", "kwood819-88.jpg", "kwood819-59.jpg", "kwood820-7.jpg", "kwood819-106.jpg", "kwood820-12.jpg", "kwood820-37.jpg", "kwood820-26.jpg"], i=0, t=null, front=null;
 function $(x){return document.getElementById(x);}
 function render(){
   var inc=(front===$('a'))?$('b'):$('a'), out=(front===$('a'))?$('a'):$('b');
@@ -174,15 +94,4 @@ document.addEventListener('keydown',function(e){
 });
 </script>
 <script data-goatcounter="https://abbaphoto.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
-</body></html>"""
-
-
-if __name__ == "__main__":
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--group", default=PICKS_GROUP)
-    ap.add_argument("--shuffle", action="store_true")
-    ap.add_argument("--out", default=OUT)
-    ap.add_argument("--sub", default="Summer 2026")
-    ap.add_argument("--end", default="That is the summer.")
-    g = ap.parse_args()
-    build(g.group, g.shuffle, g.out, g.sub, g.end)
+</body></html>

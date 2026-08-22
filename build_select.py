@@ -33,6 +33,9 @@ def frame_no(f):
     m = re.search(r"_2-(\d+)\.jpg$", f)
     if m: return 200 + int(m.group(1))
     if f.endswith("_2.jpg"): return 201
+    m = re.search(r"kwood820-(\d+)\.jpg$", f)
+    if m: return 300 + int(m.group(1))
+    if f.endswith("kwood820.jpg"): return 301
     m = re.search(r"-(\d+)\.jpg$", f)
     return int(m.group(1)) if m else 1
 
