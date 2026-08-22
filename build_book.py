@@ -50,11 +50,12 @@ def lane():
     if BOOK_GROUP not in by_name:
         sys.exit(f"No '{BOOK_GROUP}' lane in {ARR}.\n"
                  f"Run build_arrange.py, fill the lane, paste the export back.")
+    # The aside lane fences the delivery pool, which is a different deliverable.
+    # A frame can be wrong for the camp's library and right for the book, so the
+    # book's lane wins and the overlap is reported rather than enforced.
     aside = set(a.get("aside", []))
-    seq, dropped = [], []
-    for n in by_name[BOOK_GROUP]:
-        (dropped if n in aside else seq).append(n)
-    return seq, dropped
+    seq = list(by_name[BOOK_GROUP])
+    return seq, [n for n in seq if n in aside]
 
 
 def sources():
@@ -210,7 +211,7 @@ def build(press=False):
     print(f"  {len(seq)} frames · {len(pages)} pages · {len(sheets)} sheets at {dpi} DPI")
     print(f"  sequence: {OUTDIR}/sequence_book.txt")
     if dropped:
-        print(f"  NOT INCLUDED, they sit in your aside lane: {dropped}")
+        print(f"  IN THE BOOK, though they also sit in your aside lane: {dropped}")
     for nt in notes:
         print(f"  {nt}")
     print("  non-identifiable kids only (2026-08-07): the lane is your call, "

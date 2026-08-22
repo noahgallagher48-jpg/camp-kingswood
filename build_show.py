@@ -47,7 +47,7 @@ def frame_no(f):
 
 
 def build(group=PICKS_GROUP, shuffle=False, out=OUT, sub="Summer 2026",
-          end="That is the summer."):
+          end="That is the summer.", keep_aside=False):
     a = json.load(open(ARR))
     by_num = {frame_no(f): f for f in os.listdir(os.path.join(IMG, "present"))
               if f.endswith(".jpg")}
@@ -56,8 +56,11 @@ def build(group=PICKS_GROUP, shuffle=False, out=OUT, sub="Summer 2026",
     if group not in by_name:
         raise SystemExit(f"No '{group}' lane in {ARR}")
     order = by_name[group]
-    dropped = [n for n in order if n in aside]
-    kept = [n for n in order if n in by_num and n not in aside]
+    # The aside lane fences the DELIVERY pool. It is not a verdict on a frame,
+    # so a separate deliverable that asks for one gets it: the lane the owner
+    # filled is the authority for that build.
+    dropped = [] if keep_aside else [n for n in order if n in aside]
+    kept = [n for n in order if n in by_num and (keep_aside or n not in aside)]
     if shuffle:
         seed = int(hashlib.sha1(group.encode()).hexdigest()[:8], 16)
         random.Random(seed).shuffle(kept)
@@ -184,5 +187,7 @@ if __name__ == "__main__":
     ap.add_argument("--out", default=OUT)
     ap.add_argument("--sub", default="Summer 2026")
     ap.add_argument("--end", default="That is the summer.")
+    ap.add_argument("--keep-aside", action="store_true",
+                    help="the group wins over the aside lane (separate deliverables)")
     g = ap.parse_args()
-    build(g.group, g.shuffle, g.out, g.sub, g.end)
+    build(g.group, g.shuffle, g.out, g.sub, g.end, g.keep_aside)
