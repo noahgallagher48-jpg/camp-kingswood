@@ -1,0 +1,11 @@
+{
+  "_what": "Where wednesday.html sends a saved book lane. Read by build_wednesday.py and baked into the page. Tried in order; the first one that answers wins, and a local file download is the last resort so a set made in the room is never lost.",
+
+  "drive_endpoint": "",
+  "_drive_endpoint": "The Apps Script web app URL. Deploy _work/book_inbox.gs (instructions at the top of that file), paste the URL here, rebuild. Each save becomes its own dated JSON file in the Drive folder, which is a local mount on the Mac, so it can be read from either side.",
+
+  "web3forms_key": "b3bc124c-7812-4c4e-8fce-6ea6b9d1c5a2",
+  "_web3forms_key": "The existing Abba Photo Web3Forms key, same one the Interlaken vote page uses, free tier under noah@abba-photo.com since 2026-08-04. Public by design, client side. Lands the set in the noah@abba-photo.com inbox where the Gmail connector can read it. This works with no setup, which is why it is the standing fallback.",
+
+  "subject": "Kingswood book"
+}

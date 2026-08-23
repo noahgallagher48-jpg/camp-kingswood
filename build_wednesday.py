@@ -29,6 +29,7 @@ from build_delivery import pool, frame_no
 ARR = os.path.join(HERE, "_work", "arrangement_kw.json")
 GUIDE = os.path.expanduser("~/Desktop/ABBA/kingswood/_delivery_2026/print_guidance.json")
 OUT = os.path.join(HERE, "wednesday.html")
+SEND = os.path.join(HERE, "book_send.json")
 
 BOOK_LANE = "The book"
 PICKS_LANE = "Noah's Picks"
@@ -48,6 +49,16 @@ def sizes_for(guidance, filename):
         return None
     out = [(m, g[m]) for m in ("metal", "paper", "canvas") if g.get(m)]
     return out or None
+
+
+def send_config():
+    """Where a saved lane goes. The page may be driven from the CLIENT's machine
+    (Noah, 2026-08-23: "I just screw it up if it's her desk"), so a download is
+    not a destination. These are network drops, tried in order."""
+    if not os.path.exists(SEND):
+        return {}
+    cfg = json.load(open(SEND))
+    return {k: cfg.get(k, "") for k in ("drive_endpoint", "web3forms_key", "subject")}
 
 
 def build(show_prices=False):
@@ -90,6 +101,7 @@ def build(show_prices=False):
         "margin": MARGIN,
         "max_crop": MAX_CROP,
         "matte_all": bool(MATTE_ALL),
+        "send": send_config(),
     }
 
     html = PAGE.replace("__DATA__", json.dumps(data, separators=(",", ":")))
@@ -101,6 +113,10 @@ def build(show_prices=False):
     print(f"  {len(picks)} in Noah's Picks · {len(rest)} more available · "
           f"{len(book)} seeded in the book lane")
     print(f"  {sized} of {len(frames)} frames carry standard print sizes · {priced}")
+    s = data["send"]
+    where = "Drive endpoint" if s.get("drive_endpoint") else (
+            "inbox via Web3Forms" if s.get("web3forms_key") else "NOWHERE, local file only")
+    print(f"  a saved book goes to: {where}")
     if also_aside:
         print(f"  IN THE BOOK, though they also sit in the aside lane: {also_aside}")
     if no_dims:
@@ -242,7 +258,7 @@ figure.showsz .sz{display:block}
   <div class=lane id=lane></div>
   <div class=acts>
    <button class="btn go" id=play>See the book</button>
-   <button class=btn id=copy>Copy the book</button>
+   <button class=btn id=copy>Save the book</button>
   </div>
  </div>
 </div>
@@ -556,15 +572,90 @@ document.addEventListener("keydown", function(e){
   if (e.key === "ArrowLeft") showSpread(at - 1);
 });
 
-document.getElementById("copy").onclick = function(){
-  var payload = JSON.stringify({ group: "The book", frames: book }, null, 1);
-  var done = function(){
-    var b = document.getElementById("copy");
-    var was = b.textContent; b.textContent = "Copied";
-    setTimeout(function(){ b.textContent = was; }, 1600);
+/* ONE CLICK, AND THE SET IS BANKED SOMEWHERE WE CAN BOTH GRAB IT.
+   This page may be driven from the client's own machine, so saving to disk
+   saves to HER desk and helps nobody. The button posts the lane out over the
+   network instead, and tries destinations in order until one answers:
+     1. the Drive endpoint, when it is deployed, one dated file per save
+     2. the inbox, through the same Web3Forms account the vote page uses
+     3. a local file, only if the network refuses, so a set made in the room
+        is never lost even when everything else fails
+   Nothing overwrites anything. Every click banks its own copy. */
+var SEND = D.send || {};
+
+function bookPayload(){
+  return {
+    group: "The book",
+    frames: book,
+    saved: new Date().toISOString(),
+    source: "wednesday.html"
   };
-  if (navigator.clipboard) navigator.clipboard.writeText(payload).then(done, function(){ window.prompt("Copy the book lane:", payload); });
-  else window.prompt("Copy the book lane:", payload);
+}
+
+function fallbackDownload(payload){
+  try {
+    var blob = new Blob([JSON.stringify(payload, null, 1)], {type: "application/json"});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url; a.download = "kingswood_book.json";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+    return true;
+  } catch (e) { return false; }
+}
+
+function toDrive(payload){
+  if (!SEND.drive_endpoint) return Promise.reject("no endpoint");
+  /* text/plain keeps this a simple request, so it does not trip a CORS
+     preflight that Apps Script will not answer. The body is still JSON. */
+  return fetch(SEND.drive_endpoint, {
+    method: "POST",
+    headers: {"Content-Type": "text/plain;charset=utf-8"},
+    body: JSON.stringify(payload)
+  }).then(function(r){ return r.json(); }).then(function(r){
+    if (r && r.ok) return "Drive";
+    throw new Error(r && r.error ? r.error : "refused");
+  });
+}
+
+function toInbox(payload){
+  if (!SEND.web3forms_key) return Promise.reject("no key");
+  return fetch("https://api.web3forms.com/submit", {
+    method: "POST",
+    headers: {"Content-Type": "application/json", Accept: "application/json"},
+    body: JSON.stringify({
+      access_key: SEND.web3forms_key,
+      subject: (SEND.subject || "Kingswood book") + ": " + payload.frames.length + " frames",
+      from_name: "Kingswood book",
+      botcheck: "",
+      saved: payload.saved,
+      frames: payload.frames.join(", "),
+      lane_json: JSON.stringify(payload)
+    })
+  }).then(function(r){ return r.json(); }).then(function(r){
+    if (r && r.success) return "inbox";
+    throw new Error("refused");
+  });
+}
+
+document.getElementById("copy").onclick = function(){
+  var b = document.getElementById("copy");
+  if (!book.length) return;
+  var payload = bookPayload();
+  var reset = function(text){
+    b.textContent = text;
+    setTimeout(function(){ b.textContent = "Save the book"; b.disabled = false; }, 2600);
+  };
+  b.disabled = true;
+  b.textContent = "Saving";
+
+  toDrive(payload)
+    .catch(function(){ return toInbox(payload); })
+    .then(function(where){ reset("Banked, " + where); })
+    .catch(function(){
+      reset(fallbackDownload(payload) ? "No connection, saved here"
+                                      : "Could not save");
+    });
 };
 
 paint(); paintLane();
