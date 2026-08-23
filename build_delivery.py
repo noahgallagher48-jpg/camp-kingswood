@@ -304,6 +304,8 @@ body.sel #selbar{display:flex}
     <span class=dot>&middot;</span>
     <a id=zipall href="__ZIP__" style="display:none">All for web</a>
     <button class=lnk id=selmode type=button>Select frames</button>
+    <span class=dot>&middot;</span>
+    <a href="arrange.html">Arrange your own sets</a>
   </p>
   <p class=dlline style="font-size:12px">Full resolution comes from Google Drive. No sign-in needed.</p>
 </div>
