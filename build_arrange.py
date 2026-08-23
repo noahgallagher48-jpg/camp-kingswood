@@ -72,7 +72,12 @@ def build(mode):
         by_num = {n: by_num[n] for n in pool}
         src = {n: {"t": "img/thumb/" + f, "p": "img/present/" + f}
                for n, f in by_num.items()}
-        groups = [{"name": "Our picks", "frames": []}]
+        # Set 1 = the first export (frames below 300), Set 2 = the August 20
+        # additions (300s). She can rename these, empty them, or make her own.
+        set1 = [n for n in pool if n < 300]
+        set2 = [n for n in pool if n >= 300]
+        groups = [{"name": "Set 1", "frames": set1},
+                  {"name": "Set 2", "frames": set2}]
         html = (PAGE.replace("__SRC__", json.dumps(src))
                     .replace("__ALL__", json.dumps(pool))
                     .replace("__SEED__", json.dumps({"groups": groups, "aside": []}))
