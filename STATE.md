@@ -35,9 +35,10 @@ goes in it that the client has not made public.
   are named only in private docs).
 
 ## Intake loop
-Questions from the client arrive at noah@abba-photo.com. NOTE: the twice-daily sweep
-is PAUSED since 8/3, so intake is live sessions and manual sweeps only during the
-residency; check the inbox at session start. Answer what the agreement and this page
+Questions from the client arrive at noah@abba-photo.com. The twice-daily sweep
+RESUMED 2026-08-23 on Noah's word, with the Kingswood addresses (Jodi, her
+assistant, the office) on its allowlist; her mail folds to the board and fires
+a notification naming her. Answer what the agreement and this page
 already settle. SCOPED SEND GRANT (owner, 2026-08-03): from August 5 through
 August 10, replies to the client OR HER DESIGNEE (IDENTIFIED 8/4: her assistant, per her auto-reply; address in the private contacts file) that are purely logistics or schedule may SEND
 directly without per-email approval; every such send logs a one-line resolution
