@@ -41,6 +41,11 @@ INK = (6, 42, 64)                 # #062A40, the camp's ground colour as ink
 ACCENT = (219, 58, 0)             # #DB3A00
 MARGIN = 0.06                     # of the short edge, for matted frames
 MAX_CROP = 0.12                   # crop more of a frame than this and it gets matted
+MATTE_ALL = True                  # Noah, 2026-08-23: "have book layout matte all
+                                  # frames." Nothing bleeds. Every frame sits inside
+                                  # the margin on the camp's warm white, whole, at
+                                  # its own proportions. Set False to restore the
+                                  # bleed-under-12-percent rule.
 FONT = "/System/Library/Fonts/Avenir Next.ttc"
 
 
@@ -159,6 +164,11 @@ def build(press=False):
         if tall and nxt is not None and ims[nxt].height > ims[nxt].width:
             pages.append((pair(im, ims[nxt], page), f"{n} + {nxt}", "paired"))
             i += 2
+            continue
+        if MATTE_ALL:
+            pages.append((matted(im, page), str(n),
+                          "matted, portrait" if tall else "matted, landscape"))
+            i += 1
             continue
         if tall:
             pages.append((matted(im, page), str(n), "matted, portrait"))

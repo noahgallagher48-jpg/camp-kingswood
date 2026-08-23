@@ -37,7 +37,7 @@ PICKS_LANE = "Noah's Picks"
 # cannot drift from the PDF: 12x8 landscape, 6% of the short edge as the mat,
 # and a landscape frame that would lose more than 12% to the page gets matted
 # instead of bled.
-from build_book import PAGE_IN, MARGIN, MAX_CROP
+from build_book import PAGE_IN, MARGIN, MAX_CROP, MATTE_ALL
 
 
 def sizes_for(guidance, filename):
@@ -89,6 +89,7 @@ def build(show_prices=False):
         "page_in": list(PAGE_IN),
         "margin": MARGIN,
         "max_crop": MAX_CROP,
+        "matte_all": bool(MATTE_ALL),
     }
 
     html = PAGE.replace("__DATA__", json.dumps(data, separators=(",", ":")))
@@ -134,7 +135,7 @@ h1{font-weight:800;font-size:clamp(30px,5vw,46px);margin:0;letter-spacing:-.01em
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;margin:26px 0 0}
 figure{margin:0;position:relative;background:var(--panel);border-radius:8px;overflow:hidden}
 figure img{display:block;width:100%;height:auto;aspect-ratio:3/2;object-fit:cover;
- cursor:pointer;display:block}
+ cursor:zoom-in}
 figure{transition:box-shadow .14s,transform .14s}
 figure.in{box-shadow:inset 0 0 0 3px var(--accent);transform:translateY(-2px)}
 .n{position:absolute;top:9px;left:10px;font:600 11px Raleway,sans-serif;color:var(--ink);
@@ -196,6 +197,19 @@ figure.showsz .sz{display:block}
 .nav{display:flex;gap:8px}
 .how{color:var(--faint);font:600 10px Raleway,sans-serif;letter-spacing:.1em;
  text-transform:uppercase}
+.lb{position:fixed;inset:0;background:#04202F;z-index:70;display:none;flex-direction:column}
+.lb.on{display:flex}
+.lbbar{flex:0 0 auto;display:flex;align-items:center;gap:14px;padding:13px 22px;
+ border-bottom:1px solid var(--line)}
+.lbn{font:800 17px Raleway,sans-serif}
+.lbsz{flex:1;color:var(--soft);font-size:12.5px}
+.lbsz b{color:var(--ink);font-weight:600}
+.lbstage{flex:1;display:flex;align-items:center;justify-content:center;padding:22px;min-height:0}
+.lbstage img{max-width:100%;max-height:100%;object-fit:contain;display:block}
+.lbfoot{flex:0 0 auto;display:flex;align-items:center;justify-content:center;gap:10px;
+ padding:14px 22px 18px}
+.btn.on{background:var(--accent);border-color:var(--accent)}
+.hint{color:var(--faint);font-size:11.5px;margin:0 0 0 6px}
 .pnum b{color:var(--soft);font-weight:600}
 .note{margin:34px 0 0;padding:16px 18px;border:1px solid var(--line);border-radius:8px;
  color:var(--soft);font-size:13.5px;line-height:1.65}
@@ -230,6 +244,23 @@ figure.showsz .sz{display:block}
    <button class="btn go" id=play>See the book</button>
    <button class=btn id=copy>Copy the book</button>
   </div>
+ </div>
+</div>
+
+<div class=lb id=lb>
+ <div class=lbbar>
+  <span class=lbn id=lbn></span>
+  <span class=lbsz id=lbsz></span>
+  <span class=nav>
+   <button class=btn id=lbprev>Back</button>
+   <button class=btn id=lbnext>Next</button>
+  </span>
+  <button class=x id=lbclose aria-label="Close">&times;</button>
+ </div>
+ <div class=lbstage><img id=lbimg alt=""></div>
+ <div class=lbfoot>
+  <button class="btn go" id=lbadd></button>
+  <span class=hint>Arrow keys move, Esc closes</span>
  </div>
 </div>
 
@@ -290,7 +321,7 @@ function card(n){
     if (view === "book") paint();
   }
   glyph();
-  fig.querySelector("img").onclick = toggle;
+  fig.querySelector("img").onclick = function(){ openFrame(n); };
   fig.querySelector(".add").onclick = function(e){ e.stopPropagation(); toggle(); };
   fig.querySelector(".szbtn").onclick = function(e){
     e.stopPropagation();
@@ -342,6 +373,67 @@ function paintLane(){
   document.getElementById("play").disabled = !book.length;
 }
 
+/* THE FULL-SIZE VIEW. A thumbnail is not enough to decide with, so clicking one
+   opens the frame big, with its print sizes and one control that puts it in the
+   book or takes it out. The + chip on the card stays the fast path for frames
+   he already knows. */
+var lbEl = document.getElementById("lb");
+var lbAt = null;
+
+function lbList(){
+  return view === "picks" ? D.picks : (view === "rest" ? D.rest : book);
+}
+
+function paintCardState(n){
+  var list = document.querySelectorAll("#grid figure");
+  for (var i = 0; i < list.length; i++){
+    var fig = list[i];
+    if (fig.querySelector(".n").textContent !== String(n)) continue;
+    var shown = fig.classList.contains("showsz");
+    fig.className = (inBook(n) ? "in" : "") + (shown ? " showsz" : "");
+    fig.querySelector(".add").innerHTML = inBook(n) ? "&#10003;" : "+";
+  }
+}
+
+function paintLbButton(){
+  var b = document.getElementById("lbadd");
+  var isin = inBook(lbAt);
+  b.textContent = isin ? "In the book, take it out" : "Add to the book";
+  b.className = "btn" + (isin ? " on" : " go");
+}
+
+function openFrame(n){
+  var f = D.frames[n];
+  if (!f) return;
+  lbAt = n;
+  document.getElementById("lbimg").src = "img/present/" + f.f;
+  document.getElementById("lbn").textContent = n;
+  document.getElementById("lbsz").innerHTML = sizeLine(n);
+  paintLbButton();
+  var l = lbList();
+  document.getElementById("lbprev").disabled = l.indexOf(n) <= 0;
+  document.getElementById("lbnext").disabled = l.indexOf(n) === l.length - 1;
+  lbEl.classList.add("on");
+}
+
+function lbStep(d){
+  var l = lbList(), i = l.indexOf(lbAt);
+  if (i === -1) return;
+  var j = i + d;
+  if (j < 0 || j >= l.length) return;
+  openFrame(l[j]);
+}
+
+document.getElementById("lbadd").onclick = function(){
+  var i = book.indexOf(lbAt);
+  if (i === -1) book.push(lbAt); else book.splice(i, 1);
+  save(); paintLbButton(); paintLane(); paintCardState(lbAt);
+  if (view === "book") paint();
+};
+document.getElementById("lbclose").onclick = function(){ lbEl.classList.remove("on"); };
+document.getElementById("lbnext").onclick = function(){ lbStep(1); };
+document.getElementById("lbprev").onclick = function(){ lbStep(-1); };
+
 document.querySelectorAll(".tab").forEach(function(t){
   t.onclick = function(){
     document.querySelectorAll(".tab").forEach(function(o){ o.setAttribute("aria-selected","false"); });
@@ -354,12 +446,12 @@ document.querySelectorAll(".tab").forEach(function(t){
    landscape pages using build_book.py's own rules, then shows facing pages the
    way the printed book opens:
      two portraits in a row  -> paired on one page
-     a single portrait       -> matted on the warm white
-     a landscape frame       -> full bleed, unless the page would cost it more
-                                than 12 percent, in which case it is matted too
+     everything else         -> matted on the camp's warm white
+   Nothing bleeds (Noah, 2026-08-23). Every frame sits inside the margin, whole,
+   at its own proportions, so no page costs a composition its edges.
    Change the lane and the pagination changes with it, because that is what the
    PDF will do. */
-var PW = D.page_in[0], PH = D.page_in[1], MAXCROP = D.max_crop;
+var PW = D.page_in[0], PH = D.page_in[1], MAXCROP = D.max_crop, MATTEALL = D.matte_all;
 
 function cropLoss(w, h){
   var scale = Math.max(PW / w, PH / h);
@@ -377,6 +469,10 @@ function paginate(seq){
     if (tall && nf && nf.w && nf.h > nf.w){
       pages.push({t:"pair", n:[n, nx], how:"two portraits, one page"});
       i += 2; continue;
+    }
+    if (MATTEALL){
+      pages.push({t:"mat", n:[n], how:tall ? "matted, portrait" : "matted, landscape"});
+      i++; continue;
     }
     if (tall){ pages.push({t:"mat", n:[n], how:"portrait, matted"}); i++; continue; }
     var lost = cropLoss(f.w, f.h);
@@ -447,6 +543,13 @@ document.getElementById("close").onclick = function(){ bookEl.classList.remove("
 document.getElementById("next").onclick = function(){ showSpread(at + 1); };
 document.getElementById("prev").onclick = function(){ showSpread(at - 1); };
 document.addEventListener("keydown", function(e){
+  if (lbEl.classList.contains("on")){
+    if (e.key === "Escape") lbEl.classList.remove("on");
+    if (e.key === "ArrowRight") { e.preventDefault(); lbStep(1); }
+    if (e.key === "ArrowLeft") { e.preventDefault(); lbStep(-1); }
+    if (e.key === " ") { e.preventDefault(); document.getElementById("lbadd").click(); }
+    return;
+  }
   if (!bookEl.classList.contains("on")) return;
   if (e.key === "Escape") bookEl.classList.remove("on");
   if (e.key === "ArrowRight" || e.key === " ") { e.preventDefault(); showSpread(at + 1); }
