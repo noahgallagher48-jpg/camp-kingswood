@@ -55,7 +55,7 @@ def build(mode):
         # Selected BY NAME: taking shows[0] silently became "New since your last
         # pass" when the group order changed (caught 2026-08-20).
         by_name = {g["name"]: g["frames"] for g in shows}
-        top = by_name.get("Proposed forty-two") or (shows[0]["frames"] if shows else allf)
+        top = by_name.get("Noah's Picks") or (shows[0]["frames"] if shows else allf)
         shows = [{"name": "Summer 2026", "frames": top}]
 
     if mode in ("artifact", "client"):

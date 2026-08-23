@@ -23,7 +23,7 @@ on every later build. localStorage only lives in one browser on one origin; the
 file is what makes the work survive a rebuild, a new device, or a new session.
 
 Seeded groups are observations from the set read on 2026-08-19, offered as a
-head start, not a structure: the proposed forty-two, and the three runs that are
+head start, not a structure: Noah's Picks, and the three runs that are
 plainly in the take (Shabbat, the sign, night and stars).
 """
 import base64, io, json, os, re, sys
@@ -124,7 +124,7 @@ def build(mode):
     else:
         groups = []
         if proposed:
-            groups.append({"name": "Proposed forty-two", "frames": proposed})
+            groups.append({"name": "Noah's Picks", "frames": proposed})
         groups += [{"name": nm, "frames": [n for n in ns if n in by_num]}
                    for nm, ns in SEED_GROUPS]
         aside = []

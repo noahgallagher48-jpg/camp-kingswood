@@ -7,7 +7,7 @@ had matched by eye (the ground was wrong: #112337 vs their #062A40).
 
 The pool comes from the owner's arrangement (_work/arrangement_kw.json): every
 frame EXCEPT the set-aside ten (replaced by the _2 re-edits, his call 8/19).
-The picks reader leads with his top-choices group. Full-resolution downloads
+Noah's Picks reader leads with his top-choices group. Full-resolution downloads
 come from Drive per frame (_work/drive_ids_kw.json); web downloads come from
 img/present in this repo.
 
@@ -68,7 +68,7 @@ def pool():
     # pass" when the arrange tool reordered groups (same trap as the client
     # slideshow cut, caught 2026-08-20).
     by_name = {g["name"]: g["frames"] for g in a["groups"]}
-    picks_src = by_name.get("Proposed forty-two", a["groups"][0]["frames"])
+    picks_src = by_name.get("Noah's Picks", a["groups"][0]["frames"])
     picks = [n for n in picks_src if n in by_num and n not in aside]
     return by_num, keep, picks
 
@@ -298,7 +298,7 @@ body.sel #selbar{display:flex}
   <p class=date>Bridgton, Maine &middot; Summer 2026</p>
   <div class=rule></div>
   <button class=play id=play type=button><span class=tri>&#9654;</span> Play</button>
-  <p class=dlline>__N__ photographs in two sizes: full resolution for print, web for screens</p>
+  <p class=dlline>Every photograph in two sizes: full resolution for print, web for screens</p>
   <p class="dlline opts">
     <a href="__FOLDER__" target=_blank rel=noopener>All full res</a>
     <span class=dot>&middot;</span>
@@ -310,7 +310,7 @@ body.sel #selbar{display:flex}
   <p class=dlline style="font-size:12px">Full resolution comes from Google Drive. No sign-in needed.</p>
 </div>
 
-<div class=rhead><h2>The picks</h2><span>__NP__ FRAMES &middot; EVERYTHING ELSE FOLLOWS BELOW</span></div>
+<div class=rhead><h2>Noah&#x27;s Picks</h2><span>EVERYTHING ELSE FOLLOWS BELOW</span></div>
 <div class=reader id=picks></div>
 
 <div class=wrap>

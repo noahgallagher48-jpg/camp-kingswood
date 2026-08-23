@@ -196,7 +196,7 @@ __CARDS__
     try{ localStorage.setItem(KEY, JSON.stringify(list())); }catch(e){}
     var k=list().length;
     nEl.textContent=k;
-    subEl.textContent = k===42 ? "\\u00b7 the forty-two" : (k>42 ? "\\u00b7 "+(k-42)+" over" : "\\u00b7 "+(42-k)+" to go");
+    subEl.textContent = k===1 ? "\\u00b7 1 frame" : "\\u00b7 "+k+" frames";
   }
   function paint(n){ byNum[n].className = set[n] ? "card on" : "card";
     byNum[n].querySelector(".pick").setAttribute("aria-pressed", set[n]?"true":"false"); }

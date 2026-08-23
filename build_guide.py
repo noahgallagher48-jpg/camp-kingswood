@@ -47,13 +47,13 @@ ARR = os.path.join(HERE, "_work", "arrangement_kw.json")
 DELIVERY_URL = "delivery.html"
 
 # His groups, in the order the guide should read them, mapped to the name the
-# camp sees. "Proposed forty-two" is his working title for the agreement's
-# headline selection; the camp knows it as the forty-two. Any group not named
+# camp sees. The selection is NOAH'S PICKS (his ruling 2026-08-23: the client
+# is not counting frames, so no count is ever the label). Any group not named
 # here is a working label and stays internal.
 SECTIONS = [
-    ("Proposed forty-two", "The forty-two",
-     "The agreement's twelve campscapes and thirty storytelling candids. "
-     "Forty-two is a floor rather than a cap, and the selection grew in the edit."),
+    ("Noah's Picks", "Noah's Picks",
+     "The frames Noah selected across the week. The agreement sets twelve "
+     "mastered campscapes and thirty storytelling candids as the floor."),
     ("Shabbat", "Shabbat", ""),
     ("The sign", "The sign", ""),
     ("Night and stars", "Night and stars", ""),
@@ -99,11 +99,11 @@ def card(r, sec):
         dl.append(f'<a href="{r["wb"]}" target="_blank" rel="noopener">Web</a>')
     if r["d"]:
         dl.append(f'<a href="{r["d"]}" target="_blank" rel="noopener">Full res</a>')
-    # The pill marks a frame as one of the selected. Inside the forty-two's own
+    # The pill marks a frame as one of the selected. Inside the Picks' own
     # section that is what the heading already says, so it only earns its place
     # where a reader would not otherwise know.
-    pill = ('<span class="pill pick">The forty-two</span>'
-            if r["pick"] and sec != "The forty-two" else "")
+    pill = ('<span class="pill pick">Noah\'s Picks</span>'
+            if r["pick"] and sec != "Noah's Picks" else "")
     return f'''<figure class="card">
   <button class="ph" data-open="{r["n"]}" aria-label="Open frame {r["n"]}">
     <img loading="lazy" src="img/thumb/{r["f"]}" alt="Camp Kingswood, frame {r["n"]}">
@@ -127,10 +127,10 @@ def build():
                   if n in rows and not (n in seen or seen.add(n))]
         if not frames:
             continue
-        # The forty-two is a selection across the whole set, not a bucket that
+        # Noah's Picks is a selection across the whole set, not a bucket that
         # spends its frames: only the themed sections claim a frame as placed,
         # or every pick would vanish from the section it actually belongs to.
-        if src != "Proposed forty-two":
+        if src != "Noah's Picks":
             placed.update(frames)
         body.append(
             f'<h2 class="mv" id="{slug(title)}">{esc(title)}'
@@ -169,7 +169,7 @@ def build():
     no_full = [n for n in keep if not rows[n]["d"]]
     no_web = [n for n in keep if not rows[n]["wb"]]
     notes = sum(1 for n in keep if rows[n]["print"]["note"])
-    print(f"wrote {OUT}\n  {len(keep)} frames · {len(picks)} in the forty-two · "
+    print(f"wrote {OUT}\n  {len(keep)} frames · {len(picks)} in Noah's Picks · "
           f"{len(rest)} in the closing section · {notes} print notes")
     if no_full: print(f"  FULL RES MISSING for {no_full}")
     if no_web:  print(f"  WEB MISSING for {no_web}")
@@ -273,7 +273,7 @@ footer{max-width:1280px;margin:44px auto 0;padding:20px 20px 48px;border-top:1px
   <h1>Camp Kingswood</h1>
   <p class=date>Bridgton, Maine &middot; Summer 2026</p>
   <p class=lede>__N__ photographs from the week of August 5, each one in two file sizes,
-     with the largest size it prints at on every material. __NP__ of them are the forty-two.</p>
+     with the largest size it prints at on every material. __NP__ of them are Noah's Picks.</p>
   <p class=opts>
     <a href="__FOLDER__" target=_blank rel=noopener>All full res</a>
     <a href="__ZIP__">Everything for web</a>

@@ -31,7 +31,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 IMG = os.path.join(HERE, "img")
 ARR = os.path.join(HERE, "_work", "arrangement_kw.json")
 OUT = os.path.join(HERE, "show.html")
-PICKS_GROUP = "Proposed forty-two"
+PICKS_GROUP = "Noah's Picks"
 HOLD = 5  # seconds a frame is held, matching tick() below
 
 
