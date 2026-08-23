@@ -145,14 +145,31 @@ def build():
                 "wpx": w, "hpx": h}
     data_all = [rec(n) for n in keep]
     data_picks = [rec(n) for n in picks]
-    page = (PAGE.replace("</style>", SEL_CSS + "</style>")
-                .replace("</body>", SEL_HTML + "<script>" + SEL_JS + """
+    page = (PAGE.replace("</style>", SEL_CSS + BOOK_CSS + "</style>")
+                .replace("</body>", SEL_HTML + BOOK_HTML + "<script>" + SEL_JS + """
 $("seldl").onclick=downloadAll;
 $("selplay").onclick=playSelection;
 $("selwall").onclick=openWall;
 $("selbook").onclick=openBook;
+""" + BOOK_JS + TAB_JS + """
+bkWire();
 </script></body>"""))
+    arrangement = json.load(open(ARR))
+    by_name = {g["name"]: g["frames"] for g in arrangement["groups"]}
+    # The book lane is NOT fenced by the aside list: build_book.py is explicit
+    # that a frame can be wrong for the camp's library and right for the book,
+    # so the book's lane wins. Frames with no file on disk still drop.
+    seed = [n for n in by_name.get("The book", []) if n in by_num]
+    in_gallery = set(keep)
+    extra = [rec(n) for n in seed if n not in in_gallery]
+    send = json.load(open(os.path.join(HERE, "book_send.json"))) if \
+        os.path.exists(os.path.join(HERE, "book_send.json")) else {}
+    send = {k: send.get(k, "") for k in ("drive_endpoint", "web3forms_key", "subject")}
     html = (page.replace("__ALL__", json.dumps(data_all))
+                .replace("__BOOKSEED__", json.dumps(seed))
+                .replace("__BOOKEXTRA__", json.dumps(extra))
+                .replace("__BOOKPICKS__", json.dumps(picks))
+                .replace("__BOOKSEND__", json.dumps(send))
                 .replace("__PICKS__", json.dumps(data_picks))
                 .replace("__N__", str(len(keep)))
                 .replace("__NP__", str(len(picks)))
@@ -162,10 +179,27 @@ $("selbook").onclick=openBook;
     missing = [r["n"] for r in data_all if not r["d"]]
     print(f"wrote delivery.html ({len(keep)} frames, {len(picks)} picks; "
           f"full-res pending for {missing if missing else 'none'})")
+    print(f"  book lane: {len(seed)} frames" +
+          (f", {len(extra)} of them set aside from the gallery: "
+           f"{[r['n'] for r in extra]}" if extra else ""))
 
 
 sys.path.insert(0, os.path.expanduser("~/Abba_Photo/dashboard/tools"))
 from selection_actions import CSS as SEL_CSS, HTML as SEL_HTML, JS as SEL_JS
+from book_layout import CSS as BOOK_CSS, HTML as BOOK_HTML, JS as BOOK_JS
+TAB_JS = """
+document.querySelectorAll(".toptab").forEach(function(b){
+  b.onclick=function(){
+    var which=b.getAttribute("data-tab");
+    document.querySelectorAll(".toptab").forEach(function(o){
+      o.setAttribute("aria-selected", o===b ? "true" : "false"); });
+    document.getElementById("tab-gallery").className = which==="gallery" ? "on" : "";
+    document.getElementById("tab-book").className = which==="book" ? "on" : "";
+    document.getElementById("bklane").className = which==="book" ? "bklane on" : "bklane";
+    window.scrollTo(0,0);
+  };
+});
+"""
 
 PAGE = """<!DOCTYPE html><html lang=en><head><meta charset=utf-8>
 <meta name=viewport content="width=device-width,initial-scale=1">
@@ -290,6 +324,21 @@ body.sel #selbar{display:flex}
 #stage .x{position:absolute;top:10px;right:16px;z-index:3;background:none;border:0;
           color:#9CAABF;font-size:32px;cursor:pointer}
 @media (prefers-reduced-motion:reduce){#stage img,#lb img{transition:none}}
+
+/* the two modes, chosen at the top (Noah, 2026-08-23): gallery is the set and
+   its downloads, book layout is where the book gets built. They never mix. */
+.toptabs{display:flex;gap:8px;justify-content:center;margin:20px 0 0}
+.toptab{background:transparent;border:1px solid rgba(243,241,236,.28);color:inherit;
+ border-radius:24px;padding:10px 24px;font:600 14px inherit;cursor:pointer;letter-spacing:.01em}
+.toptab[aria-selected=true]{background:#DB3A00;border-color:#DB3A00;color:#F3F1EC}
+.open.opt2{padding-top:0}
+#tab-gallery{display:none}
+#tab-gallery.on{display:block}
+.bklede{max-width:62ch;margin:0 auto 20px;text-align:center;opacity:.72;font-size:14.5px;line-height:1.55}
+/* the generic Book preview action belongs to the gallery's selection tool and
+   is not the calibrated layout; the Book layout tab is. Hidden here so the page
+   offers one answer to "show me the book", not two. */
+#selbook{display:none}
 </style></head><body>
 
 <a class=home href="https://www.abba-photo.com/">Abba Photo</a>
@@ -297,6 +346,14 @@ body.sel #selbar{display:flex}
   <h1>Camp Kingswood</h1>
   <p class=date>Bridgton, Maine &middot; Summer 2026</p>
   <div class=rule></div>
+  <div class=toptabs role=tablist>
+    <button class=toptab role=tab data-tab=gallery aria-selected=true>Gallery</button>
+    <button class=toptab role=tab data-tab=book aria-selected=false>Book layout</button>
+  </div>
+</div>
+
+<div id=tab-gallery class=on>
+<div class="open opt2">
   <button class=play id=play type=button><span class=tri>&#9654;</span> Play</button>
   <p class=dlline>Every photograph in two sizes: full resolution for print, web for screens</p>
   <p class="dlline opts">
@@ -324,6 +381,20 @@ body.sel #selbar{display:flex}
 viewing distance forgive it. These are stock sizes, orderable as listed with no
 custom cutting, and each one matches that frame's own proportions, so nothing is
 cropped to fit. A few frames print true only as a custom cut; those say so.</p>
+</div>
+
+<div id=tab-book>
+ <div class=wrap>
+  <p class=bklede>Choose the photographs for the book, then see how they lay out on the page.
+  The strip along the bottom is the book in order, and it drags.</p>
+  <div class=bkchips role=tablist>
+   <button class=bkchip role=tab aria-selected=true data-view=picks>Noah&#x27;s Picks</button>
+   <button class=bkchip role=tab aria-selected=false data-view=all>All photographs</button>
+   <button class=bkchip role=tab aria-selected=false data-view=book>In the book</button>
+  </div>
+  <div class=bkgrid id=bkgrid></div>
+ </div>
+</div>
 
 <footer>
   <span>Photographs by Noah Gallagher</span>
@@ -360,7 +431,7 @@ cropped to fit. A few frames print true only as a custom cut; those say so.</p>
 </div>
 
 <script>
-var ALL=__ALL__, PICKS=__PICKS__;
+var ALL=__ALL__,BOOKSEED=__BOOKSEED__,BOOKEXTRA=__BOOKEXTRA__,BOOKPICKS=__BOOKPICKS__,BOOKSEND=__BOOKSEND__, PICKS=__PICKS__;
 function $(i){return document.getElementById(i);}
 // Largest size each frame prints at, off the master file, in sizes orderable
 // without a custom cut. Absent when the frame's proportions have no true
