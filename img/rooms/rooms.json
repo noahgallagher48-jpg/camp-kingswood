@@ -1,0 +1,22 @@
+{
+ "living_neutral": {
+  "plate": "img/rooms/living_neutral.jpg",
+  "ppi": 18.0,
+  "w": 2400,
+  "h": 1600,
+  "cx": 1200,
+  "cy": 500,
+  "label": "centered above the sofa",
+  "basis": "sofa body width 84 in"
+ },
+ "office_neutral": {
+  "plate": "img/rooms/office_neutral.jpg",
+  "ppi": 17.5,
+  "w": 2400,
+  "h": 1600,
+  "cx": 1200,
+  "cy": 500,
+  "label": "centered above the credenza",
+  "basis": "credenza body width 72 in"
+ }
+}

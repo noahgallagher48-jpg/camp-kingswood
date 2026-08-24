@@ -132,10 +132,6 @@ body.sel #selbar{display:flex}
 #tab-gallery{display:none}
 #tab-gallery.on{display:block}
 .bklede{max-width:62ch;margin:0 auto 20px;text-align:center;opacity:.72;font-size:14.5px;line-height:1.55}
-/* the generic Book preview action belongs to the gallery's selection tool and
-   is not the calibrated layout; the Book layout tab is. Hidden here so the page
-   offers one answer to "show me the book", not two. */
-#selbook{display:none}
 
 /* selection actions */
 #selbar .act{display:flex;gap:7px;flex-wrap:wrap}
@@ -145,25 +141,16 @@ body.sel #selbar{display:flex}
 #wall .in,#book .in{max-width:1080px;margin:0 auto}
 #wall h3,#book h3{font-size:21px;font-weight:800;margin-bottom:4px}
 #wall .sub,#book .sub{font-size:13px;opacity:.75;margin-bottom:20px;max-width:66ch}
-#wall .room{position:relative;background:linear-gradient(#efece5 0%,#e4e0d7 62%,#dcd7cc 100%);
-     border-radius:3px;overflow:hidden;margin-bottom:10px}
-#wall .floor{position:absolute;left:0;right:0;bottom:0;
-     background:linear-gradient(#b3a48d,#9d8c73)}
-#wall .base{position:absolute;left:0;right:0;background:#f4f1ea;
-     border-top:1px solid rgba(0,0,0,.10)}
-#wall .art{position:absolute;background:#1b1b1b;box-shadow:0 14px 30px rgba(0,0,0,.32);
+#wall .roomtabs{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px}
+#wall .roomtabs button{background:none;border:1px solid rgba(226,167,62,.5);color:#e2a73e;
+     padding:7px 13px;border-radius:16px;font-size:12px;cursor:pointer}
+#wall .roomtabs button.on{background:#e2a73e;color:#14110d;font-weight:600}
+#wall .plate{position:relative;line-height:0;border-radius:3px;overflow:hidden;
+     box-shadow:0 18px 50px rgba(0,0,0,.5);margin-bottom:10px}
+#wall .plate>img.roombg{width:100%;height:auto;display:block}
+#wall .art{position:absolute;background:#1b1b1b;box-shadow:0 12px 28px rgba(0,0,0,.4);
      padding:0;border:3px solid #fbfaf7;outline:1px solid rgba(0,0,0,.22)}
 #wall .art img{width:100%;height:100%;object-fit:cover;display:block}
-#wall .door{position:absolute;background:#e7e1d5;border:1px solid #b6a893;
-     box-shadow:inset 0 0 0 4px #ded7c8}
-#wall .door::after{content:"";position:absolute;right:9%;top:52%;width:5%;
-     padding-bottom:5%;border-radius:50%;background:#9a8a72}
-#wall .sofa{position:absolute;background:#71808c;border-radius:4px}
-#wall .sofa .back{position:absolute;left:0;right:0;top:0;background:#7d8c98;
-     border-radius:5px 5px 0 0}
-#wall .sofa .arm{position:absolute;top:14%;bottom:0;width:7%;background:#68767f;
-     border-radius:4px}
-#wall .sofa .arm.l{left:0}#wall .sofa .arm.r{right:0}
 #wall .cap{display:flex;justify-content:space-between;font-size:12px;opacity:.8;
      margin-bottom:22px;flex-wrap:wrap;gap:8px}
 #wall .cap b{opacity:1}
@@ -284,11 +271,8 @@ body.sel #selbar{display:flex}
   <p class=dlline style="font-size:12px">Full resolution comes from Google Drive. No sign-in needed.</p>
 </div>
 
-<div class=rhead><h2>Noah&#x27;s Picks</h2><span>EVERYTHING ELSE FOLLOWS BELOW</span></div>
-<div class=reader id=picks></div>
-
 <div class=wrap>
-  <div class=secthead><h2>Everything</h2><span>136 &middot; IN THE ORDER THEY WERE MADE</span></div>
+  <div class=secthead><h2>The photographs</h2><span>IN THE ORDER THEY WERE MADE &middot; TAP ONE TO VIEW, OR SELECT FRAMES</span></div>
   <div class=grid id=grid></div>
 </div>
 
@@ -361,13 +345,6 @@ function printText(r){
 }
 if("https://github.com/noahgallagher48-jpg/camp-kingswood/releases/download/kingswood-2026-web/kingswood_web.zip".length>8){$("zipall").style.display="";}
 
-var reader=$("picks");
-PICKS.forEach(function(r){
-  var f=document.createElement("figure");
-  f.innerHTML='<img loading=lazy src="img/present/'+r.f+'" alt="Camp Kingswood, Summer 2026">';
-  f.onclick=function(){openLb(idxOf(r.n));};
-  reader.appendChild(f);});
-
 var grid=$("grid"), sel={}, selMode=false;
 ALL.forEach(function(r,i){
   var c=document.createElement("div");c.className="c";c.dataset.n=r.n;
@@ -438,11 +415,11 @@ document.addEventListener("keydown",function(e){
 
 <div id=wall><button class=x type=button aria-label=Close>&times;</button><div class=in>
   <h3>See it on a wall</h3>
-  <p class=sub>Drawn to scale against a nine-foot wall. The sofa is seven feet, the
-     door is six foot eight. Every size offered is one you can order as listed.</p>
+  <p class=sub>At true scale in a real room. Every size offered is one you can order as listed.</p>
   <div class=frames id=wallframes></div>
+  <div class=roomtabs id=wallrooms></div>
   <div class=opts id=wallsizes></div>
-  <div class=room id=wallroom></div>
+  <div class=plate id=wallroom></div>
   <div class=cap id=wallcap></div>
 </div></div>
 
@@ -533,49 +510,65 @@ function openWall(){
     fb.appendChild(b);});
   $("wall").className="on"; paintWall();
 }
+/* The wall view composites over CALIBRATED PHOTOGRAPHIC PLATES, the ones Codex
+   built and merged 8/22. The first version drew the room in CSS rectangles;
+   Noah's verdict on Ramah was "the garbage one" and Kingswood carried the same
+   drawing until 8/24. Each plate ships a stated ppi and the furniture dimension
+   it was built to, so the art is arithmetic, not eyeballing:
+       art px = inches x plate ppi x (displayed width / plate width)
+   Plates load from img/rooms/rooms.json in the page's own repo. */
+var ROOMS=null, roomKey=null;
+fetch("img/rooms/rooms.json").then(function(r){return r.json();})
+  .then(function(j){ROOMS=j; roomKey=Object.keys(j)[0]; if($("wall").className==="on")paintWall();})
+  .catch(function(){ROOMS=null;});
+
 function paintWall(){
   var r=wallRow, sizes=[];
   ["metal","paper","canvas"].forEach(function(lab,i){ if(r.p[i]) sizes.push([r.p[i],lab]); });
-  if(!sizes.length){ $("wallroom").innerHTML=""; $("wallcap").innerHTML=
+  if(!sizes.length){ $("wallroom").innerHTML=""; $("wallrooms").innerHTML=""; $("wallcap").innerHTML=
       "<span>"+(r.pn||"No standard size for this frame.")+"</span>"; $("wallsizes").innerHTML=""; return; }
   if(!wallSize) wallSize=sizes[sizes.length-1][0];       // default: the biggest
+
+  var rt=$("wallrooms"); rt.innerHTML="";
+  Object.keys(ROOMS||{}).forEach(function(k){
+    var b=document.createElement("button"); b.type="button";
+    b.textContent = k==="living_neutral" ? "Living room" : "Office";
+    b.className=(k===roomKey?"on":"");
+    b.onclick=function(){roomKey=k;paintWall();};
+    rt.appendChild(b);});
+
   var ob=$("wallsizes"); ob.innerHTML="";
   sizes.forEach(function(s){
     var b=document.createElement("button"); b.type="button";
-    b.textContent=s[0].replace("x","\u00d7")+"\u2033 "+s[1];
+    b.textContent=s[0].replace("x","×")+"″ "+s[1];
     b.className=(s[0]===wallSize?"on":"");
     b.onclick=function(){wallSize=s[0];paintWall();};
     ob.appendChild(b);});
+
+  var room=$("wallroom");
+  if(!ROOMS||!roomKey){ room.innerHTML=""; $("wallcap").innerHTML="<span>The room plates did not load.</span>"; return; }
+  var R=ROOMS[roomKey];
   var wh=+wallSize.split("x")[0], ht=+wallSize.split("x")[1];
-  // sizes are listed short x long; orient to the frame itself
   var lands = (r.wpx&&r.hpx) ? r.wpx>r.hpx : true;
   var inW = lands?Math.max(wh,ht):Math.min(wh,ht), inH = lands?Math.min(wh,ht):Math.max(wh,ht);
-  // Room geometry in inches, then one scale for everything. 96in wall, 154in of
-  // it in view: a room, not a lobby. Art hangs at gallery height, centre 60in
-  // off the floor, which is why a 16x24 reads small over a seven-foot sofa.
-  var ROOM_W=154, FLOOR=14, BASE=5, HANG_C=60;
-  var room=$("wallroom");
-  // fit the whole room in view: scale by whichever of width or height binds
-  var maxH=Math.max(320, window.innerHeight-330);
-  var px=Math.min(room.clientWidth/ROOM_W, maxH/(WALL_H+FLOOR));
-  room.style.height=Math.round((WALL_H+FLOOR)*px)+"px";
-  room.style.width=Math.round(ROOM_W*px)+"px";
-  room.style.margin="0 auto 10px";
-  var artBottom=(FLOOR+HANG_C-inH/2)*px;
-  room.innerHTML=
-    '<div class=floor style="height:'+(FLOOR*px)+'px"></div>'+
-    '<div class=base style="bottom:'+(FLOOR*px)+'px;height:'+(BASE*px)+'px"></div>'+
-    '<div class=door style="left:4%;bottom:'+(FLOOR*px)+'px;height:'+(DOOR_H*px)+
-      'px;width:'+(32*px)+'px"></div>'+
-    '<div class=sofa style="left:40%;bottom:'+(FLOOR*px)+'px;width:'+(SOFA_W*px)+
-      'px;height:'+(31*px)+'px">'+
-      '<div class=back style="height:'+(13*px)+'px"></div>'+
-      '<div class="arm l"></div><div class="arm r"></div></div>'+
-    '<div class=art style="left:'+(40+((SOFA_W-inW)/2)/ROOM_W*100)+'%;bottom:'+artBottom+
-      'px;width:'+(inW*px)+'px;height:'+(inH*px)+'px">'+
-      '<img src="img/present/'+r.f+'" alt=""></div>';
+
+  room.innerHTML='<img class=roombg src="'+R.plate+'" alt="">'+
+    '<div class=art id=wallart><img src="img/present/'+r.f+'" alt=""></div>';
+  var bg=room.querySelector("img.roombg");
+  var place=function(){
+    var shown=room.clientWidth; if(!shown) return;
+    var s=shown/R.w;
+    var aw=inW*R.ppi*s, ah=inH*R.ppi*s;
+    var art=$("wallart"); if(!art) return;
+    art.style.width=aw+"px"; art.style.height=ah+"px";
+    art.style.left=(R.cx*s-aw/2)+"px";
+    art.style.top =(R.cy*s-ah/2)+"px";
+  };
+  if(bg.complete) place(); else bg.onload=place;
+  window.addEventListener("resize",place);
+
   $("wallcap").innerHTML='<span><b>'+(r.n!==undefined?"#"+r.n:r.id)+'</b> at <b>'+
-    inW+'\u00d7'+inH+'\u2033</b></span><span>'+printText(r)+'</span>';
+    inW+'×'+inH+'″</b>, '+R.label+'</span><span>True scale from the plate: '+R.basis+'. '+printText(r)+'</span>';
 }
 
 // ---- book preview

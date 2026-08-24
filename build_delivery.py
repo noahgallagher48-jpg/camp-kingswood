@@ -335,10 +335,6 @@ body.sel #selbar{display:flex}
 #tab-gallery{display:none}
 #tab-gallery.on{display:block}
 .bklede{max-width:62ch;margin:0 auto 20px;text-align:center;opacity:.72;font-size:14.5px;line-height:1.55}
-/* the generic Book preview action belongs to the gallery's selection tool and
-   is not the calibrated layout; the Book layout tab is. Hidden here so the page
-   offers one answer to "show me the book", not two. */
-#selbook{display:none}
 </style></head><body>
 
 <a class=home href="https://www.abba-photo.com/">Abba Photo</a>
@@ -367,11 +363,8 @@ body.sel #selbar{display:flex}
   <p class=dlline style="font-size:12px">Full resolution comes from Google Drive. No sign-in needed.</p>
 </div>
 
-<div class=rhead><h2>Noah&#x27;s Picks</h2><span>EVERYTHING ELSE FOLLOWS BELOW</span></div>
-<div class=reader id=picks></div>
-
 <div class=wrap>
-  <div class=secthead><h2>Everything</h2><span>__N__ &middot; IN THE ORDER THEY WERE MADE</span></div>
+  <div class=secthead><h2>The photographs</h2><span>IN THE ORDER THEY WERE MADE &middot; TAP ONE TO VIEW, OR SELECT FRAMES</span></div>
   <div class=grid id=grid></div>
 </div>
 
@@ -443,13 +436,6 @@ function printText(r){
   return out.length? "Prints to "+out.join(" \\u00b7 ") : "";
 }
 if("__ZIP__".length>8){$("zipall").style.display="";}
-
-var reader=$("picks");
-PICKS.forEach(function(r){
-  var f=document.createElement("figure");
-  f.innerHTML='<img loading=lazy src="img/present/'+r.f+'" alt="Camp Kingswood, Summer 2026">';
-  f.onclick=function(){openLb(idxOf(r.n));};
-  reader.appendChild(f);});
 
 var grid=$("grid"), sel={}, selMode=false;
 ALL.forEach(function(r,i){
