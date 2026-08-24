@@ -87,10 +87,13 @@ def print_html(r):
     p = r["print"]
     if p["note"]:
         return f'<div class="note">{esc(p["note"])}</div>'
-    parts = [(p["metal"], "metal"), (p["paper"], "paper"), (p["canvas"], "canvas")]
-    inner = " &middot; ".join(f'<b>{s.replace("x", "&times;")}&Prime;</b> {lab}'
-                              for s, lab in parts if s)
-    return f'<div class="sz">Prints to {inner}</div>' if inner else ""
+    parts = [("Metal", p["metal"]), ("Paper", p["paper"]),
+             ("Canvas", p["canvas"])]
+    rows = "".join(
+        f'<dt>{lab}</dt><dd>{size.replace("x", "&times;")}&Prime;</dd>'
+        for lab, size in parts if size)
+    return (f'<dl class="print-grid" aria-label="Largest standard print sizes">'
+            f'{rows}</dl>') if rows else ""
 
 
 def card(r, sec):
@@ -104,7 +107,10 @@ def card(r, sec):
     # where a reader would not otherwise know.
     pill = ('<span class="pill pick">Noah\'s Picks</span>'
             if r["pick"] and sec != "Noah's Picks" else "")
-    return f'''<figure class="card">
+    p = r["print"]
+    return f'''<figure class="card" data-frame="{r["n"]}" data-section="{slug(sec)}"
+  data-pick="{str(r["pick"]).lower()}" data-metal="{esc(p["metal"] or "")}"
+  data-paper="{esc(p["paper"] or "")}" data-canvas="{esc(p["canvas"] or "")}">
   <button class="ph" data-open="{r["n"]}" aria-label="Open frame {r["n"]}">
     <img loading="lazy" src="img/thumb/{r["f"]}" alt="Camp Kingswood, frame {r["n"]}">
     <span class="num">{r["n"]}</span></button>
@@ -120,7 +126,7 @@ def build():
     rows, keep, picks = load()
     groups = {g["name"]: g["frames"] for g in json.load(open(ARR))["groups"]}
 
-    body, nav, placed = [], [], set()
+    body, nav, section_options, placed = [], [], [], set()
     for src, title, lede in SECTIONS:
         seen = set()
         frames = [n for n in groups.get(src, [])
@@ -133,23 +139,27 @@ def build():
         if src != "Noah's Picks":
             placed.update(frames)
         body.append(
-            f'<h2 class="mv" id="{slug(title)}">{esc(title)}'
-            f'<span>{len(frames)} frames</span></h2><section>'
+            f'<div class="group" data-group="{slug(title)}">'
+            f'<h2 class="mv" id="{slug(title)}">{esc(title)}</h2><section>'
             + (f'<p class="lede">{esc(lede)}</p>' if lede else "")
             + f'<div class="cards">{"".join(card(rows[n], title) for n in frames)}</div>'
-            "</section>")
+            "</section></div>")
         nav.append(f'<a href="#{slug(title)}">{esc(title)}</a>')
+        section_options.append(
+            f'<option value="{slug(title)}">{esc(title)}</option>')
 
     rest = [n for n in keep if n not in placed]
     if rest:
         title, lede = REST
         body.append(
-            f'<h2 class="mv" id="{slug(title)}">{esc(title)}'
-            f'<span>{len(rest)} frames</span></h2><section>'
+            f'<div class="group" data-group="{slug(title)}">'
+            f'<h2 class="mv" id="{slug(title)}">{esc(title)}</h2><section>'
             f'<p class="lede">{esc(lede)}</p>'
             f'<div class="cards">{"".join(card(rows[n], title) for n in rest)}</div>'
-            "</section>")
+            "</section></div>")
         nav.append(f'<a href="#{slug(title)}">{esc(title)}</a>')
+        section_options.append(
+            f'<option value="{slug(title)}">{esc(title)}</option>')
 
     data = [{"n": n, "f": rows[n]["f"], "d": rows[n]["d"], "wb": rows[n]["wb"],
              "p": [rows[n]["print"]["metal"], rows[n]["print"]["paper"],
@@ -157,10 +167,9 @@ def build():
             for n in keep]
 
     out = (PAGE.replace("__NAV__", "".join(nav))
+               .replace("__SECTION_OPTIONS__", "".join(section_options))
                .replace("__BODY__", "\n".join(body))
                .replace("__DATA__", json.dumps(data))
-               .replace("__N__", str(len(keep)))
-               .replace("__NP__", str(len(picks)))
                .replace("__FOLDER__", FOLDER_URL)
                .replace("__ZIP__", ZIP_URL)
                .replace("__DELIVERY__", DELIVERY_URL))
@@ -191,7 +200,7 @@ PAGE = """<!DOCTYPE html><html lang=en><head><meta charset=utf-8>
       --ink:#F3F1EC;--muted:#9DB4C4;--faint:#6D8698;
       --accent:#DB3A00;--warm:#F0A882;--sand:#E8DFD2}
 *{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth;scroll-padding-top:62px}
+html{scroll-behavior:smooth;scroll-padding-top:148px}
 body{background:var(--ground);color:var(--ink);
      font-family:Raleway,-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;
      font-size:15px;line-height:1.55}
@@ -199,9 +208,11 @@ a{color:var(--warm);text-decoration:none}a:hover{text-decoration:underline}
 nav{position:sticky;top:0;z-index:20;background:rgba(6,42,64,.95);backdrop-filter:blur(6px);
     border-bottom:1px solid var(--line);padding:0 16px}
 nav .in{max-width:1280px;margin:0 auto;display:flex;gap:2px;overflow-x:auto}
-nav a{font-size:11.5px;letter-spacing:.05em;color:var(--muted);padding:12px 11px;white-space:nowrap}
+nav a{font-size:11.5px;letter-spacing:.05em;color:var(--muted);padding:12px 11px;white-space:nowrap;
+      border-bottom:2px solid transparent}
 nav a:hover{color:var(--accent);text-decoration:none}
-header{max-width:820px;margin:0 auto;padding:52px 20px 30px;text-align:center}
+nav a.active{color:var(--ink);border-bottom-color:var(--accent)}
+header{max-width:820px;margin:0 auto;padding:44px 20px 24px;text-align:center}
 h1{font-weight:800;font-size:clamp(30px,5.5vw,46px);letter-spacing:-.015em;color:var(--ink)}
 header .date{color:var(--muted);font-size:14.5px;margin-top:6px}
 header .lede{color:var(--muted);font-size:14.5px;margin-top:16px;max-width:62ch;
@@ -210,24 +221,50 @@ header .lede{color:var(--muted);font-size:14.5px;margin-top:16px;max-width:62ch;
 .opts a{border:1px solid rgba(219,58,0,.55);border-radius:4px;padding:8px 15px;
         font-size:12.5px;display:inline-block;margin:3px 2px;color:var(--ink)}
 .opts a:hover{background:rgba(219,58,0,.15);text-decoration:none}
-.start{max-width:820px;margin:8px auto 0;padding:26px 20px 6px}
-.start h2{font-weight:800;font-size:22px;color:var(--ink);margin-bottom:4px}
-.start .sub{color:var(--faint);font-size:12px;letter-spacing:.13em;
-            text-transform:uppercase;margin-bottom:16px}
+.tools{position:sticky;top:41px;z-index:19;background:rgba(6,42,64,.97);
+       border-bottom:1px solid var(--line);border-top:1px solid var(--line)}
+.tools .in{max-width:1280px;margin:0 auto;padding:10px 20px;display:grid;
+           grid-template-columns:minmax(190px,1.2fr) minmax(150px,.8fr) minmax(190px,1fr) auto;
+           gap:8px;align-items:end}
+.field{display:flex;flex-direction:column;gap:3px}
+.field label{font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+.find{display:flex;gap:6px}.find input{min-width:0;flex:1}
+input,select,.find button{height:36px;border:1px solid rgba(243,241,236,.22);border-radius:4px;
+       background:#092F46;color:var(--ink);font:inherit;font-size:12px;padding:0 10px}
+select{width:100%}.find button{cursor:pointer;border-color:rgba(219,58,0,.7);font-weight:700}
+.find button:hover{background:rgba(219,58,0,.16)}
+.tool-status{font-size:11px;color:var(--muted);padding-bottom:8px;white-space:nowrap}
+.tool-status.bad{color:var(--warm)}
+.recent{max-width:1280px;margin:0 auto;padding:0 20px 9px;display:none;align-items:center;gap:5px;flex-wrap:wrap}
+.recent.on{display:flex}.recent>span{font-size:9.5px;font-weight:700;letter-spacing:.1em;
+       text-transform:uppercase;color:var(--faint);margin-right:2px}
+.recent button{border:0;background:rgba(243,241,236,.09);color:var(--ink);border-radius:3px;
+       font:inherit;font-size:10.5px;padding:3px 7px;cursor:pointer}
+.recent button:hover{background:var(--accent)}
+.start{max-width:820px;margin:18px auto 0;padding:0 20px 6px}
+.start summary{list-style:none;cursor:pointer;border:1px solid var(--line);border-radius:6px;
+       padding:15px 17px;font-weight:800;font-size:18px;color:var(--ink);display:flex;
+       align-items:baseline;justify-content:space-between;gap:12px}
+.start summary::-webkit-details-marker{display:none}
+.start summary:after{content:'+';color:var(--accent);font-size:23px;line-height:1}
+.start[open] summary:after{content:'\2212'}
+.start summary span{font-weight:400;font-size:11px;color:var(--faint);letter-spacing:.05em}
+.start .manual{padding:18px 0 4px}
 .start dl{border-top:1px solid var(--line)}
 .start dt{font-weight:600;font-size:15px;color:var(--ink);
           padding:16px 0 5px;border-top:1px solid var(--line)}
 .start dt:first-of-type{border-top:0}
 .start dd{color:var(--muted);font-size:14px;line-height:1.62;padding-bottom:4px;max-width:68ch}
 .start dd b{color:var(--ink);font-weight:600}
-h2.mv{max-width:1280px;margin:46px auto 0;padding:0 20px;font-weight:800;font-size:26px;
-      color:var(--ink);display:flex;align-items:baseline;gap:12px}
-h2.mv span{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+h2.mv{max-width:1280px;margin:34px auto 0;padding:0 20px;font-weight:800;font-size:26px;
+      color:var(--ink);scroll-margin-top:150px}
 section{max-width:1280px;margin:0 auto;padding:14px 20px 4px}
 .lede{color:var(--muted);font-size:13.5px;max-width:70ch;margin-bottom:12px}
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:6px;overflow:hidden;
       content-visibility:auto;contain-intrinsic-size:260px 300px}
+.card.found{animation:found 1.6s ease-out}
+@keyframes found{0%,35%{box-shadow:0 0 0 3px var(--accent)}100%{box-shadow:none}}
 .card .ph{display:block;position:relative;width:100%;padding:0;border:0;background:none;cursor:pointer}
 .card img{width:100%;aspect-ratio:3/2;object-fit:cover;display:block}
 .card .num{position:absolute;left:7px;bottom:6px;font-size:10.5px;font-weight:700;color:#fff;
@@ -238,8 +275,13 @@ figcaption{padding:10px 12px 12px}
 .pill{font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
       padding:2.5px 7px;border-radius:3px}
 .pill.pick{background:var(--accent);color:#fff}
-.sz{font-size:12px;color:var(--muted);line-height:1.5}
-.sz b{color:var(--ink);font-weight:600}
+.print-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--line);
+            border-bottom:1px solid var(--line);padding:6px 0;margin-top:1px}
+.print-grid dt{grid-row:1;font-size:8.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.print-grid dd{grid-row:2;font-size:12px;font-weight:600;color:var(--ink)}
+.print-grid dt:nth-of-type(1),.print-grid dd:nth-of-type(1){grid-column:1}
+.print-grid dt:nth-of-type(2),.print-grid dd:nth-of-type(2){grid-column:2}
+.print-grid dt:nth-of-type(3),.print-grid dd:nth-of-type(3){grid-column:3}
 .note{font-size:12px;color:var(--sand);line-height:1.5}
 .dl{margin-top:9px;display:flex;gap:7px}
 .dl a{font-size:11.5px;border:1px solid rgba(219,58,0,.5);border-radius:4px;padding:4px 10px;
@@ -263,8 +305,14 @@ footer{max-width:1280px;margin:44px auto 0;padding:20px 20px 48px;border-top:1px
 #lb .bar .sz{font-size:12px;color:#DCE5EB}
 #lb .bar a{font-size:12px;border:1px solid rgba(219,58,0,.6);border-radius:4px;padding:6px 13px;
            color:#F3F1EC}
-@media (max-width:680px){header{padding:36px 16px 22px}section{padding:12px 14px 4px}
-  .start{padding:22px 16px 6px}}
+@media (max-width:760px){html{scroll-padding-top:214px}.tools .in{padding:9px 14px;
+  grid-template-columns:1fr 1fr}.field.find-field{grid-column:1/-1}.tool-status{padding:4px 0 0}
+  .recent{padding:0 14px 8px}header{padding:32px 16px 18px}section{padding:12px 14px 4px}
+  .start{padding:0 14px 6px}h2.mv{padding:0 14px;scroll-margin-top:216px}
+  .cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.card{border-radius:4px}
+  figcaption{padding:8px}.dl{gap:4px}.dl a{padding:4px 7px}.print-grid dd{font-size:10.5px}}
+@media (max-width:350px){.cards{grid-template-columns:1fr}.tools .in{grid-template-columns:1fr}
+  .field.find-field{grid-column:auto}.start summary span{display:none}}
 </style></head><body>
 
 <nav><div class=in><a href="#start">Start here</a>__NAV__</div></nav>
@@ -272,8 +320,8 @@ footer{max-width:1280px;margin:44px auto 0;padding:20px 20px 48px;border-top:1px
 <header>
   <h1>Camp Kingswood</h1>
   <p class=date>Bridgton, Maine &middot; Summer 2026</p>
-  <p class=lede>__N__ photographs from the week of August 5, each one in two file sizes,
-     with the largest size it prints at on every material. __NP__ of them are Noah's Picks.</p>
+  <p class=lede>Photographs from the week of August 5, each one in two file sizes,
+     with the largest size it prints at on every material. Noah's Picks are marked.</p>
   <p class=opts>
     <a href="__FOLDER__" target=_blank rel=noopener>All full res</a>
     <a href="__ZIP__">Everything for web</a>
@@ -281,9 +329,26 @@ footer{max-width:1280px;margin:44px auto 0;padding:20px 20px 48px;border-top:1px
   </p>
 </header>
 
-<div class=start id=start>
-  <h2>Start here</h2>
-  <p class=sub>How to use this library</p>
+<div class=tools aria-label="Guide controls"><div class=in>
+  <form class="field find-field" id=find-form>
+    <label for=find-frame>Find a frame</label>
+    <span class=find><input id=find-frame inputmode=numeric autocomplete=off placeholder="Frame number, for example 108">
+      <button type=submit>Find</button></span>
+  </form>
+  <span class=field><label for=section-filter>Section</label><select id=section-filter>
+    <option value=all>All sections</option>__SECTION_OPTIONS__</select></span>
+  <span class=field><label for=size-filter>Print capability</label><select id=size-filter>
+    <option value=all>Any print size</option>
+    <option value=metal-large>Metal: 16&times;24&Prime; or larger</option>
+    <option value=paper-large>Paper: 20&times;30&Prime; or larger</option>
+    <option value=canvas-large>Canvas: 24&times;36&Prime; or larger</option>
+  </select></span>
+  <span class=tool-status id=tool-status aria-live=polite>All photographs</span>
+</div><div class=recent id=recent><span>Recently viewed</span></div></div>
+
+<details class=start id=start>
+  <summary>Start here <span>File sizes, printing, credit, and finding frames</span></summary>
+  <div class=manual>
   <dl>
     <dt>Which file to use</dt>
     <dd><b>Web</b> is 3840 pixels on the long edge. It is sized for screens: the website,
@@ -316,7 +381,8 @@ footer{max-width:1280px;margin:44px auto 0;padding:20px 20px 48px;border-top:1px
         than re-saving the file you have. A JPEG loses a little every time it is saved again,
         and re-saving tends to drop the date and the credit along with it.</dd>
   </dl>
-</div>
+  </div>
+</details>
 
 __BODY__
 
@@ -343,27 +409,71 @@ function printText(r){
   for(var i=0;i<3;i++) if(r.p[i]) out.push("<b>"+r.p[i].replace("x","\\u00d7")+"\\u2033</b> "+m[i]);
   return out.length? "Prints to "+out.join(" \\u00b7 ") : "";
 }
-var cur=0;
-function openLb(i){cur=i;paintLb();$("lb").className="on";}
+var cur=0,lastTrigger=null,recent=[];
+try{recent=JSON.parse(localStorage.getItem("kingswood-guide-recent")||"[]");}catch(e){}
+function renderRecent(){var box=$("recent"),old=box.querySelectorAll("button");
+  old.forEach(function(b){b.remove();});
+  recent.forEach(function(n){var b=document.createElement("button");b.type="button";
+    b.textContent=n;b.setAttribute("data-jump",n);box.appendChild(b);});
+  box.className=recent.length?"recent on":"recent";}
+function remember(n){recent=[n].concat(recent.filter(function(x){return x!==n;})).slice(0,8);
+  try{localStorage.setItem("kingswood-guide-recent",JSON.stringify(recent));}catch(e){}
+  renderRecent();}
+function openLb(i,trigger){cur=i;lastTrigger=trigger||null;paintLb();$("lb").className="on";
+  document.body.style.overflow="hidden";remember(DATA[cur].n);document.querySelector("#lb .x").focus();}
+function closeLb(){$("lb").className="";document.body.style.overflow="";
+  if(lastTrigger){lastTrigger.focus();lastTrigger=null;}}
 function paintLb(){if(cur<0)cur=DATA.length-1;if(cur>=DATA.length)cur=0;
   var r=DATA[cur];$("lbi").src="img/present/"+r.f;
-  $("lbm").textContent=r.n+"  \\u00b7  "+(cur+1)+" / "+DATA.length;
+  $("lbm").textContent=r.n;
   $("lbsz").innerHTML=printText(r);
   $("lbw").href=r.wb||"__FOLDER__";
   $("lbf").href=r.d||"__FOLDER__";}
 document.addEventListener("click",function(e){
   var b=e.target.closest("[data-open]");
-  if(b){e.preventDefault();openLb(BY[b.getAttribute("data-open")]);}});
+  if(b){e.preventDefault();openLb(BY[b.getAttribute("data-open")],b);return;}
+  var j=e.target.closest("[data-jump]");if(j){jumpFrame(j.getAttribute("data-jump"));}});
 document.querySelector("#lb .zl").onclick=function(){cur--;paintLb();};
 document.querySelector("#lb .zr").onclick=function(){cur++;paintLb();};
-document.querySelector("#lb .x").onclick=function(){$("lb").className="";};
+document.querySelector("#lb .x").onclick=closeLb;
 document.addEventListener("keydown",function(e){
   if($("lb").className!=="on")return;
-  if(e.key==="Escape")$("lb").className="";
+  if(e.key==="Escape")closeLb();
   else if(e.key==="ArrowRight"){cur++;paintLb();}
   else if(e.key==="ArrowLeft"){cur--;paintLb();}});
+var sectionFilter=$("section-filter"),sizeFilter=$("size-filter"),toolStatus=$("tool-status");
+function sizeAtLeast(value,shortSide,longSide){if(!value)return false;
+  var p=value.split("x").map(Number).sort(function(a,b){return a-b;});
+  return p[0]>=shortSide&&p[1]>=longSide;}
+function passesSize(card){var f=sizeFilter.value;
+  if(f==="all")return true;
+  if(f==="metal-large")return sizeAtLeast(card.dataset.metal,16,24);
+  if(f==="paper-large")return sizeAtLeast(card.dataset.paper,20,30);
+  return sizeAtLeast(card.dataset.canvas,24,36);}
+function applyFilters(){var sec=sectionFilter.value;
+  document.querySelectorAll(".group").forEach(function(group){var groupOn=sec==="all"||group.dataset.group===sec;
+    var any=false;group.querySelectorAll(".card").forEach(function(card){
+      var on=groupOn&&passesSize(card);card.hidden=!on;if(on)any=true;});group.hidden=!any;});
+  var labels=[];if(sec!=="all")labels.push(sectionFilter.options[sectionFilter.selectedIndex].text);
+  if(sizeFilter.value!=="all")labels.push(sizeFilter.options[sizeFilter.selectedIndex].text);
+  toolStatus.textContent=labels.length?labels.join(" \\u00b7 "):"All photographs";toolStatus.className="tool-status";markNav();}
+sectionFilter.onchange=applyFilters;sizeFilter.onchange=applyFilters;
+function jumpFrame(value){var m=String(value).match(/\\d+/),n=m?String(parseInt(m[0],10)):"";
+  var target=document.querySelector('.card[data-frame="'+n+'"]');
+  if(!target){toolStatus.textContent="Frame "+(value||"")+" is not in this guide.";toolStatus.className="tool-status bad";return;}
+  sectionFilter.value="all";sizeFilter.value="all";applyFilters();
+  requestAnimationFrame(function(){target.scrollIntoView({behavior:"smooth",block:"center"});
+    target.classList.remove("found");void target.offsetWidth;target.classList.add("found");});}
+$("find-form").onsubmit=function(e){e.preventDefault();jumpFrame($("find-frame").value);};
+document.querySelectorAll("nav a").forEach(function(a){a.addEventListener("click",function(){
+  var id=a.getAttribute("href").slice(1),group=document.querySelector('.group[data-group="'+id+'"]');
+  if(group&&group.hidden){sectionFilter.value=id;applyFilters();}});});
+var heads=[].slice.call(document.querySelectorAll("h2.mv"));
+function markNav(){var active="start",cut=window.scrollY+175;
+  heads.forEach(function(h){if(!h.closest(".group").hidden&&h.offsetTop<=cut)active=h.id;});
+  document.querySelectorAll("nav a").forEach(function(a){a.classList.toggle("active",a.getAttribute("href")==="#"+active);});}
+window.addEventListener("scroll",markNav,{passive:true});renderRecent();applyFilters();markNav();
 </script>
-<script data-goatcounter="https://abbaphoto.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </body></html>"""
 
 
