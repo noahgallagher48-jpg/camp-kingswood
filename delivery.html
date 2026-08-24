@@ -322,7 +322,7 @@ cropped to fit. A few frames print true only as a custom cut; those say so.</p>
   <button class="zone zl" type=button aria-label=Previous></button>
   <button class="zone zr" type=button aria-label=Next></button>
   <button class=x type=button aria-label=Close>&times;</button>
-  <div class=bar><span class=m id=lbm></span><span class=sz id=lbsz></span><a id=lbw download>Web</a><a id=lbf target=_blank rel=noopener>Full res</a></div>
+  <div class=bar><span class=m id=lbm></span><span class=sz id=lbsz></span><button class=lnk id=lbwall type=button>See it on a wall</button><a id=lbw download>Web</a><a id=lbf target=_blank rel=noopener>Full res</a></div>
 </div>
 
 <div id=stage><img id=sa alt=""><img id=sb alt="">
@@ -597,6 +597,15 @@ $("seldl").onclick=downloadAll;
 $("selplay").onclick=playSelection;
 $("selwall").onclick=openWall;
 $("selbook").onclick=openBook;
+/* the wall, from the lightbox: one frame, no select mode needed */
+$("lbwall").onclick=function(){
+  var r=ALL[cur]; if(!r) return;
+  $("lb").className="";
+  wallRow=r; wallSize=null;
+  $("wallframes").innerHTML="";
+  $("wall").className="on";
+  paintWall();
+};
 
 /* ---- the book layout tab ------------------------------------------------
    Reads ALL from the gallery, so both tabs describe the same set. Pagination
