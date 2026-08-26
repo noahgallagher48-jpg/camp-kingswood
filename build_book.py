@@ -128,6 +128,41 @@ def pair(a, b, page):
     return out
 
 
+def montage(frames, page, cols=None):
+    """A grid of supporting frames on one page, to face a hero on the other.
+
+    Jodi's idea, 2026-08-26, in Noah's words: "the artful one is on the left and
+    then a montage of the other on the right." The girl reading the plaques
+    faces the plaques themselves; the waterfront hero faces the waterfront.
+
+    The grid holds its own margin rather than inheriting MATTE_ALL's, because a
+    matte around each cell plus a matte around the page reads as a mistake. One
+    outer margin, one gutter, cells cover-cropped to a common shape so the grid
+    is a grid and not a ragged wall.
+    """
+    from PIL import Image
+    pw, ph = page
+    n = len(frames)
+    if n == 0:
+        return Image.new("RGB", page, GROUND)
+    cols = cols or (1 if n == 1 else 2 if n <= 4 else 3)
+    rows = -(-n // cols)
+    m = round(min(pw, ph) * MARGIN)
+    gut = round(m * 0.55)
+    cw = (pw - 2 * m - gut * (cols - 1)) // cols
+    chh = (ph - 2 * m - gut * (rows - 1)) // rows
+    out = Image.new("RGB", page, GROUND)
+    for i, im in enumerate(frames):
+        s = max(cw / im.width, chh / im.height)
+        w, h = round(im.width * s), round(im.height * s)
+        cell = im.resize((w, h), Image.LANCZOS).crop(
+            ((w - cw) // 2, (h - chh) // 2, (w - cw) // 2 + cw, (h - chh) // 2 + chh))
+        x = m + (i % cols) * (cw + gut)
+        y = m + (i // cols) * (chh + gut)
+        out.paste(cell, (x, y))
+    return out
+
+
 def on_bleed(sheet, canvas):
     """Place a trim-sized sheet on the full bleed canvas.
 
