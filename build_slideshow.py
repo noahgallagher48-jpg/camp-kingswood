@@ -10,9 +10,17 @@ shows follow. Settings persist on the device; music is picked at runtime from
 local files (nothing uploads anywhere), so any track on the Mac or phone works
 and the page stays light.
 
-Two builds:
+Builds:
     python3 build_slideshow.py local     -> _work/slideshow.html
         Full 2560px frames off img/present. THE version for real presenting.
+    python3 build_slideshow.py tv        -> _work/slideshow_tv.html
+        5120x2880 frames off ../kwood_5K, for an external 5K screen. Opens on
+        Noah's Picks at 3 seconds, with everything else as "The rest" to run
+        after (Noah, 2026-08-25: "start with the picks at 3s, then I can play
+        the rest in background"). Its settings live under their own storage key
+        so it opens at 3s rather than inheriting whatever the desk build was
+        last set to. Runs from disk, not the published site: the tier is 585MB
+        and GitHub Pages soft-caps a site at 1GB.
     python3 build_slideshow.py artifact  -> _work/slideshow_portable.html
         700px embedded, self-contained; the phone/anywhere preview.
 """
@@ -20,8 +28,14 @@ import base64, io, json, os, re, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 PRESENT = os.path.join(HERE, "img", "present")
+# The 5K tier sits outside the repo on purpose: 585MB of it, and this repo is
+# published. _work/ is one level down from HERE, so the page reaches it with
+# ../../kwood_5K/ and plays straight off the disk over HDMI.
+TV = os.path.abspath(os.path.join(HERE, "..", "kwood_5K"))
+TV_HREF = "../../kwood_5K/"
 SAVED = os.path.join(HERE, "_work", "arrangement_kw.json")
 KEY = "kwood-slideshow-v1"
+TV_KEY = "kwood-tv-v1"
 
 
 def frame_no(f):
@@ -36,7 +50,8 @@ def frame_no(f):
 
 
 def build(mode):
-    files = sorted((f for f in os.listdir(PRESENT) if f.endswith(".jpg")), key=frame_no)
+    srcdir = TV if mode == "tv" else PRESENT
+    files = sorted((f for f in os.listdir(srcdir) if f.endswith(".jpg")), key=frame_no)
     by_num = {frame_no(f): f for f in files}
     allf = [frame_no(f) for f in files]
 
@@ -58,6 +73,17 @@ def build(mode):
         top = by_name.get("Noah's Picks") or (shows[0]["frames"] if shows else allf)
         shows = [{"name": "Summer 2026", "frames": top}]
 
+    if mode == "tv":
+        # The picks lead and everything else follows as one show, so the room
+        # can keep running after the deliberate cut ends.
+        by_name = {g["name"]: g["frames"] for g in shows}
+        top = by_name.get("Noah's Picks") or allf
+        rest = [n for n in allf if n not in set(top)]
+        shows = [{"name": "Noah's Picks", "frames": top}]
+        if rest:
+            shows.append({"name": "The rest", "frames": rest})
+        shows.append({"name": "All frames", "frames": allf})
+
     if mode in ("artifact", "client"):
         from PIL import Image
         src = {}
@@ -71,6 +97,10 @@ def build(mode):
                            "slideshow_client.html" if mode == "client" else "slideshow_portable.html")
         grade = ("preview quality" if mode == "client"
                  else "700px preview build; present from the local build for full resolution")
+    elif mode == "tv":
+        src = {n: TV_HREF + f for n, f in by_num.items()}
+        out = os.path.join(HERE, "_work", "slideshow_tv.html")
+        grade = "5120x2880 off the disk, for the screen on HDMI"
     else:
         src = {n: "../img/present/" + f for n, f in by_num.items()}
         out = os.path.join(HERE, "_work", "slideshow.html")
@@ -84,9 +114,15 @@ def build(mode):
                              "photographs Noah Gallagher &middot; Abba Photo")
                     .replace("<title>Camp Kingswood &middot; slideshow</title>",
                              "<title>Camp Kingswood &middot; Summer 2026</title>"))
+    if mode == "tv":
+        page = (page.replace('var cfg={show:0,secs:5,trans:"fade"};',
+                             'var cfg={show:0,secs:3,trans:"fade"};')
+                    .replace('id=secs min=2 max=12 step=0.5 value=5',
+                             'id=secs min=2 max=12 step=0.5 value=3'))
+
     html = (page.replace("__SRC__", json.dumps(src))
                 .replace("__SHOWS__", json.dumps(shows))
-                .replace("__KEY__", KEY)
+                .replace("__KEY__", TV_KEY if mode == "tv" else KEY)
                 .replace("__GRADE__", grade))
     os.makedirs(os.path.dirname(out), exist_ok=True)
     open(out, "w").write(html)
