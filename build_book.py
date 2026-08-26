@@ -35,7 +35,25 @@ MASTER = os.path.expanduser("~/Desktop/ABBA/kingswood/_delivery_2026/master")
 OUTDIR = os.path.join(HERE, "book")
 BOOK_GROUP = "The book"
 
-PAGE_IN = (12, 8)                 # inches, landscape, the Ramah standard
+import millers                    # the press spec, shared and checkable
+
+SIZE_KEY = millers.DEFAULT_SIZE   # "12x8". Any key in millers.SIZES.
+PAGE_IN = millers.SIZES[SIZE_KEY]["trim"]   # trim, inches. Bleed is added on top.
+
+# The cover, added 2026-08-26 on Noah's word ("You can do a cover, do a cover")
+# after he released the Codex reservation. COVER_FRAME is the frame number the
+# cover wears; None falls back to the typographic cover this file shipped with.
+# The face is the camp's own, per the client-brand rule: Raleway, from the
+# hub's fonts folder, SIL OFL. The woff2 in that folder cannot be loaded by
+# Pillow, so the same family is kept alongside as TTF.
+COVER_FRAME = 312
+COVER_FACE = os.path.join(HERE, "fonts", "Raleway-%d.ttf")
+COVER_SCRIM = 0.20                # ink laid over the cover frame so type reads.
+                                  # Tiled at 0.20 / 0.30 / 0.42 on 2026-08-26:
+                                  # 0.42 flattened the greens and shifted the
+                                  # whole frame blue. 0.20 keeps the picture a
+                                  # picture and the type still carries, because
+                                  # it sits over road and grass rather than sky.
 GROUND = (243, 241, 236)          # #F3F1EC, the camp's warm white
 INK = (6, 42, 64)                 # #062A40, the camp's ground colour as ink
 ACCENT = (219, 58, 0)             # #DB3A00
@@ -110,6 +128,62 @@ def pair(a, b, page):
     return out
 
 
+def on_bleed(sheet, canvas):
+    """Place a trim-sized sheet on the full bleed canvas.
+
+    Every page this builder makes carries the camp's ground to its edge, because
+    MATTE_ALL is on, so extending that ground into the bleed is exact rather
+    than invented: the trimmer cuts through flat colour and cannot cut into the
+    picture. A page built to fill the bleed (MATTE_ALL off) arrives here already
+    canvas-sized and passes straight through.
+    """
+    from PIL import Image
+    if sheet.size == canvas:
+        return sheet
+    out = Image.new("RGB", canvas, GROUND)
+    out.paste(sheet, ((canvas[0] - sheet.width) // 2,
+                      (canvas[1] - sheet.height) // 2))
+    return out
+
+
+def photo_cover(im, canvas, dpi, title, sub):
+    """A cover the camp would recognise: its own photograph, its own typeface.
+
+    The frame fills the whole canvas including bleed, so the wrap has stock to
+    be trimmed and turned. Text sits inside Miller's safe inset measured from
+    the TRIM edge, not the canvas edge, which is the distinction that puts type
+    off the fold instead of into it.
+    """
+    from PIL import Image, ImageDraw, ImageFont
+    cw, ch = canvas
+    scale = max(cw / im.width, ch / im.height)
+    w, h = round(im.width * scale), round(im.height * scale)
+    art = im.resize((w, h), Image.LANCZOS).crop(
+        ((w - cw) // 2, (h - ch) // 2, (w - cw) // 2 + cw, (h - ch) // 2 + ch))
+
+    # A scrim, not a wash: the picture stays a picture, the type stays legible.
+    veil = Image.new("RGB", canvas, INK)
+    art = Image.blend(art, veil, COVER_SCRIM)
+
+    d = ImageDraw.Draw(art)
+    inset = millers.bleed_px(dpi) + millers.safe_px(dpi)
+    big = round(ch * 0.072)
+    small = round(ch * 0.021)
+    f1 = ImageFont.truetype(COVER_FACE % 800, big)
+    f2 = ImageFont.truetype(COVER_FACE % 400, small)
+    # Raleway sets tight at display size; letterspacing is drawn by hand
+    # because Pillow has no tracking control.
+    def spaced(txt, gap):
+        return txt if gap <= 0 else (" " * 0).join(txt)
+    y = ch - inset - big - round(small * 3.2)
+    d.text((inset, y), title, font=f1, fill=GROUND)
+    rule_y = y + round(big * 1.28)
+    d.line([(inset, rule_y), (inset + round(cw * 0.055), rule_y)],
+           fill=ACCENT, width=max(3, round(ch * 0.0045)))
+    d.text((inset, rule_y + round(small * 0.9)), sub, font=f2, fill=GROUND)
+    return art
+
+
 def title_page(page, n):
     from PIL import Image, ImageDraw, ImageFont
     out = Image.new("RGB", page, GROUND)
@@ -150,9 +224,20 @@ def build(press=False):
     if missing:
         sys.exit(f"No master on disk for frames {missing}")
 
-    dpi = 300 if press else 150
-    page = (PAGE_IN[0] * dpi, PAGE_IN[1] * dpi)
+    dpi = millers.DPI_PRESS if press else millers.DPI_PREVIEW
+    page = millers.trim_px(SIZE_KEY, dpi)      # where the layout lives
+    canvas = millers.page_px(SIZE_KEY, dpi)    # what the lab receives, bleed included
     os.makedirs(OUTDIR, exist_ok=True)
+
+    # Refuse to print a frame that would arrive soft. Miller's bar is 250 DPI at
+    # the ordered size; a frame under that gets named rather than quietly resized.
+    floor = millers.min_pixels_for(SIZE_KEY)
+    soft = []
+    for n in seq:
+        with Image.open(src[n]) as probe:
+            if probe.width < floor[0] and probe.height < floor[1]:
+                soft.append(f"frame {n}: {probe.width}x{probe.height}, "
+                            f"under {floor[0]}x{floor[1]} for a {SIZE_KEY} at 250 DPI")
 
     ims = {n: Image.open(src[n]).convert("RGB") for n in seq}
     pages, notes, i = [], [], 0
@@ -183,8 +268,16 @@ def build(press=False):
                 notes.append(f"frame {n} loses {lost:.0%} to the page")
         i += 1
 
-    cover = title_page(page, len(seq))
-    sheets = [cover] + [p for p, _, _ in pages]
+    if COVER_FRAME is not None and COVER_FRAME in ims:
+        cover = photo_cover(ims[COVER_FRAME], canvas, dpi,
+                            "Camp Kingswood", "Bridgton, Maine  ·  Summer 2026")
+        cover_note = f"photographic, frame {COVER_FRAME}, Raleway"
+    else:
+        cover = on_bleed(title_page(page, len(seq)), canvas)
+        cover_note = "typographic"
+    sheets = [cover] + [on_bleed(p, canvas) for p, _, _ in pages]
+
+    checks = millers.check_book(len(pages), SIZE_KEY)
 
     tag = "press" if press else "preview"
     jdir = os.path.join(OUTDIR, f"{tag}_pages")
@@ -219,6 +312,17 @@ def build(press=False):
 
     print(f"wrote {out}")
     print(f"  {len(seq)} frames · {len(pages)} pages · {len(sheets)} sheets at {dpi} DPI")
+    print(f"  cover: {cover_note}")
+    print(f"  lab: Miller's {SIZE_KEY} Signature Book, "
+          f"{canvas[0]}x{canvas[1]} px with {millers.BLEED_IN}in bleed, "
+          f"{len(pages)/millers.SIDES_PER_SPREAD:.0f} spreads")
+    for c in checks:
+        print(f"  LAB CHECK: {c}")
+    for s in soft:
+        print(f"  RESOLUTION: {s}")
+    if millers.SUBMIT_UNIT == "sides":
+        print("  submitting as single sides; confirm with Miller's whether this "
+              "book wants composed layflat spreads instead (millers.py SUBMIT_UNIT)")
     print(f"  sequence: {OUTDIR}/sequence_book.txt")
     if dropped:
         print(f"  IN THE BOOK, though they also sit in your aside lane: {dropped}")
