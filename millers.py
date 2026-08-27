@@ -55,15 +55,37 @@ NOT CONFIRMED, and flagged wherever it matters:
 """
 
 # --- trim sizes, inches (w, h) -------------------------------------------
-# verified=True means this studio has ordered it and held the result.
+# The twelve sizes come from Codex's research pass, 2026-08-27, sourced to
+# Miller's live product page AND their SIGNATURE BOOK 2026 order form, which
+# agree. Logged in COLLAB_LOG. I independently verified that PDF exists and
+# carries the zip/transfer route and the art_info address; I could NOT verify
+# the size list from it myself, because the form is field-labelled and my text
+# extraction returns fragments. So the list is Codex-sourced, not Claude-checked,
+# and only 12x8 carries verified=True, which still means only one thing: this
+# studio has ordered it and held the result.
+# Codex also flagged a 15x10 debossing row on page 2 of that form which appears
+# on no current size list. Treated as stale boilerplate and deliberately absent.
 SIZES = {
+    # horizontal
     "12x8":   {"trim": (12, 8),   "verified": True,
                "note": "Ramah 2026, hardcover linen, $105.50 press"},
-    "10x10":  {"trim": (10, 10),  "verified": False, "note": "square, unconfirmed"},
-    "12x12":  {"trim": (12, 12),  "verified": False, "note": "square, referenced by Miller's"},
-    "8x8":    {"trim": (8, 8),    "verified": False, "note": "square, unconfirmed"},
-    "8x12":   {"trim": (8, 12),   "verified": False, "note": "portrait, unconfirmed"},
+    "10x8":   {"trim": (10, 8),   "verified": False, "note": "horizontal"},
+    "9x6":    {"trim": (9, 6),    "verified": False, "note": "horizontal"},
+    "7x5":    {"trim": (7, 5),    "verified": False, "note": "horizontal, added to Direct 2024"},
+    # square
+    "12x12":  {"trim": (12, 12),  "verified": False, "note": "square"},
+    "10x10":  {"trim": (10, 10),  "verified": False, "note": "square"},
+    "8x8":    {"trim": (8, 8),    "verified": False, "note": "square"},
+    "5x5":    {"trim": (5, 5),    "verified": False, "note": "square"},
+    # vertical
+    "8x12":   {"trim": (8, 12),   "verified": False, "note": "vertical"},
+    "8x10":   {"trim": (8, 10),   "verified": False, "note": "vertical"},
+    "6x9":    {"trim": (6, 9),    "verified": False, "note": "vertical"},
+    "5x7":    {"trim": (5, 7),    "verified": False, "note": "vertical, added to Direct 2024"},
 }
+
+# The Art Department's own address, read out of SIGNATURE BOOK 2026.pdf.
+ART_DEPT = "art_info@millerslab.com"
 DEFAULT_SIZE = "12x8"
 
 # --- press geometry ------------------------------------------------------
@@ -79,10 +101,28 @@ SPREAD_MIN_SOFT, SPREAD_MAX_SOFT = 10, 25
 SIDES_PER_SPREAD = 2
 
 # --- unconfirmed, must be set from the real template --------------------
-SUBMIT_UNIT = "sides"     # "sides" or "spreads". See NOT CONFIRMED above.
-SPINE_IN = None           # placeholder. Wrap covers refuse to build while None.
-                          # Not needed at all on the linen path: that cover is
+# SUBMISSION UNIT, narrowed 2026-08-27 by Codex's research, logged in COLLAB_LOG.
+# Miller's live Signature Book page states, for ROES: "Please size your files as
+# pano spreads when ordering in ROES." That is STATED-BY-MILLERS and it is the
+# strongest current answer.
+# It does NOT settle our route. We do not order through ROES; we send an already
+# composed book as a zip to the Art Department, and no Miller's page states the
+# unit for that path. Codex was careful not to generalise one into the other and
+# neither will this file. An older Albums and Books help page said layflat files
+# were panoramic except the first and last, which were single pages, but Miller's
+# changed Signature Books in 2016 to begin and end with white end leaves, so that
+# exception is unsafe to encode now.
+# Asked directly at art_info@millerslab.com; draft staged 2026-08-27.
+SUBMIT_UNIT = "sides"     # "sides" or "spreads"; see above before changing.
+SPINE_IN = None           # Not needed at all on the linen path: that cover is
                           # foil text on the order form, not artwork.
+                          # For a Custom Image wrap, Codex reports Miller's own
+                          # cover PSDs carry NINE spine widths from 0.250 to
+                          # 1.250 inches, chosen by trim size and spread-count
+                          # band, with no stock-specific formula published. Read
+                          # the number off the PSD for the exact size and spread
+                          # count rather than interpolating; whether spine width
+                          # is stock-independent is INFERRED, not stated.
 
 # How the work actually reaches the press, from the order form itself.
 DROP_URL = "https://transfer.millerslab.com/filedrop/"
