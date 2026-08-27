@@ -197,3 +197,13 @@ owner relays them (screenshot or paste) to the same inbox.
   margins. Fires only where the map names it, never guessed. Press proof for Noah's email to Jodi
   rendered at 300 DPI and trimmed flush as bound: _work/spread_224_for_jodi.jpg (2400x800).
   No book_spec.json is left on disk: the lane-based auto path is untouched.
+- 2026-08-27 (close, two frames in): 916 (canoe fisherman, Aug 8 morning) added end to end: EXIF
+  seeded from the CR3 (the export arrived stripped), credentialed, three tiers, master+web on
+  Drive with ids verified by direct download. Drive Desktop stamps placeholder local- ids before
+  an upload commits and drive_ids_827.py now refuses them (the real ids were read from the
+  folder's server-side listing when the local db lagged). ALSO FOUND AT CLOSE: an unnumbered
+  master Kwood827.jpg (climbing tower, Aug 6) had entered the pool at noon and was live as
+  "frame 1" via frame_no's fallback; renamed to 917 everywhere (pool, tiers, Drive in place so
+  ids survived, maps rekeyed). Page rebuilt at 301, zip rebuilt at 301 and the release asset
+  replaced (960337512 bytes, byte-matched). Delivery email is Noah's draft; ABBA-0006 PDF handed
+  to him for the attach. GOOD TO GO pending the live-site byte check after push.
