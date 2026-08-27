@@ -66,6 +66,16 @@ MATTE_ALL = True                  # Noah, 2026-08-23: "have book layout matte al
                                   # bleed-under-12-percent rule.
 FONT = "/System/Library/Fonts/Avenir Next.ttc"
 
+# HERO FACING ITS B-ROLL, Jodi's idea via Noah 2026-08-26: "the artful one is on
+# the left and then a montage of the other on the right."
+# hero frame number -> the frames montaged opposite it, 1 to 6.
+# EMPTY BY DEFAULT and it must stay that way until Noah assigns pairs, because
+# nobody but him decides which frames belong together. Codex caught on
+# 2026-08-27 that montage() had no caller at all: the function shipped and was
+# never wired, so the feature existed only in the commit message.
+# The hero must be in the book lane; its montage frames need not be.
+MONTAGE_SPREADS = {}
+
 
 def lane():
     a = json.load(open(ARR))
@@ -206,10 +216,6 @@ def photo_cover(im, canvas, dpi, title, sub):
     small = round(ch * 0.021)
     f1 = ImageFont.truetype(COVER_FACE % 800, big)
     f2 = ImageFont.truetype(COVER_FACE % 400, small)
-    # Raleway sets tight at display size; letterspacing is drawn by hand
-    # because Pillow has no tracking control.
-    def spaced(txt, gap):
-        return txt if gap <= 0 else (" " * 0).join(txt)
     y = ch - inset - big - round(small * 3.2)
     d.text((inset, y), title, font=f1, fill=GROUND)
     rule_y = y + round(big * 1.28)
@@ -281,6 +287,20 @@ def build(press=False):
         im = ims[n]
         tall = im.height > im.width
         nxt = seq[i + 1] if i + 1 < len(seq) else None
+        if n in MONTAGE_SPREADS:
+            grid = [m for m in MONTAGE_SPREADS[n] if m in src]
+            gone = [m for m in MONTAGE_SPREADS[n] if m not in src]
+            if grid:
+                pages.append((matted(im, page), str(n), "montage hero"))
+                gims = [Image.open(src[m]).convert("RGB") for m in grid]
+                pages.append((montage(gims, page), "+".join(map(str, grid)),
+                              f"montage, {len(grid)} facing {n}"))
+                if gone:
+                    notes.append(f"montage for {n} skipped missing frames {gone}")
+                i += 1
+                continue
+            notes.append(f"montage for {n} has no frames on disk {MONTAGE_SPREADS[n]}; "
+                         f"it fell back to a plain page")
         if tall and nxt is not None and ims[nxt].height > ims[nxt].width:
             pages.append((pair(im, ims[nxt], page), f"{n} + {nxt}", "paired"))
             i += 2

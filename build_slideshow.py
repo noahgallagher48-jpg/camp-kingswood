@@ -76,12 +76,23 @@ def build(mode):
     if mode == "tv":
         # The picks lead and everything else follows as one show, so the room
         # can keep running after the deliberate cut ends.
+        # NO FALLBACK TO THE WHOLE POOL. `or allf` used to mean that an empty
+        # picks group produced a show of all 298 frames LABELLED "Noah's Picks",
+        # which is a claim he never made; after the 8/27 swap reset the
+        # arrangement, that is exactly what a rebuild would have played on the
+        # television. Found by Codex on review, 2026-08-27. An unpicked set gets
+        # one honest show instead of a mislabelled one.
         by_name = {g["name"]: g["frames"] for g in shows}
-        top = by_name.get("Noah's Picks") or allf
-        rest = [n for n in allf if n not in set(top)]
-        shows = [{"name": "Noah's Picks", "frames": top}]
-        if rest:
-            shows.append({"name": "The rest", "frames": rest})
+        top = [n for n in by_name.get("Noah's Picks", []) if n in set(allf)]
+        if top:
+            rest = [n for n in allf if n not in set(top)]
+            shows = [{"name": "Noah's Picks", "frames": top}]
+            if rest:
+                shows.append({"name": "The rest", "frames": rest})
+        else:
+            shows = [{"name": "All photographs", "frames": allf}]
+            print("  no picks on file, so the show is All photographs; "
+                  "pick some and rebuild to lead with them")
         shows.append({"name": "All frames", "frames": allf})
 
     if mode in ("artifact", "client"):

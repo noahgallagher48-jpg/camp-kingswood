@@ -5,11 +5,13 @@ vermilion #DB3A00, warm white #F3F1EC, typeface Raleway. Those values were read
 off campkingswood.org's live computed styles on 2026-08-20, replacing colours I
 had matched by eye (the ground was wrong: #112337 vs their #062A40).
 
-The pool comes from the owner's arrangement (_work/arrangement_kw.json): every
-frame EXCEPT the set-aside ten (replaced by the _2 re-edits, his call 8/19).
-Noah's Picks reader leads with his top-choices group. Full-resolution downloads
-come from Drive per frame (_work/drive_ids_kw.json); web downloads come from
-img/present in this repo.
+The pool is every frame on disk in img/present MINUS the arrangement's aside
+list, which is the only fence. The page opens on the Gallery tab, not on a picks
+reader. Full-resolution AND web downloads both come from Drive per frame
+(_work/drive_ids_kw.json and _work/drive_web_ids_kw.json); the web tier is not
+in git, because JPEGs do not delta-compress and re-committing them tripled the
+repo. Corrected 2026-08-27 after Codex flagged this docstring as describing a
+page that no longer exists.
 
 Commands:
     python3 build_delivery.py ingest /path/to/folder    (web tiers from masters)
@@ -19,9 +21,9 @@ Commands:
 RELEASES: not connected to this delivery (Noah, 2026-08-19). The camp is
 receiving photographs of its own community; the camp holds that relationship.
 
-The "All for web" zip lives on DRIVE (Interlaken precedent; GitHub caps files
-at 100MB). ZIP_URL below stays empty until the zip is uploaded and its uc id
-is on file; the button hides itself while empty.
+The "All for web" zip ships from a GITHUB RELEASE, not Drive: Drive cannot
+virus-scan a file that large, so it serves a warning page and costs the client a
+second click. See ZIP_URL below, which says the same thing and is the truth.
 """
 import json, os, re, sys, zipfile
 
