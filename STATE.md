@@ -207,3 +207,7 @@ owner relays them (screenshot or paste) to the same inbox.
   ids survived, maps rekeyed). Page rebuilt at 301, zip rebuilt at 301 and the release asset
   replaced (960337512 bytes, byte-matched). Delivery email is Noah's draft; ABBA-0006 PDF handed
   to him for the attach. GOOD TO GO pending the live-site byte check after push.
+- 2026-08-27 (SENT): Noah sent the delivery email himself, 4:28pm ET, subject "the full set is
+  up," To Jodi cc Vessel, ABBA-0006 attached (verified in Sent). He also texted Jodi the
+  bleedhero spread proof directly. The delivery is CLOSED as a build; what remains is her reply,
+  the book conversation the spread opens, and payment due Sep 8.
