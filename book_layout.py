@@ -34,6 +34,13 @@ CSS = """
 .bkchip{background:transparent;border:1px solid rgba(243,241,236,.22);color:inherit;
  border-radius:22px;padding:8px 17px;font:600 13px inherit;cursor:pointer}
 .bkchip[aria-selected=true]{background:#DB3A00;border-color:#DB3A00;color:#F3F1EC}
+.bkwho{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 14px}
+.bkwholab{font-size:11px;letter-spacing:.14em;text-transform:uppercase;opacity:.6}
+.bkwhobtn{background:transparent;border:1px solid rgba(243,241,236,.22);color:inherit;
+  border-radius:999px;padding:5px 13px;font:inherit;font-size:12.5px;cursor:pointer}
+.bkwhobtn[aria-pressed=true]{background:#F3F1EC;border-color:#F3F1EC;color:#062A40}
+.bkwhonote{font-size:11.5px;opacity:.55}
+.bkempty{opacity:.6;font-size:14px;padding:26px 2px}
 .bkgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:13px}
 .bkcard{margin:0;position:relative;border-radius:8px;overflow:hidden;
  background:rgba(243,241,236,.06);transition:box-shadow .14s,transform .14s}
@@ -139,24 +146,92 @@ JS = r"""
    mirrors build_book.py: 12x8 landscape, two portraits in a row paired on one
    page, everything else matted, nothing bleeding. */
 var BKPW = 12, BKPH = 8, BKMATTEALL = true;
-var BKKEY = "kwood-book-v1";
+/* TWO PICKERS, ONE PAGE (Noah, 2026-08-27): "one section Jody's picks, one
+   section Noah's picks. Jody can pick Jody's picks, Noah picks Noah's picks
+   ... we should be able to see each others."
+
+   Each identity writes to its OWN localStorage store, so neither can overwrite
+   the other by opening the same link. What each SEES of the other is the list
+   baked into the page at build time: Noah's from the arrangement, the camp's
+   from _work/selections_client.json. That is the honest shape on a static host
+   with no server; the camp's live picks travel back with Save, and folding them
+   in is a rebuild.
+
+   THE KEY CARRIES THE SET (827). Selections are stored by frame NUMBER, and on
+   2026-08-27 the whole delivery was swapped, so a stored number now points at a
+   different photograph. Reusing the old key painted the old set's checks onto
+   the new one, which is exactly what Noah saw. Bump this whenever the pool is
+   replaced. */
+var BKSET = "827";
+var BKWHOKEY = "kwood-who";
+var bkWho = "camp";
+try { var w = localStorage.getItem(BKWHOKEY); if (w === "noah" || w === "camp") bkWho = w; } catch(e){}
+function bkKeyFor(who){ return "kwood-book-" + BKSET + "-" + who; }
+var BKKEY = bkKeyFor(bkWho);
 var BKBY = {}; ALL.forEach(function(r){ BKBY[r.n] = r; });
 /* The book may hold frames the gallery does not: the aside list fences the
    camp's library, not the book (build_book.py's rule). Those records ride
    along separately so the lane never silently shortens. */
 if (typeof BOOKEXTRA !== "undefined") BOOKEXTRA.forEach(function(r){ BKBY[r.n] = r; });
 var bkBook = [];
-try { var s = localStorage.getItem(BKKEY); if (s) bkBook = JSON.parse(s); } catch(e){}
-if (!bkBook.length) bkBook = (typeof BOOKSEED !== "undefined" ? BOOKSEED : []).slice();
-bkBook = bkBook.filter(function(n){ return BKBY[n]; });
-var bkView = "picks", bkFullAt = null;
+function bkLoad(){
+  bkBook = [];
+  try { var s = localStorage.getItem(BKKEY); if (s) bkBook = JSON.parse(s); } catch(e){}
+  /* Seed ONLY for the owner, and only when he has never picked on this set.
+     The camp opens an empty sheet, which is the point: nothing is checked
+     until she checks it. */
+  if (!bkBook.length && bkWho === "noah")
+    bkBook = (typeof BOOKSEED !== "undefined" ? BOOKSEED : []).slice();
+  bkBook = bkBook.filter(function(n){ return BKBY[n]; });
+}
+bkLoad();
+var bkView = "mine", bkFullAt = null;
 
 function bkSave(){ try{ localStorage.setItem(BKKEY, JSON.stringify(bkBook)); }catch(e){} }
+
+/* Switching identity swaps the whole store. Nothing is merged and nothing is
+   copied across, so one person can never quietly inherit the other's sheet. */
+function bkSetWho(who){
+  if (who !== "noah" && who !== "camp") return;
+  bkSave();
+  bkWho = who;
+  try { localStorage.setItem(BKWHOKEY, who); } catch(e){}
+  BKKEY = bkKeyFor(who);
+  bkLoad();
+  bkPaintWho(); bkStrip(); bkGrid();
+}
+function bkPaintWho(){
+  ["noah","camp"].forEach(function(w){
+    var b = document.getElementById("bkwho-" + w);
+    if (b) b.setAttribute("aria-pressed", w === bkWho ? "true" : "false");
+  });
+  var note = document.getElementById("bkwhonote");
+  if (note) note.textContent = (bkWho === "noah"
+    ? "your picks save on this device"
+    : "your picks save on this device; Save the book sends them to Noah");
+  var mine = document.getElementById("bkchip-mine");
+  if (mine) mine.textContent = (bkWho === "noah" ? "My picks (Noah)"
+                                                 : "My picks (Camp Kingswood)");
+}
 function bkIn(n){ return bkBook.indexOf(n) !== -1; }
 function bkList(){
   if (bkView === "book") return bkBook;
-  if (bkView === "picks") return (typeof BOOKPICKS !== "undefined" ? BOOKPICKS : []).filter(function(n){ return BKBY[n]; });
+  if (bkView === "mine") return bkBook;
+  /* The other side's picks are whatever was baked in at build time. If a list
+     is empty the grid says so rather than showing the whole set, because an
+     unfenced grid under a named heading reads as "they picked everything". */
+  if (bkView === "picks")
+    return (typeof BOOKPICKS !== "undefined" ? BOOKPICKS : []).filter(function(n){ return BKBY[n]; });
+  if (bkView === "clientpicks")
+    return (typeof CLIENTPICKS !== "undefined" ? CLIENTPICKS : []).filter(function(n){ return BKBY[n]; });
   return ALL.map(function(r){ return r.n; });
+}
+function bkEmptyNote(){
+  if (bkView === "mine") return "Nothing picked yet. Tap a photograph to add it.";
+  if (bkView === "picks") return "Noah has not sent his picks for this set yet.";
+  if (bkView === "clientpicks") return "Camp Kingswood has not sent picks for this set yet.";
+  if (bkView === "book") return "The book is empty. Add photographs from My picks.";
+  return "";
 }
 
 function bkToggle(n){
@@ -177,7 +252,15 @@ function bkPaintCard(n){
 function bkGrid(){
   var g = document.getElementById("bkgrid");
   g.innerHTML = "";
-  bkList().forEach(function(n){
+  var list = bkList();
+  if (!list.length){
+    var p = document.createElement("p");
+    p.className = "bkempty";
+    p.textContent = bkEmptyNote();
+    g.appendChild(p);
+    return;
+  }
+  list.forEach(function(n){
     var r = BKBY[n]; if (!r) return;
     var fig = document.createElement("figure");
     fig.className = "bkcard" + (bkIn(n) ? " in" : "");
@@ -354,6 +437,10 @@ function bkWire(){
       bkView = c.getAttribute("data-view"); bkGrid();
     };
   });
+  document.querySelectorAll(".bkwhobtn").forEach(function(b){
+    b.onclick = function(){ bkSetWho(b.getAttribute("data-who")); };
+  });
+  bkPaintWho();
   document.getElementById("bksee").onclick = function(){
     if (!bkBook.length) return;
     BKSP = bkSpreads(bkPaginate(bkBook));

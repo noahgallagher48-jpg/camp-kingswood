@@ -73,6 +73,27 @@ def pool():
     return by_num, keep, picks
 
 
+def client_picks():
+    """The camp's own picks, from their own file.
+
+    Kept apart from the owner's arrangement on purpose (Noah, 2026-08-27): she
+    picks hers, he picks his, and neither tool writes the other's list. Her live
+    picking happens in her browser; this is what has been folded in so far, and
+    it is what HE sees of her choices on the page.
+    """
+    p = os.path.join(HERE, "_work", "selections_client.json")
+    if not os.path.exists(p):
+        return []
+    try:
+        d = json.load(open(p))
+    except Exception:
+        return []
+    sets = d.get("sets") or []
+    if not sets:
+        return []
+    return list(sets[-1].get("frames", []))   # the most recent set she sent
+
+
 def ingest(folder):
     import io
     from PIL import Image, ImageCms
@@ -178,6 +199,7 @@ bkWire();
                 .replace("__BOOKSEED__", json.dumps(seed))
                 .replace("__BOOKEXTRA__", json.dumps(extra))
                 .replace("__BOOKPICKS__", json.dumps(picks))
+                .replace("__CLIENTPICKS__", json.dumps(client_picks()))
                 .replace("__BOOKSEND__", json.dumps(send))
                 .replace("__PICKS__", json.dumps(data_picks))
                 .replace("__N__", str(len(keep)))
@@ -389,8 +411,16 @@ cropped to fit. A few frames print true only as a custom cut; those say so.</p>
  <div class=wrap>
   <p class=bklede>Choose the photographs for the book, then see how they lay out on the page.
   The strip along the bottom is the book in order, and it drags.</p>
+  <div class=bkwho>
+   <span class=bkwholab>Picking as</span>
+   <button class=bkwhobtn id=bkwho-camp data-who=camp>Camp Kingswood</button>
+   <button class=bkwhobtn id=bkwho-noah data-who=noah>Noah</button>
+   <span class=bkwhonote id=bkwhonote></span>
+  </div>
   <div class=bkchips role=tablist>
-   <button class=bkchip role=tab aria-selected=true data-view=picks>Noah&#x27;s Picks</button>
+   <button class=bkchip role=tab aria-selected=true data-view=mine id=bkchip-mine>My picks</button>
+   <button class=bkchip role=tab aria-selected=false data-view=picks>Noah&#x27;s Picks</button>
+   <button class=bkchip role=tab aria-selected=false data-view=clientpicks>Camp Kingswood&#x27;s picks</button>
    <button class=bkchip role=tab aria-selected=false data-view=all>All photographs</button>
    <button class=bkchip role=tab aria-selected=false data-view=book>In the book</button>
   </div>
@@ -433,7 +463,7 @@ cropped to fit. A few frames print true only as a custom cut; those say so.</p>
 </div>
 
 <script>
-var ALL=__ALL__,BOOKSEED=__BOOKSEED__,BOOKEXTRA=__BOOKEXTRA__,BOOKPICKS=__BOOKPICKS__,BOOKSEND=__BOOKSEND__, PICKS=__PICKS__;
+var ALL=__ALL__,BOOKSEED=__BOOKSEED__,BOOKEXTRA=__BOOKEXTRA__,BOOKPICKS=__BOOKPICKS__,CLIENTPICKS=__CLIENTPICKS__,BOOKSEND=__BOOKSEND__, PICKS=__PICKS__;
 function $(i){return document.getElementById(i);}
 // Largest size each frame prints at, off the master file, in sizes orderable
 // without a custom cut. Absent when the frame's proportions have no true
