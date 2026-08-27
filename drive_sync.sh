@@ -20,7 +20,7 @@
 set -e
 CMD="${1:-check}"
 DRIVE="$HOME/Library/CloudStorage/GoogleDrive-noah@abba-photo.com/My Drive/Kingswood/kwood819"
-POOL="$HOME/Desktop/ABBA/kingswood/DRIVE_UPLOAD_117"
+POOL="$HOME/Abba_Photo/Kwood_827"   # consolidated 2026-08-27
 
 [ -d "$POOL" ]  || { echo "pool folder missing: $POOL"; exit 1; }
 [ -d "$DRIVE" ] || { echo "Drive not mounted at: $DRIVE

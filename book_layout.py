@@ -162,7 +162,8 @@ var BKPW = 12, BKPH = 8, BKMATTEALL = true;
    different photograph. Reusing the old key painted the old set's checks onto
    the new one, which is exactly what Noah saw. Bump this whenever the pool is
    replaced. */
-var BKSET = "827";
+var BKSET = "827b";   /* bumped 2026-08-27 on Noah's "reset picks": every
+   device opens a clean sheet, his and hers both. The 827 keys are dead. */
 var BKWHOKEY = "kwood-who";
 var bkWho = "camp";
 try { var w = localStorage.getItem(BKWHOKEY); if (w === "noah" || w === "camp") bkWho = w; } catch(e){}

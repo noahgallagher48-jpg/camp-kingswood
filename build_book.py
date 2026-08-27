@@ -31,7 +31,9 @@ sys.path.insert(0, HERE)
 from build_delivery import frame_no
 
 ARR = os.path.join(HERE, "_work", "arrangement_kw.json")
-MASTER = os.path.expanduser("~/Desktop/ABBA/kingswood/_delivery_2026/master")
+MASTER = os.path.expanduser("~/Abba_Photo/Kwood_827")   # THE master set since the 8/27
+                                  # consolidation; superseded staging lives in
+                                  # kingswood/_archive_pre827_staging
 OUTDIR = os.path.join(HERE, "book")
 BOOK_GROUP = "The book"
 

@@ -30,10 +30,9 @@ MATTE = (0, 0, 0)
 QUALITY = 92
 
 MASTER_DIRS = [
+    os.path.expanduser("~/Abba_Photo/Kwood_827"),
     os.path.expanduser("~/Library/CloudStorage/GoogleDrive-noah@abba-photo.com/My Drive/Kingswood/kwood819"),
-    os.path.expanduser("~/Desktop/ABBA/kingswood/masters_delivery"),
-    os.path.expanduser("~/Desktop/ABBA/kingswood/DRIVE_UPLOAD_117"),
-]
+]   # consolidated 2026-08-27; superseded staging archived
 
 CAPTURE_TAGS = [
     "-EXIF:DateTimeOriginal", "-EXIF:CreateDate", "-EXIF:ModifyDate",
