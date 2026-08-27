@@ -32,8 +32,12 @@ goes in it that the client has not made public.
   camp's team covers daily camp; the owner captures what is special. If a
   shot-list or assignment request arrives by email, that is SCOPE: stage the
   reply and escalate, never absorb it into the plan.
-- Releases NOT confirmed: no camper or minor faces on this page until STATE
-  records the camp's confirmation.
+- RELEASES ARE IN HAND (Noah, 2026-08-27: "do not worry about releases I have all
+  releases"). No face gate on this engagement. This supersedes the earlier
+  not-confirmed line, which was stale and had already been ruled out on 8/19
+  (delivering a camp photographs of its own community is not publication; the camp
+  holds that relationship). A frame moving to one of Noah's OWN promotional
+  surfaces is still a separate decision.
 - No donor or patron names on this page, ever (the dedicated book's recipients
   are named only in private docs).
 
