@@ -82,6 +82,13 @@ CSS = """
 .bpg.mat{padding:4%}
 .bpg.pair{padding:4%;gap:3.6%}
 .bpg.bleed img{width:100%;height:100%;object-fit:cover}
+/* the grid page that faces a bleedhero: book margins, paper between the frames */
+.bpg[class*=" g"]{display:grid;padding:5.4%;gap:3.2%}
+.bpg.g4{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}
+.bpg.g2{grid-template-columns:1fr 1fr}
+.bpg.g3,.bpg.g6{grid-template-columns:1fr 1fr 1fr}
+.bpg.g6{grid-template-rows:1fr 1fr}
+.bpg[class*=" g"] img{width:100%;height:100%;object-fit:cover;display:block}
 .bpg img{max-width:100%;max-height:100%;object-fit:contain;display:block}
 .bgut{position:absolute;top:0;bottom:0;left:50%;width:1px;background:rgba(6,42,64,.15)}
 .bcov{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;
@@ -146,6 +153,9 @@ JS = r"""
    mirrors build_book.py: 12x8 landscape, two portraits in a row paired on one
    page, everything else matted, nothing bleeding. */
 var BKPW = 12, BKPH = 8, BKMATTEALL = true;
+/* Frame number -> the frames that face it, for the bleedhero spread. One line
+   per spread; the same data build_book.py takes as {"style":"bleedhero"}. */
+var BKBLEEDHERO = {224: [221, 222, 223, 225]};
 /* TWO PICKERS, ONE PAGE (Noah, 2026-08-27): "one section Jody's picks, one
    section Noah's picks. Jody can pick Jody's picks, Noah picks Noah's picks
    ... we should be able to see each others."
@@ -347,6 +357,19 @@ function bkPaginate(seq){
     var nr = nx !== null ? BKBY[nx] : null;
     if (tall && nr && nr.wpx && nr.hpx > nr.wpx){
       pages.push({t:"pair", n:[n, nx], how:"two portraits, one page"}); i += 2; continue;
+    }
+    /* BLEEDHERO (Noah, 2026-08-27, the plaque-wall spread): an establishing frame
+       that bleeds on the left, four details facing it on the right. Mirrors the
+       bleedhero style in build_book.py, so what shows here is what prints. Fires
+       only where the spec asks for it, by frame number, never guessed. */
+    var bh = BKBLEEDHERO[n];
+    if (bh && bh.every(function(g){ return BKBY[g]; })){
+      var lostH = bkCropLoss(r.wpx, r.hpx);
+      if (lostH <= 0.12){
+        pages.push({t:"bleed", n:[n], how:"full bleed, the establishing frame"});
+        pages.push({t:"grid g" + bh.length, n:bh.slice(), how:"the " + bh.length + " it looks at"});
+        i++; continue;
+      }
     }
     if (BKMATTEALL){
       pages.push({t:"mat", n:[n], how:tall ? "matted, portrait" : "matted, landscape"}); i++; continue;

@@ -185,3 +185,11 @@ owner relays them (screenshot or paste) to the same inbox.
   renderer at 12x8 preview geometry: 224 bleeds at 1% crop, grid renders 4-up, zero problems.
   Usage: {"style":"bleedhero","frames":[224],"grid":[221,222,223,225]} in _work/book_spec.json.
   Web/mockup versions of the same arrangement live at ~/Desktop/ABBA/_design/split-hero/.
+- 2026-08-27 (bleedhero on both sides + the email asset): the spread style now exists in BOTH
+  renderers so screen and press agree. build_book.py: style "bleedhero", full-bleed hero left,
+  its 2-6 frame grid facing right, same MAX_CROP refusal and matte fallback as "bleed".
+  book_layout.py: the on-screen book tab paginates the same spread from BKBLEEDHERO, one line per
+  spread ({224:[221,222,223,225]}), and the facing page got grid CSS (g2/g3/g4/g6) with book
+  margins. Fires only where the map names it, never guessed. Press proof for Noah's email to Jodi
+  rendered at 300 DPI and trimmed flush as bound: _work/spread_224_for_jodi.jpg (2400x800).
+  No book_spec.json is left on disk: the lane-based auto path is untouched.
