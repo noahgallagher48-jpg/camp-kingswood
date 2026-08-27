@@ -91,8 +91,17 @@ def main():
     stale = [k for k in full if not k.startswith("Kwood827")]
     if stale:
         print(f"  {len(stale)} non-8/27 names still in the masters folder, e.g. {stale[:3]}")
-    if mfull or mweb:
-        print("  NOT WRITING: some files have no Drive id yet. Rerun when sync finishes.")
+    # PLACEHOLDER IDS (2026-08-27): Drive Desktop stamps a local-NNNN id the
+    # moment a file lands in the mount and only swaps in the real id once the
+    # upload commits. Those sail past the missing-id check above, and a page
+    # built on one serves a download link that 404s. Treat them as not-yet-synced.
+    pfull = sorted(k for k, v in full.items() if str(v).startswith("local-"))
+    pweb = sorted(k for k, v in web.items() if str(v).startswith("local-"))
+    for label, ph in (("masters", pfull), ("web", pweb)):
+        if ph:
+            print(f"  {len(ph)} {label} files still UPLOADING (placeholder id): {ph[:3]}")
+    if mfull or mweb or pfull or pweb:
+        print("  NOT WRITING: some files have no real Drive id yet. Rerun when sync finishes.")
         return
     if "--write" in sys.argv:
         json.dump(full, open(FULL, "w"), indent=1)
