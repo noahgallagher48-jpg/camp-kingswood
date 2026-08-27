@@ -367,7 +367,51 @@ def build(press=False):
           "not checked here")
 
 
+def submit(cover_route="linen"):
+    """Package the press pages the way Miller's order form asks for them, and
+    print the checklist that turns a folder into an ordered book.
+
+    Their form says it plainly: "Miller's Transfer Link to zip: right click on
+    folder, Send to> Compressed folder". So the deliverable is a zipped folder
+    of numbered pages plus the filled order form, not a PDF emailed anywhere.
+    """
+    import zipfile
+    build(press=True)
+    jdir = os.path.join(OUTDIR, "press_pages")
+    pages = sorted(f for f in os.listdir(jdir) if f.endswith(".jpg"))
+    zpath = os.path.join(OUTDIR, f"Kingswood_{SIZE_KEY}_press.zip")
+    with zipfile.ZipFile(zpath, "w", zipfile.ZIP_STORED) as z:
+        for f in pages:
+            z.write(os.path.join(jdir, f), f)
+    mb = os.path.getsize(zpath) / 1e6
+    route = millers.COVER_ROUTES[cover_route]
+    sides = len(pages) - 1                      # the cover is not a side
+    print(f"\n=== READY TO SUBMIT ===")
+    print(f"  zip        {zpath}  ({mb:.0f} MB, {len(pages)} files)")
+    print(f"  book       Miller's {SIZE_KEY} Signature Book, "
+          f"{sides} sides = {sides/millers.SIDES_PER_SPREAD:.0f} spreads")
+    print(f"  cover      {cover_route}: {route['how']}")
+    if not route["artwork"]:
+        print(f"             page_001 in the zip is a photographic cover and is "
+              f"NOT used on this route; remove it or order Custom Image instead")
+    print(f"\n  1. upload the zip: {millers.DROP_URL}")
+    print(f"  2. fill and send:  {millers.ORDER_FORM}")
+    print(f"  3. on the form, cover text goes in the foil/deboss fields by position")
+    print(f"  4. paper: Matte press, Pearl press, or Deep Matte photographic")
+    if millers.SUBMIT_UNIT == "sides":
+        print(f"\n  UNCONFIRMED: submitting single sides. If Miller's wants composed")
+        print(f"  layflat spreads, set millers.SUBMIT_UNIT and rebuild.")
+    return zpath
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--press", action="store_true")
-    build(ap.parse_args().press)
+    ap.add_argument("--submit", action="store_true",
+                    help="press build, then zip it the way Miller's asks")
+    ap.add_argument("--cover", default="linen", choices=list(millers.COVER_ROUTES))
+    a = ap.parse_args()
+    if a.submit:
+        submit(a.cover)
+    else:
+        build(a.press)

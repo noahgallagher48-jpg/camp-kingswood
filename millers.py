@@ -25,6 +25,20 @@ PROVEN in our own work:
 - 12x8 hardcover linen, Signature Book, $105.50 on press. Ramah 2026. That is
   the only configuration this studio has taken end to end.
 
+CONFIRMED 2026-08-27 from Miller's own PDFs, not their web pages:
+- instructions.pdf (templates): "All templates contain 1/8" bleed on all sides."
+  Templates are layered Photoshop PSDs. This is the bleed already built in.
+- SIGNATURE ALBUM.pdf (the order form) carries a Miller's Drop Box link and the
+  instruction "Miller's Transfer Link to zip: right click on folder, Send to>
+  Compressed folder", i.e. work is delivered as a ZIPPED FOLDER through
+  transfer.millerslab.com, alongside the filled order form.
+- That same form specifies cover treatment as FOIL and DEBOSSED TEXT by
+  position: cover top / mid / bottom and back top / mid / bottom. So a LINEN
+  cover takes typeset text on the order form and NO supplied artwork. The photo
+  cover build_book.py makes is for a Custom Image cover, a different product.
+  The linen path is the one this studio has actually printed, and it needs no
+  cover file and no spine width at all.
+
 NOT CONFIRMED, and flagged wherever it matters:
 - Whether Signature Books are submitted as single sides or as composed layflat
   spreads. The layflat construction and Miller's own "1 spread = 2 sides"
@@ -67,6 +81,24 @@ SIDES_PER_SPREAD = 2
 # --- unconfirmed, must be set from the real template --------------------
 SUBMIT_UNIT = "sides"     # "sides" or "spreads". See NOT CONFIRMED above.
 SPINE_IN = None           # placeholder. Wrap covers refuse to build while None.
+                          # Not needed at all on the linen path: that cover is
+                          # foil text on the order form, not artwork.
+
+# How the work actually reaches the press, from the order form itself.
+DROP_URL = "https://transfer.millerslab.com/filedrop/"
+ORDER_FORM = "SIGNATURE ALBUM.pdf, from millerslab.com/artdept/order-forms"
+DELIVERY = "zip the numbered page folder, upload to the drop, send the form"
+
+# Cover routes. "linen" is the proven one and needs no file from us.
+COVER_ROUTES = {
+    "linen": {"artwork": False,
+              "how": "foil or debossed text by position on the order form: "
+                     "cover top/mid/bottom and back top/mid/bottom",
+              "proven": "Ramah 2026, 12x8 hardcover linen, $105.50 press"},
+    "custom_image": {"artwork": True,
+                     "how": "supply a wrap; needs SPINE_IN from Miller's template",
+                     "proven": None},
+}
 
 
 def page_px(size_key=DEFAULT_SIZE, dpi=DPI_PRESS, bleed=True):
