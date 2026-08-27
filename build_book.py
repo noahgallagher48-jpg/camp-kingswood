@@ -78,6 +78,37 @@ FONT = "/System/Library/Fonts/Avenir Next.ttc"
 # The hero must be in the book lane; its montage frames need not be.
 MONTAGE_SPREADS = {}
 
+# THE LAYOUT SPEC (Noah, 2026-08-27: "a layout with more variations that can
+# ship from Miller ... one step, I don't wanna have to redo it again").
+# _work/book_spec.json, when present, IS the book: an ordered list of pages,
+# each one data, so a new treatment is an edit to a JSON line and never a code
+# change. Without the file, the auto path below still paginates the lane the
+# way it always has, so nothing old breaks.
+#
+#   {"size": "12x8",              optional, any key in millers.SIZES
+#    "cover": {"style": "photo", "frame": 312}      or {"style": "type"}
+#    "pages": [
+#      {"style": "matte",  "frames": [341]},         one, matted, the default
+#      {"style": "bleed",  "frames": [88]},          one, edge to edge; auto-
+#                                                    mattes + reports if the
+#                                                    crop would pass MAX_CROP
+#      {"style": "pair",   "frames": [13, 106]},     two portraits, facing
+#      {"style": "stack",  "frames": [5, 110]},      two landscapes, stacked
+#      {"style": "grid",   "frames": [23, 26, 27, 112]},   2 to 6, gridded
+#      {"style": "hero",   "frames": [77], "grid": [117, 36, 37, 38]}
+#                                                    = TWO pages: the hero
+#                                                    matted, its b-roll grid
+#                                                    facing it (Jodi's spread)
+#    ]}
+#
+# Every style renders inside millers.py geometry (trim, bleed, safe), so the
+# output stays valid for Miller's or any lab that takes the same bleed. The
+# spec is validated before rendering: unknown styles, wrong frame counts and
+# missing masters are NAMED, never guessed around.
+SPEC = os.path.join(HERE, "_work", "book_spec.json")
+STYLE_COUNTS = {"matte": (1, 1), "bleed": (1, 1), "pair": (2, 2),
+                "stack": (2, 2), "grid": (2, 6), "hero": (1, 1)}
+
 
 def lane():
     a = json.load(open(ARR))
@@ -175,6 +206,105 @@ def montage(frames, page, cols=None):
     return out
 
 
+def stack(a, b, page):
+    """Two landscapes stacked on one page, matted, common width."""
+    from PIL import Image
+    pw, ph = page
+    m = round(min(pw, ph) * MARGIN)
+    gut = round(m * 0.9)
+    cell = (pw - 2 * m, (ph - 2 * m - gut) // 2)
+    out = Image.new("RGB", page, GROUND)
+    for i, im in enumerate((a, b)):
+        c = im.copy()
+        c.thumbnail(cell, Image.LANCZOS)
+        y = m + i * (cell[1] + gut) + (cell[1] - c.height) // 2
+        out.paste(c, (m + (cell[0] - c.width) // 2, y))
+    return out
+
+
+def bleed_page(im, canvas):
+    """One frame edge to edge, filling the full canvas INCLUDING the bleed, so
+    the trimmer cuts into picture and the page has no border. Refuses to crop
+    away more than MAX_CROP; the caller falls back to a matte and reports."""
+    from PIL import Image
+    cw, ch = canvas
+    scale = max(cw / im.width, ch / im.height)
+    kept = (cw / (im.width * scale)) * (ch / (im.height * scale))
+    if 1 - kept > MAX_CROP:
+        return None, 1 - kept
+    w, h = round(im.width * scale), round(im.height * scale)
+    c = im.resize((w, h), Image.LANCZOS)
+    return c.crop(((w - cw) // 2, (h - ch) // 2,
+                   (w - cw) // 2 + cw, (h - ch) // 2 + ch)), 1 - kept
+
+
+def load_spec():
+    """Read and validate _work/book_spec.json. Returns (spec, problems).
+    Problems are NAMED, never guessed around; a spec with problems refuses
+    to render rather than shipping a page nobody chose."""
+    if not os.path.exists(SPEC):
+        return None, []
+    spec = json.load(open(SPEC))
+    problems = []
+    size = spec.get("size", SIZE_KEY)
+    if size not in millers.SIZES:
+        problems.append(f"unknown size {size}; valid: {sorted(millers.SIZES)}")
+    for i, pg in enumerate(spec.get("pages", []), 1):
+        st = pg.get("style")
+        if st not in STYLE_COUNTS:
+            problems.append(f"page {i}: unknown style {st!r}; valid: {sorted(STYLE_COUNTS)}")
+            continue
+        lo, hi = STYLE_COUNTS[st]
+        n = len(pg.get("frames", []))
+        if not lo <= n <= hi:
+            problems.append(f"page {i} ({st}): {n} frames, needs {lo}" +
+                            (f" to {hi}" if hi != lo else ""))
+        if st == "hero" and not 1 <= len(pg.get("grid", [])) <= 6:
+            problems.append(f"page {i} (hero): needs 1 to 6 grid frames, "
+                            f"got {len(pg.get('grid', []))}")
+    return spec, problems
+
+
+def render_spec(spec, src, page, canvas):
+    """Turn the spec's pages into rendered sheets. Every entry becomes one
+    page except hero, which becomes two: the hero matted, its grid facing."""
+    from PIL import Image
+    pages, notes = [], []
+    need = []
+    for pg in spec["pages"]:
+        need += pg.get("frames", []) + pg.get("grid", [])
+    missing = sorted({n for n in need if n not in src})
+    if missing:
+        sys.exit(f"spec names frames with no master on disk: {missing}")
+    ims = {n: Image.open(src[n]).convert("RGB") for n in dict.fromkeys(need)}
+
+    for pg in spec["pages"]:
+        st, fr = pg["style"], pg["frames"]
+        label = "+".join(map(str, fr))
+        if st == "matte":
+            pages.append((matted(ims[fr[0]], page), label, "matte"))
+        elif st == "bleed":
+            full, lost = bleed_page(ims[fr[0]], canvas)
+            if full is None:
+                pages.append((matted(ims[fr[0]], page), label,
+                              f"matte (bleed would lose {lost:.0%})"))
+                notes.append(f"frame {fr[0]}: bleed refused at {lost:.0%} crop, matted instead")
+            else:
+                pages.append((full, label, f"bleed, {lost:.0%} cropped"))
+        elif st == "pair":
+            pages.append((pair(ims[fr[0]], ims[fr[1]], page), label, "pair"))
+        elif st == "stack":
+            pages.append((stack(ims[fr[0]], ims[fr[1]], page), label, "stack"))
+        elif st == "grid":
+            pages.append((montage([ims[n] for n in fr], page), label, f"grid of {len(fr)}"))
+        elif st == "hero":
+            grid = pg["grid"]
+            pages.append((matted(ims[fr[0]], page), label, "hero"))
+            pages.append((montage([ims[n] for n in grid], page),
+                          "+".join(map(str, grid)), f"grid of {len(grid)} facing {fr[0]}"))
+    return pages, notes
+
+
 def on_bleed(sheet, canvas):
     """Place a trim-sized sheet on the full bleed canvas.
 
@@ -258,29 +388,53 @@ def title_page(page, n):
 def build(press=False):
     from PIL import Image
     Image.MAX_IMAGE_PIXELS = None
-    seq, dropped = lane()
-    if not seq:
-        sys.exit(f"The '{BOOK_GROUP}' lane is empty. Fill it on the arrange board "
-                 f"(python3 build_arrange.py), copy the arrangement, paste it back.")
     src = sources()
-    missing = [n for n in seq if n not in src]
-    if missing:
-        sys.exit(f"No master on disk for frames {missing}")
+
+    # THE SPEC WINS when it exists: the book is data, treatments per page,
+    # and a change is a JSON edit, never a code change or a redo.
+    spec, problems = load_spec()
+    if problems:
+        sys.exit("book_spec.json has problems, refusing to render:\n  "
+                 + "\n  ".join(problems))
+    size_key = (spec or {}).get("size", SIZE_KEY)
+
+    if spec:
+        seq = [n for pg in spec["pages"] for n in pg.get("frames", [])]
+        dropped = []
+    else:
+        seq, dropped = lane()
+        if not seq:
+            sys.exit(f"The '{BOOK_GROUP}' lane is empty and no _work/book_spec.json "
+                     f"exists. Fill the lane, or write a spec.")
+        missing = [n for n in seq if n not in src]
+        if missing:
+            sys.exit(f"No master on disk for frames {missing}")
 
     dpi = millers.DPI_PRESS if press else millers.DPI_PREVIEW
-    page = millers.trim_px(SIZE_KEY, dpi)      # where the layout lives
-    canvas = millers.page_px(SIZE_KEY, dpi)    # what the lab receives, bleed included
+    page = millers.trim_px(size_key, dpi)      # where the layout lives
+    canvas = millers.page_px(size_key, dpi)    # what the lab receives, bleed included
     os.makedirs(OUTDIR, exist_ok=True)
 
     # Refuse to print a frame that would arrive soft. Miller's bar is 250 DPI at
     # the ordered size; a frame under that gets named rather than quietly resized.
-    floor = millers.min_pixels_for(SIZE_KEY)
+    floor = millers.min_pixels_for(size_key)
     soft = []
-    for n in seq:
+    for n in dict.fromkeys(seq):
+        if n not in src:
+            continue
         with Image.open(src[n]) as probe:
             if probe.width < floor[0] and probe.height < floor[1]:
                 soft.append(f"frame {n}: {probe.width}x{probe.height}, "
-                            f"under {floor[0]}x{floor[1]} for a {SIZE_KEY} at 250 DPI")
+                            f"under {floor[0]}x{floor[1]} for a {size_key} at 250 DPI")
+
+    if spec:
+        global COVER_FRAME
+        cov = spec.get("cover", {"style": "photo", "frame": COVER_FRAME})
+        COVER_FRAME = cov.get("frame") if cov.get("style") == "photo" else None
+        pages, notes = render_spec(spec, src, page, canvas)
+        return finish(press, spec_mode=True, seq=seq, dropped=dropped, src=src,
+                      page=page, canvas=canvas, dpi=dpi, pages=pages,
+                      notes=notes, soft=soft, size_key=size_key)
 
     ims = {n: Image.open(src[n]).convert("RGB") for n in seq}
     pages, notes, i = [], [], 0
@@ -325,8 +479,19 @@ def build(press=False):
                 notes.append(f"frame {n} loses {lost:.0%} to the page")
         i += 1
 
-    if COVER_FRAME is not None and COVER_FRAME in ims:
-        cover = photo_cover(ims[COVER_FRAME], canvas, dpi,
+    return finish(press, spec_mode=False, seq=seq, dropped=dropped, src=src,
+                  page=page, canvas=canvas, dpi=dpi, pages=pages,
+                  notes=notes, soft=soft, size_key=size_key)
+
+
+def finish(press, spec_mode, seq, dropped, src, page, canvas, dpi,
+           pages, notes, soft, size_key):
+    """Cover, bleed wrap, lab checks, files. One tail for both paths, so the
+    spec book and the lane book are held to identical press geometry."""
+    from PIL import Image
+    if COVER_FRAME is not None and COVER_FRAME in src:
+        cim = Image.open(src[COVER_FRAME]).convert("RGB")
+        cover = photo_cover(cim, canvas, dpi,
                             "Camp Kingswood", "Bridgton, Maine  ·  Summer 2026")
         cover_note = f"photographic, frame {COVER_FRAME}, Raleway"
     else:
@@ -334,17 +499,24 @@ def build(press=False):
         cover_note = "typographic"
     sheets = [cover] + [on_bleed(p, canvas) for p, _, _ in pages]
 
-    checks = millers.check_book(len(pages), SIZE_KEY)
+    checks = millers.check_book(len(pages), size_key)
 
     tag = "press" if press else "preview"
     jdir = os.path.join(OUTDIR, f"{tag}_pages")
     os.makedirs(jdir, exist_ok=True)
+    # The folder is cleared first because submit() zips EVERYTHING in it: a
+    # shorter book built after a longer one would otherwise ship the longer
+    # book's tail pages to the lab inside the zip. Caught 2026-08-27 when a
+    # 8-sheet demo landed on top of a 37-sheet build and the folder held both.
+    for old in os.listdir(jdir):
+        if old.endswith(".jpg"):
+            os.remove(os.path.join(jdir, old))
     for k, s in enumerate(sheets):
         s.save(os.path.join(jdir, f"page_{k+1:03d}.jpg"), quality=95 if press else 88,
                subsampling=0 if press else 2, dpi=(dpi, dpi))
 
     if press:
-        out = os.path.join(OUTDIR, "Kingswood_book_press_12x8.pdf")
+        out = os.path.join(OUTDIR, f"Kingswood_book_press_{size_key}.pdf")
         sheets[0].save(out, save_all=True, append_images=sheets[1:],
                        resolution=dpi, quality=95)
     else:
@@ -358,7 +530,7 @@ def build(press=False):
             sp = Image.new("RGB", (page[0] * 2, page[1]), GROUND)
             sp.paste(a, (0, 0)); sp.paste(b, (page[0], 0))
             spreads.append(sp)
-        out = os.path.join(OUTDIR, "Kingswood_book_preview_12x8.pdf")
+        out = os.path.join(OUTDIR, f"Kingswood_book_preview_{size_key}.pdf")
         spreads[0].save(out, save_all=True, append_images=spreads[1:],
                         resolution=dpi, quality=88)
 
@@ -370,7 +542,7 @@ def build(press=False):
     print(f"wrote {out}")
     print(f"  {len(seq)} frames · {len(pages)} pages · {len(sheets)} sheets at {dpi} DPI")
     print(f"  cover: {cover_note}")
-    print(f"  lab: Miller's {SIZE_KEY} Signature Book, "
+    print(f"  lab: Miller's {size_key} Signature Book, "
           f"{canvas[0]}x{canvas[1]} px with {millers.BLEED_IN}in bleed, "
           f"{len(pages)/millers.SIDES_PER_SPREAD:.0f} spreads")
     for c in checks:
