@@ -8,6 +8,9 @@ goes in it that the client has not made public.
 - Engagement: full residency, arrival Wednesday evening August 5 through Sunday
   August 9, 2026, on site at Camp Kingswood, Bridgton, Maine. Booked 2026-08-02; dates settled at
   Aug 5-9 on 2026-08-03.
+- The waterfront is a LAKE, not a pool (Noah, 2026-08-27). Kingswood has no
+  swimming pool. Any caption, guide line or alt text that says pool is wrong;
+  swim, waterfront, dock and lake are the words.
 - Client contact: Jodi Sperling, Owner/Director. Contact details and money terms
   live in the private `abba-dashboard` repo (`docs/CLIENT_CONTACTS.md` and
   `docs/KINGSWOOD_AGREEMENT_DRAFT.md`), not here.
