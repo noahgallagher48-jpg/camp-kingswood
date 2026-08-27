@@ -176,3 +176,12 @@ owner relays them (screenshot or paste) to the same inbox.
 - 2026-08-03: Arrival corrected to Thursday night Aug 6; the page now carries the full residency shape with Thursday as the first working night.
 - 2026-08-03: Hub launched: the weekend plan, deliverables, media-team framing,
   the walk, intake line. No images yet; none shot.
+
+- 2026-08-27: build_book.py gains a `bleedhero` style: full-bleed hero on the left page, its
+  2-6 frame grid facing right. Same shape as `hero` but the left page bleeds instead of matting;
+  falls back to matte and reports if the crop would pass MAX_CROP, same rule as `bleed`. Born from
+  the plaque-wall spread (224 bled, 221/222/223/225 facing): the establishing frame carries the
+  human and the scale, the grid is what she is looking at. Verified end to end through the real
+  renderer at 12x8 preview geometry: 224 bleeds at 1% crop, grid renders 4-up, zero problems.
+  Usage: {"style":"bleedhero","frames":[224],"grid":[221,222,223,225]} in _work/book_spec.json.
+  Web/mockup versions of the same arrangement live at ~/Desktop/ABBA/_design/split-hero/.

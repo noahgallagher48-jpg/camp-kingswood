@@ -99,6 +99,19 @@ MONTAGE_SPREADS = {}
 #                                                    = TWO pages: the hero
 #                                                    matted, its b-roll grid
 #                                                    facing it (Jodi's spread)
+#      {"style": "bleedhero", "frames": [224], "grid": [221, 222, 223, 225]}
+#                                                    = TWO pages: the hero FULL
+#                                                    BLEED on the left, its grid
+#                                                    facing right. Same shape as
+#                                                    hero, edge-to-edge left page
+#                                                    (Noah, 2026-08-27, from the
+#                                                    Kingswood plaque-wall spread:
+#                                                    establishing frame carries
+#                                                    the scale, the grid is what
+#                                                    the subject is looking at).
+#                                                    Falls back to matte + reports
+#                                                    if the bleed crop would pass
+#                                                    MAX_CROP, same as bleed.
 #    ]}
 #
 # Every style renders inside millers.py geometry (trim, bleed, safe), so the
@@ -107,7 +120,8 @@ MONTAGE_SPREADS = {}
 # missing masters are NAMED, never guessed around.
 SPEC = os.path.join(HERE, "_work", "book_spec.json")
 STYLE_COUNTS = {"matte": (1, 1), "bleed": (1, 1), "pair": (2, 2),
-                "stack": (2, 2), "grid": (2, 6), "hero": (1, 1)}
+                "stack": (2, 2), "grid": (2, 6), "hero": (1, 1),
+                "bleedhero": (1, 1)}
 
 
 def lane():
@@ -259,8 +273,8 @@ def load_spec():
         if not lo <= n <= hi:
             problems.append(f"page {i} ({st}): {n} frames, needs {lo}" +
                             (f" to {hi}" if hi != lo else ""))
-        if st == "hero" and not 1 <= len(pg.get("grid", [])) <= 6:
-            problems.append(f"page {i} (hero): needs 1 to 6 grid frames, "
+        if st in ("hero", "bleedhero") and not 1 <= len(pg.get("grid", [])) <= 6:
+            problems.append(f"page {i} ({st}): needs 1 to 6 grid frames, "
                             f"got {len(pg.get('grid', []))}")
     return spec, problems
 
@@ -302,6 +316,19 @@ def render_spec(spec, src, page, canvas):
             pages.append((matted(ims[fr[0]], page), label, "hero"))
             pages.append((montage([ims[n] for n in grid], page),
                           "+".join(map(str, grid)), f"grid of {len(grid)} facing {fr[0]}"))
+        elif st == "bleedhero":
+            grid = pg["grid"]
+            full, lost = bleed_page(ims[fr[0]], canvas)
+            if full is None:
+                pages.append((matted(ims[fr[0]], page), label,
+                              f"bleedhero matted (bleed would lose {lost:.0%})"))
+                notes.append(f"frame {fr[0]}: bleedhero refused bleed at {lost:.0%} "
+                             f"crop, matted instead")
+            else:
+                pages.append((full, label, f"bleedhero, {lost:.0%} cropped"))
+            pages.append((montage([ims[n] for n in grid], page),
+                          "+".join(map(str, grid)),
+                          f"grid of {len(grid)} facing bled {fr[0]}"))
     return pages, notes
 
 
