@@ -52,6 +52,11 @@ CSS = """
      the page's own :root, so a plain value here wins the cascade and would
      repaint every client's bar Kingswood navy. The host sets --book-bar. */
   --bk-panel:var(--book-bar,#04202F);
+  /* THE VIEWING SURFACES ARE NEUTRAL (Noah, 2026-08-28): "use their colors on
+     the main pages but not in album layout or lightbox". A client's brand colour
+     behind a full-screen photograph tints how the photograph reads, and the book
+     view is where layout decisions get made. Chrome must not colour the judgement. */
+  --bk-neutral:#141416;
   /* two distinct hairlines in the original, kept distinct: the chip/button
      border was .22 alpha and the lane's top border .16 */
   --bk-line:color-mix(in srgb,var(--bk-ink) 22%,transparent);
@@ -97,7 +102,7 @@ CSS = """
  border-radius:6px;padding:10px 15px;font:600 13px inherit;cursor:pointer;white-space:nowrap}
 .bkbtn.go{background:var(--bk-accent);border-color:var(--bk-accent);color:var(--bk-ink)}
 .bkbtn:disabled{opacity:.4;cursor:default}
-.bkview{position:fixed;inset:0;background:var(--bk-panel);z-index:70;display:none;flex-direction:column}
+.bkview{position:fixed;inset:0;background:var(--bk-neutral);z-index:70;display:none;flex-direction:column}
 .bkview.on{display:flex}
 .bkvbar{flex:0 0 auto;display:flex;align-items:center;gap:14px;padding:12px 20px;
  border-bottom:1px solid var(--bk-line-soft)}
@@ -132,7 +137,7 @@ CSS = """
 .bpnum{flex:0 0 auto;text-align:center;padding:11px 0 15px;font:600 10px inherit;
  letter-spacing:.16em;opacity:.55}
 .bpnum b{opacity:1}
-.bkfull{position:fixed;inset:0;background:var(--bk-panel);z-index:80;display:none;flex-direction:column}
+.bkfull{position:fixed;inset:0;background:var(--bk-neutral);z-index:80;display:none;flex-direction:column}
 .bkfull.on{display:flex}
 .bkfimg{flex:1;display:flex;align-items:center;justify-content:center;padding:20px;min-height:0}
 .bkfimg img{max-width:100%;max-height:100%;object-fit:contain}
