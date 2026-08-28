@@ -686,12 +686,19 @@ var BKBLEEDHERO = {224: [221, 222, 223, 225]};
    different photograph. Reusing the old key painted the old set's checks onto
    the new one, which is exactly what Noah saw. Bump this whenever the pool is
    replaced. */
-var BKSET = "827b";   /* bumped 2026-08-27 on Noah's "reset picks": every
+/* CLIENT IDENTITY IS DATA (2026-08-27), so this module drops into any hub.
+   The host page may define window.BKCLIENT before this script runs; the
+   defaults below are Kingswood's, so Kingswood is unaffected. */
+var BKC = (typeof window !== "undefined" && window.BKCLIENT) || {};
+var BKNAME = BKC.name || "Camp Kingswood";
+var BKPLACE = BKC.place || "Bridgton, Maine &middot; Summer 2026";
+var BKSLUG = BKC.slug || "kwood";
+var BKSET = BKC.set || "827b";   /* bumped 2026-08-27 on Noah's "reset picks": every
    device opens a clean sheet, his and hers both. The 827 keys are dead. */
-var BKWHOKEY = "kwood-who";
+var BKWHOKEY = BKSLUG + "-who";
 var bkWho = "camp";
 try { var w = localStorage.getItem(BKWHOKEY); if (w === "noah" || w === "camp") bkWho = w; } catch(e){}
-function bkKeyFor(who){ return "kwood-book-" + BKSET + "-" + who; }
+function bkKeyFor(who){ return BKSLUG + "-book-" + BKSET + "-" + who; }
 var BKKEY = bkKeyFor(bkWho);
 var BKBY = {}; ALL.forEach(function(r){ BKBY[r.n] = r; });
 /* The book may hold frames the gallery does not: the aside list fences the
@@ -736,7 +743,7 @@ function bkPaintWho(){
     : "your picks save on this device; Save the book sends them to Noah");
   var mine = document.getElementById("bkchip-mine");
   if (mine) mine.textContent = (bkWho === "noah" ? "My picks (Noah)"
-                                                 : "My picks (Camp Kingswood)");
+                                                 : "My picks (" + BKNAME + ")");
 }
 function bkIn(n){ return bkBook.indexOf(n) !== -1; }
 function bkList(){
@@ -754,7 +761,7 @@ function bkList(){
 function bkEmptyNote(){
   if (bkView === "mine") return "Nothing picked yet. Tap a photograph to add it.";
   if (bkView === "picks") return "Noah has not sent his picks for this set yet.";
-  if (bkView === "clientpicks") return "Camp Kingswood has not sent picks for this set yet.";
+  if (bkView === "clientpicks") return BKNAME + " has not sent picks for this set yet.";
   if (bkView === "book") return "The book is empty. Add photographs from My picks.";
   return "";
 }
@@ -916,8 +923,8 @@ function bkShow(i){
   var s = BKSP[i], sp = document.getElementById("bkspread");
   if (s.cover){
     sp.className = "spread solo";
-    sp.innerHTML = '<div class=bcov><h3>Camp Kingswood</h3><div class=brule></div>' +
-      '<p class=bsub>Bridgton, Maine &middot; Summer 2026</p>' +
+    sp.innerHTML = '<div class=bcov><h3>' + BKNAME + '</h3><div class=brule></div>' +
+      '<p class=bsub>' + BKPLACE + '</p>' +
       '<span class=bcred>Photographs by Noah Gallagher</span></div>';
     document.getElementById("bpnum").innerHTML = "<b>COVER</b>";
   } else {
@@ -950,7 +957,7 @@ function bkToInbox(p){
   return fetch("https://api.web3forms.com/submit", {method:"POST",
     headers:{"Content-Type":"application/json", Accept:"application/json"},
     body: JSON.stringify({access_key: BOOKSEND.web3forms_key,
-      subject: (BOOKSEND.subject || "Kingswood book") + ": " + p.frames.length + " frames",
+      subject: (BOOKSEND.subject || (BKNAME + " book")) + ": " + p.frames.length + " frames",
       from_name: "Kingswood book", botcheck: "", saved: p.saved,
       frames: p.frames.join(", "), lane_json: JSON.stringify(p)})})
     .then(function(r){ return r.json(); })
