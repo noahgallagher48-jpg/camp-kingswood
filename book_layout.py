@@ -27,56 +27,78 @@ img/present + img/thumb layout.
 """
 
 CSS = """
-/* book layout tab */
+/* book layout tab.
+   PORTABLE SINCE 2026-08-27: colours resolve from the host page's palette, so
+   this module drops into any client hub and wears that client's face (the
+   standing rule that client surfaces carry the client's colours). Kingswood
+   defines --accent/--ink/--ground, so nothing there changes. */
+:root{
+  /* Declared on :root, not on #tab-book: .bklane is a position:fixed bar that
+     lives OUTSIDE the tab element, so tab-scoped tokens never reached it and it
+     rendered transparent. Caught by diffing computed styles, not by eye. */
+  --bk-accent:var(--accent,var(--gold,#DB3A00));
+  --bk-ink:var(--ink,#F3F1EC);
+  --bk-ground:var(--ground,#062A40);
+  /* NOT chained to the host's --panel: Kingswood's --panel is #0C3A55, a
+     lighter navy than the lane bar's own #04202F, and chaining silently
+     changed it. A client that wants a different bar sets --bk-panel. */
+  --bk-panel:#04202F;
+  /* two distinct hairlines in the original, kept distinct: the chip/button
+     border was .22 alpha and the lane's top border .16 */
+  --bk-line:color-mix(in srgb,var(--bk-ink) 22%,transparent);
+  --bk-line-soft:color-mix(in srgb,var(--bk-ink) 16%,transparent);
+  --bk-veil:color-mix(in srgb,var(--bk-ground) 74%,transparent);
+  --bk-wash:color-mix(in srgb,var(--bk-ink) 6%,transparent);
+}
 #tab-book{display:none}
 #tab-book.on{display:block}
 .bkchips{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 18px}
-.bkchip{background:transparent;border:1px solid rgba(243,241,236,.22);color:inherit;
+.bkchip{background:transparent;border:1px solid var(--bk-line);color:inherit;
  border-radius:22px;padding:8px 17px;font:600 13px inherit;cursor:pointer}
-.bkchip[aria-selected=true]{background:#DB3A00;border-color:#DB3A00;color:#F3F1EC}
+.bkchip[aria-selected=true]{background:var(--bk-accent);border-color:var(--bk-accent);color:var(--bk-ink)}
 .bkwho{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 14px}
 .bkwholab{font-size:11px;letter-spacing:.14em;text-transform:uppercase;opacity:.6}
-.bkwhobtn{background:transparent;border:1px solid rgba(243,241,236,.22);color:inherit;
+.bkwhobtn{background:transparent;border:1px solid var(--bk-line);color:inherit;
   border-radius:999px;padding:5px 13px;font:inherit;font-size:12.5px;cursor:pointer}
-.bkwhobtn[aria-pressed=true]{background:#F3F1EC;border-color:#F3F1EC;color:#062A40}
+.bkwhobtn[aria-pressed=true]{background:var(--bk-ink);border-color:var(--bk-ink);color:var(--bk-ground)}
 .bkwhonote{font-size:11.5px;opacity:.55}
 .bkempty{opacity:.6;font-size:14px;padding:26px 2px}
 .bkgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:13px}
 .bkcard{margin:0;position:relative;border-radius:8px;overflow:hidden;
- background:rgba(243,241,236,.06);transition:box-shadow .14s,transform .14s}
+ background:var(--bk-wash);transition:box-shadow .14s,transform .14s}
 .bkcard img{display:block;width:100%;height:auto;aspect-ratio:3/2;object-fit:cover;cursor:zoom-in}
-.bkcard.in{box-shadow:inset 0 0 0 3px #DB3A00;transform:translateY(-2px)}
+.bkcard.in{box-shadow:inset 0 0 0 3px var(--bk-accent);transform:translateY(-2px)}
 .bkcard .bn{position:absolute;top:8px;left:9px;font:600 11px inherit;
- background:rgba(6,42,64,.74);border-radius:11px;padding:2px 9px;pointer-events:none}
+ background:var(--bk-veil);border-radius:11px;padding:2px 9px;pointer-events:none}
 .bkcard .badd{position:absolute;top:7px;right:7px;width:31px;height:31px;border-radius:50%;
- border:1px solid rgba(243,241,236,.22);background:rgba(6,42,64,.74);color:inherit;
+ border:1px solid var(--bk-line);background:var(--bk-veil);color:inherit;
  font:600 17px inherit;cursor:pointer;line-height:1;padding:0}
-.bkcard.in .badd{background:#DB3A00;border-color:#DB3A00;font-size:15px}
-.bklane{position:fixed;left:0;right:0;bottom:0;background:#04202F;
- border-top:1px solid rgba(243,241,236,.16);padding:11px 0 13px;z-index:40;display:none}
+.bkcard.in .badd{background:var(--bk-accent);border-color:var(--bk-accent);font-size:15px}
+.bklane{position:fixed;left:0;right:0;bottom:0;background:var(--bk-panel);
+ border-top:1px solid var(--bk-line-soft);padding:11px 0 13px;z-index:40;display:none}
 .bklane.on{display:block}
 .bklanein{max-width:1180px;margin:0 auto;padding:0 20px;display:flex;align-items:center;gap:15px}
 .bkstrip{display:flex;gap:6px;overflow-x:auto;flex:1;padding:3px 0 6px;min-height:58px}
 .bkstrip img{height:52px;width:auto;border-radius:4px;cursor:grab;flex:0 0 auto;
  border:2px solid transparent}
-.bkstrip img.over{border-color:#DB3A00}
+.bkstrip img.over{border-color:var(--bk-accent)}
 .bkempty{font-size:13px;align-self:center;white-space:nowrap;opacity:.66}
 .bkacts{display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap}
-.bkbtn{border:1px solid rgba(243,241,236,.22);background:transparent;color:inherit;
+.bkbtn{border:1px solid var(--bk-line);background:transparent;color:inherit;
  border-radius:6px;padding:10px 15px;font:600 13px inherit;cursor:pointer;white-space:nowrap}
-.bkbtn.go{background:#DB3A00;border-color:#DB3A00;color:#F3F1EC}
+.bkbtn.go{background:var(--bk-accent);border-color:var(--bk-accent);color:var(--bk-ink)}
 .bkbtn:disabled{opacity:.4;cursor:default}
-.bkview{position:fixed;inset:0;background:#04202F;z-index:70;display:none;flex-direction:column}
+.bkview{position:fixed;inset:0;background:var(--bk-panel);z-index:70;display:none;flex-direction:column}
 .bkview.on{display:flex}
 .bkvbar{flex:0 0 auto;display:flex;align-items:center;gap:14px;padding:12px 20px;
- border-bottom:1px solid rgba(243,241,236,.16)}
+ border-bottom:1px solid var(--bk-line)}
 .bkvt{flex:1;font:600 13.5px inherit}
 .bkvt span{opacity:.6;font-weight:400}
 .bkvstage{flex:1;display:flex;align-items:center;justify-content:center;padding:22px;min-height:0}
-.spread{background:#F3F1EC;display:flex;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.55)}
+.spread{background:var(--bk-ink);display:flex;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.55)}
 .spread.two{aspect-ratio:3/1;width:min(94vw,calc((100vh - 160px)*3))}
 .spread.solo{aspect-ratio:3/2;width:min(58vw,calc((100vh - 160px)*1.5))}
-.bpg{width:50%;height:100%;position:relative;overflow:hidden;background:#F3F1EC;
+.bpg{width:50%;height:100%;position:relative;overflow:hidden;background:var(--bk-ink);
  display:flex;align-items:center;justify-content:center}
 .spread.solo .bpg{width:100%}
 .bpg.mat{padding:4%}
@@ -92,15 +114,15 @@ CSS = """
 .bpg img{max-width:100%;max-height:100%;object-fit:contain;display:block}
 .bgut{position:absolute;top:0;bottom:0;left:50%;width:1px;background:rgba(6,42,64,.15)}
 .bcov{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;
- justify-content:center;color:#062A40;position:relative;padding:6%}
+ justify-content:center;color:var(--bk-ground);position:relative;padding:6%}
 .bcov h3{font:400 clamp(19px,3.4vw,42px) inherit;margin:0}
-.bcov .brule{width:11%;height:3px;background:#DB3A00;margin:5% 0 3.4%}
+.bcov .brule{width:11%;height:3px;background:var(--bk-accent);margin:5% 0 3.4%}
 .bcov .bsub{font:600 clamp(8px,1.05vw,13px) inherit;margin:0;letter-spacing:.03em}
 .bcov .bcred{position:absolute;bottom:9%;font:400 clamp(8px,1vw,12.5px) inherit}
 .bpnum{flex:0 0 auto;text-align:center;padding:11px 0 15px;font:600 10px inherit;
  letter-spacing:.16em;opacity:.55}
 .bpnum b{opacity:1}
-.bkfull{position:fixed;inset:0;background:#04202F;z-index:80;display:none;flex-direction:column}
+.bkfull{position:fixed;inset:0;background:var(--bk-panel);z-index:80;display:none;flex-direction:column}
 .bkfull.on{display:flex}
 .bkfimg{flex:1;display:flex;align-items:center;justify-content:center;padding:20px;min-height:0}
 .bkfimg img{max-width:100%;max-height:100%;object-fit:contain}
