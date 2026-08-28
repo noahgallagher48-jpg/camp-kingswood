@@ -27,6 +27,12 @@ img/present + img/thumb layout.
 """
 
 CSS = """
+/* The book tab owns its own measure, so every client reads the same. These
+   lived only in Kingswood's builder, so ported hubs got an unconstrained,
+   left-flush lede running the full page width (Noah, 8/27: fix the spacing). */
+#tab-book>.wrap{max-width:1180px}
+.bklede{max-width:62ch;margin:0 auto 20px;text-align:center;opacity:.72;
+ font-size:14.5px;line-height:1.55}
 /* book layout tab.
    PORTABLE SINCE 2026-08-27: colours resolve from the host page's palette, so
    this module drops into any client hub and wears that client's face (the

@@ -367,7 +367,6 @@ body.sel #selbar{display:flex}
 .open.opt2{padding-top:0}
 #tab-gallery{display:none}
 #tab-gallery.on{display:block}
-.bklede{max-width:62ch;margin:0 auto 20px;text-align:center;opacity:.72;font-size:14.5px;line-height:1.55}
 </style></head><body>
 
 <a class=home href="https://www.abba-photo.com/">Abba Photo</a>
