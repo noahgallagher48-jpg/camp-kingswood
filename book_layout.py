@@ -42,7 +42,10 @@ CSS = """
   /* NOT chained to the host's --panel: Kingswood's --panel is #0C3A55, a
      lighter navy than the lane bar's own #04202F, and chaining silently
      changed it. A client that wants a different bar sets --bk-panel. */
-  --bk-panel:#04202F;
+  /* READ from the host, never override it: this :root block is emitted AFTER
+     the page's own :root, so a plain value here wins the cascade and would
+     repaint every client's bar Kingswood navy. The host sets --book-bar. */
+  --bk-panel:var(--book-bar,#04202F);
   /* two distinct hairlines in the original, kept distinct: the chip/button
      border was .22 alpha and the lane's top border .16 */
   --bk-line:color-mix(in srgb,var(--bk-ink) 22%,transparent);
