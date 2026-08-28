@@ -76,7 +76,7 @@ FONT = "/System/Library/Fonts/Avenir Next.ttc"
 # 2026-08-27 that montage() had no caller at all: the function shipped and was
 # never wired, so the feature existed only in the commit message.
 # The hero must be in the book lane; its montage frames need not be.
-MONTAGE_SPREADS = {}
+from book_spreads import MONTAGE_SPREADS   # one definition, shared with the viewer
 
 # THE LAYOUT SPEC (Noah, 2026-08-27: "a layout with more variations that can
 # ship from Miller ... one step, I don't wanna have to redo it again").

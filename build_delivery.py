@@ -185,6 +185,8 @@ $("lbwall").onclick=function(){
 };
 """ + BOOK_JS + TAB_JS + """
 bkWire();
+openFromHash();
+window.addEventListener('hashchange', openFromHash);
 </script></body>"""))
     arrangement = json.load(open(ARR))
     by_name = {g["name"]: g["frames"] for g in arrangement["groups"]}
@@ -203,6 +205,7 @@ bkWire();
                 .replace("__BOOKPICKS__", json.dumps(picks))
                 .replace("__CLIENTPICKS__", json.dumps(client_picks()))
                 .replace("__BOOKSEND__", json.dumps(send))
+                .replace("__BKBLEEDHERO__", json.dumps(_SPREADS))
                 .replace("__PICKS__", json.dumps(data_picks))
                 .replace("__N__", str(len(keep)))
                 .replace("__NP__", str(len(picks)))
@@ -220,7 +223,17 @@ bkWire();
 sys.path.insert(0, os.path.expanduser("~/Abba_Photo/dashboard/tools"))
 from selection_actions import CSS as SEL_CSS, HTML as SEL_HTML, JS as SEL_JS
 from book_layout import CSS as BOOK_CSS, HTML as BOOK_HTML, JS as BOOK_JS
+# the on-screen spread map, shared with the PDF builder, never a second copy
+from book_spreads import MONTAGE_SPREADS as _SPREADS
 TAB_JS = """
+/* Arriving with #tab-book opens the book tab. book-picks.html links here and
+   used to point at #book, which is an unrelated hidden overlay, and nothing
+   handled the hash at all, so the link silently did nothing. */
+function openFromHash(){
+  if (location.hash !== "#tab-book") return;
+  var b = document.querySelector('.toptab[data-tab=book]');
+  if (b) b.click();
+}
 document.querySelectorAll(".toptab").forEach(function(b){
   b.onclick=function(){
     var which=b.getAttribute("data-tab");

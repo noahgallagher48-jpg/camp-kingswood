@@ -245,7 +245,7 @@ body.sel #selbar{display:flex}
 .bkview{position:fixed;inset:0;background:var(--bk-panel);z-index:70;display:none;flex-direction:column}
 .bkview.on{display:flex}
 .bkvbar{flex:0 0 auto;display:flex;align-items:center;gap:14px;padding:12px 20px;
- border-bottom:1px solid var(--bk-line)}
+ border-bottom:1px solid var(--bk-line-soft)}
 .bkvt{flex:1;font:600 13.5px inherit}
 .bkvt span{opacity:.6;font-weight:400}
 .bkvstage{flex:1;display:flex;align-items:center;justify-content:center;padding:22px;min-height:0}
@@ -266,7 +266,8 @@ body.sel #selbar{display:flex}
 .bpg.g6{grid-template-rows:1fr 1fr}
 .bpg[class*=" g"] img{width:100%;height:100%;object-fit:cover;display:block}
 .bpg img{max-width:100%;max-height:100%;object-fit:contain;display:block}
-.bgut{position:absolute;top:0;bottom:0;left:50%;width:1px;background:rgba(6,42,64,.15)}
+.bgut{position:absolute;top:0;bottom:0;left:50%;width:1px;
+ background:color-mix(in srgb,var(--bk-ground) 15%,transparent)}
 .bcov{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;
  justify-content:center;color:var(--bk-ground);position:relative;padding:6%}
 .bcov h3{font:400 clamp(19px,3.4vw,42px) inherit;margin:0}
@@ -677,7 +678,9 @@ $("lbwall").onclick=function(){
 var BKPW = 12, BKPH = 8, BKMATTEALL = true;
 /* Frame number -> the frames that face it, for the bleedhero spread. One line
    per spread; the same data build_book.py takes as {"style":"bleedhero"}. */
-var BKBLEEDHERO = {224: [221, 222, 223, 225]};
+var BKBLEEDHERO = {};  /* injected from the PDF builder's
+   own map so the preview cannot promise a spread the press file will not
+   lay out. Hardcoding it here produced exactly that lie on 2026-08-28. */
 /* TWO PICKERS, ONE PAGE (Noah, 2026-08-27): "one section Jody's picks, one
    section Noah's picks. Jody can pick Jody's picks, Noah picks Noah's picks
    ... we should be able to see each others."
@@ -966,7 +969,7 @@ function bkToInbox(p){
     headers:{"Content-Type":"application/json", Accept:"application/json"},
     body: JSON.stringify({access_key: BOOKSEND.web3forms_key,
       subject: (BOOKSEND.subject || (BKNAME + " book")) + ": " + p.frames.length + " frames",
-      from_name: "Kingswood book", botcheck: "", saved: p.saved,
+      from_name: BKNAME + " book", botcheck: "", saved: p.saved,
       frames: p.frames.join(", "), lane_json: JSON.stringify(p)})})
     .then(function(r){ return r.json(); })
     .then(function(r){ if (r && r.success) return "inbox"; throw new Error("refused"); });
@@ -975,7 +978,7 @@ function bkFallback(p){
   try {
     var b = new Blob([JSON.stringify(p, null, 1)], {type:"application/json"});
     var u = URL.createObjectURL(b), a = document.createElement("a");
-    a.href = u; a.download = "kingswood_book.json";
+    a.href = u; a.download = BKSLUG + "_book.json";
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     setTimeout(function(){ URL.revokeObjectURL(u); }, 1000);
     return true;
@@ -1039,6 +1042,14 @@ function bkWire(){
   bkGrid(); bkStrip();
 }
 
+/* Arriving with #tab-book opens the book tab. book-picks.html links here and
+   used to point at #book, which is an unrelated hidden overlay, and nothing
+   handled the hash at all, so the link silently did nothing. */
+function openFromHash(){
+  if (location.hash !== "#tab-book") return;
+  var b = document.querySelector('.toptab[data-tab=book]');
+  if (b) b.click();
+}
 document.querySelectorAll(".toptab").forEach(function(b){
   b.onclick=function(){
     var which=b.getAttribute("data-tab");
@@ -1052,4 +1063,6 @@ document.querySelectorAll(".toptab").forEach(function(b){
 });
 
 bkWire();
+openFromHash();
+window.addEventListener('hashchange', openFromHash);
 </script></body></html>
