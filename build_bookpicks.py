@@ -95,14 +95,31 @@ footer{border-top:1px solid rgba(243,241,236,.12);padding:18px 0 40px;text-align
 <div id=lb><button id=lbx aria-label=Close>&times;</button><img id=lbi alt=""></div>
 <footer>Photographs by Noah Gallagher &middot; Abba Photo</footer>
 <script>
-var DATA=__DATA__, SET="827b", who="noah";
+var DATA=__DATA__, SET="827b";
+/* MATCH THE BOOK TAB'S IDENTITY. It defaults to "camp" and remembers the last
+   choice under kwood-who. Defaulting to "noah" here showed an empty gallery to
+   anyone who had picked without switching identity, which is the default path.
+   Follow the same key, then fall back to whichever side actually has picks. */
+var who=(function(){
+  try{ var w=localStorage.getItem("kwood-who"); if(w==="noah"||w==="camp") return w; }catch(e){}
+  return "camp";
+})();
 function key(w){ return "kwood-book-" + SET + "-" + w; }
 function read(w){ try{ var v=JSON.parse(localStorage.getItem(key(w))||"[]");
   return Array.isArray(v)?v.filter(function(n){return DATA[n];}):[]; }catch(e){ return []; } }
 function draw(){
   var list=read(who), g=document.getElementById("grid"), note=document.getElementById("note");
   document.querySelectorAll(".wb").forEach(function(b){
-    b.setAttribute("aria-pressed", b.getAttribute("data-who")===who ? "true":"false"); });
+    var w=b.getAttribute("data-who"), c=read(w).length;
+    b.setAttribute("aria-pressed", w===who ? "true":"false");
+    b.textContent=(w==="noah"?"Noah's picks":"Camp Kingswood's picks")+(c?" ("+c+")":"");
+  });
+  /* if the remembered identity is empty but the other side has picks, show
+     those instead of an empty page */
+  if(!read(who).length){
+    var other = who==="noah" ? "camp" : "noah";
+    if(read(other).length){ who=other; return draw(); }
+  }
   g.innerHTML="";
   if(!list.length){
     note.textContent="";
