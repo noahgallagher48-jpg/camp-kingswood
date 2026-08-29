@@ -32,6 +32,12 @@ def open_db():
     for p in glob.glob(DBGLOB):
         tmp = os.path.join(tempfile.gettempdir(), "kw_dfs_" + os.path.basename(os.path.dirname(p)))
         shutil.copy2(p, tmp)                 # never read the live db in place
+        # and take the -wal with it. Drive holds recent commits in the
+        # write-ahead log; copying the db alone showed 0 files synced when 130
+        # had, and that was misread as Drive being offline (2026-08-27).
+        for ext in ("-wal", "-shm"):
+            if os.path.exists(p + ext):
+                shutil.copy2(p + ext, tmp + ext)
         c = sqlite3.connect(tmp)
         n = c.execute("select count(*) from items where local_title like 'Kwood827-%'").fetchone()[0]
         if n:
