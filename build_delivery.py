@@ -199,12 +199,22 @@ window.addEventListener('hashchange', openFromHash);
     send = json.load(open(os.path.join(HERE, "book_send.json"))) if \
         os.path.exists(os.path.join(HERE, "book_send.json")) else {}
     send = {k: send.get(k, "") for k in ("drive_endpoint", "web3forms_key", "subject")}
+    # The print store. _work/store_links.json maps material -> size -> a Stripe
+    # Payment Link, created in the Stripe dashboard under NTG Consulting LLC.
+    # The frame identity rides the link as ?client_reference_id=<frame stem>, so
+    # one link serves every frame at that size and the order still says which
+    # photograph. ABSENT OR EMPTY, NOTHING RENDERS: no button ever points at a
+    # price that has not been decided, and no dead button ever shows. Pricing is
+    # a config edit here, never a rebuild of anything upstream.
+    store_p = os.path.join(HERE, "_work", "store_links.json")
+    store = json.load(open(store_p)) if os.path.exists(store_p) else {}
     html = (page.replace("__ALL__", json.dumps(data_all))
                 .replace("__BOOKSEED__", json.dumps(seed))
                 .replace("__BOOKEXTRA__", json.dumps(extra))
                 .replace("__BOOKPICKS__", json.dumps(picks))
                 .replace("__CLIENTPICKS__", json.dumps(client_picks()))
                 .replace("__BOOKSEND__", json.dumps(send))
+                .replace("__STORE__", json.dumps(store))
                 .replace("__BKBLEEDHERO__", json.dumps(_SPREADS))
                 .replace("__PICKS__", json.dumps(data_picks))
                 .replace("__N__", str(len(keep)))
@@ -351,6 +361,9 @@ body.sel #selbar{display:flex}
          justify-content:center;padding:14px;background:linear-gradient(transparent,rgba(0,0,0,.75))}
 #lb .bar .m{font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:12px;color:#9CAABF}
 #lb .bar .sz{font-size:12px;color:#C9D2DF}
+#lb .bar .buy{font-size:12px;color:#F04A0E;border:1px solid #F04A0E;border-radius:4px;
+  padding:2px 9px;margin-left:8px;text-decoration:none;white-space:nowrap}
+#lb .bar .buy:hover{background:#F04A0E;color:#fff}
 #lb .bar .sz b{color:#fff;font-weight:600}
 #getlist .row .sz{font-size:11.5px;color:var(--muted);flex-basis:100%;margin-top:2px}
 #getlist .row{flex-wrap:wrap}
@@ -467,7 +480,7 @@ cropped to fit. A few frames print true only as a custom cut; those say so.</p>
   <button class="zone zl" type=button aria-label=Previous></button>
   <button class="zone zr" type=button aria-label=Next></button>
   <button class=x type=button aria-label=Close>&times;</button>
-  <div class=bar><span class=m id=lbm></span><span class=sz id=lbsz></span><button class=lnk id=lbwall type=button>See it on a wall</button><a id=lbw download>Web</a><a id=lbf target=_blank rel=noopener>Full res</a></div>
+  <div class=bar><span class=m id=lbm></span><span class=sz id=lbsz></span><span id=lbbuy></span><button class=lnk id=lbwall type=button>See it on a wall</button><a id=lbw download>Web</a><a id=lbf target=_blank rel=noopener>Full res</a></div>
 </div>
 
 <div id=stage><img id=sa alt=""><img id=sb alt="">
@@ -477,7 +490,7 @@ cropped to fit. A few frames print true only as a custom cut; those say so.</p>
 </div>
 
 <script>
-var ALL=__ALL__,BOOKSEED=__BOOKSEED__,BOOKEXTRA=__BOOKEXTRA__,BOOKPICKS=__BOOKPICKS__,CLIENTPICKS=__CLIENTPICKS__,BOOKSEND=__BOOKSEND__, PICKS=__PICKS__;
+var ALL=__ALL__,BOOKSEED=__BOOKSEED__,BOOKEXTRA=__BOOKEXTRA__,BOOKPICKS=__BOOKPICKS__,CLIENTPICKS=__CLIENTPICKS__,BOOKSEND=__BOOKSEND__, PICKS=__PICKS__, STORE=__STORE__;
 function $(i){return document.getElementById(i);}
 // Largest size each frame prints at, off the master file, in sizes orderable
 // without a custom cut. Absent when the frame's proportions have no true
@@ -487,6 +500,20 @@ function printText(r){
   var m=["metal","paper","canvas"],out=[];
   for(var i=0;i<3;i++) if(r.p[i]) out.push("<b>"+r.p[i].replace("x","\\u00d7")+"\\u2033</b> "+m[i]);
   return out.length? "Prints to "+out.join(" \\u00b7 ") : "";
+}
+/* Order links. One Stripe Payment Link per material+size lives in STORE; the
+   frame rides as client_reference_id, so the order names the photograph. A
+   frame only offers the sizes ITS OWN ladder earned: no entry, no button,
+   never a wrong-size sale. */
+function buyLinks(r){
+  var m=["metal","paper","canvas"],out=[];
+  for(var i=0;i<3;i++){
+    var sz=r.p[i], link=sz&&STORE[m[i]]&&STORE[m[i]][sz];
+    if(link) out.push('<a class=buy href="'+link+
+      '?client_reference_id='+encodeURIComponent(r.f.replace(/[.][a-z]+$/i,""))+
+      '" target=_blank rel=noopener>Order '+sz.replace("x","\\u00d7")+"\\u2033 "+m[i]+"</a>");
+  }
+  return out.join("");
 }
 if("__ZIP__".length>8){$("zipall").style.display="";}
 
@@ -525,6 +552,7 @@ function paintLb(){if(cur<0)cur=ALL.length-1;if(cur>=ALL.length)cur=0;
   var r=ALL[cur];$("lbi").src="img/present/"+r.f;
   $("lbm").textContent="#"+r.n+"  \\u00b7  "+(cur+1)+" / "+ALL.length;
   $("lbsz").innerHTML=printText(r);
+  $("lbbuy").innerHTML=buyLinks(r);
   if(r.w){$("lbw").style.display="";$("lbw").href=r.w;}else{$("lbw").style.display="none";}
   $("lbf").href=r.d||"__FOLDER__";}
 document.querySelector("#lb .zl").onclick=function(){cur--;paintLb();};
