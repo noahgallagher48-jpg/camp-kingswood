@@ -11,7 +11,12 @@ groups as it needs. All frames stays whole at the bottom as the palette; the gol
 badge on a palette frame counts how many groups hold it. No quota, no required
 groups: every seeded group can be renamed or deleted in one click.
 
-Two builds:
+Three builds. The client one is the one that ships, and it was undocumented:
+    python3 build_arrange.py client     -> arrange.html   THE LIVE CLIENT BOARD
+        Their lane only. This is what is published; forget it and a rename in the
+        pool leaves a 404 on the client's page while every other surface looks fine.
+        That happened on 2026-08-28: a stray file was renamed everywhere except
+        here, because only delivery.html was rebuilt.
     python3 build_arrange.py local      -> _work/arrange.html
         Relative paths to img/. Full-size in the viewer. Best on the Mac.
     python3 build_arrange.py artifact   -> _work/arrange_portable.html
