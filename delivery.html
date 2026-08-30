@@ -701,7 +701,7 @@ $("lbwall").onclick=function(){
 var BKPW = 12, BKPH = 8, BKMATTEALL = true;
 /* Frame number -> the frames that face it, for the bleedhero spread. One line
    per spread; the same data build_book.py takes as {"style":"bleedhero"}. */
-var BKBLEEDHERO = {};  /* injected from the PDF builder's
+var BKBLEEDHERO = {"13": [4, 5, 17, 18], "29": [12, 22, 31, 52], "40": [39], "47": [53, 54], "56": [58, 59]};  /* injected from the PDF builder's
    own map so the preview cannot promise a spread the press file will not
    lay out. Hardcoding it here produced exactly that lie on 2026-08-28. */
 /* TWO PICKERS, ONE PAGE (Noah, 2026-08-27): "one section Jody's picks, one

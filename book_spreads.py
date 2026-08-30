@@ -15,4 +15,11 @@ Format: {hero frame number: [the frames facing it]}. Empty is correct until Noah
 names a spread; nothing is inferred, and a frame is never placed by guesswork.
 """
 
-MONTAGE_SPREADS = {}
+MONTAGE_SPREADS = {
+    # Dictated by Noah 2026-08-30, live layout session. marquee: [b-roll facing]
+    13: [4, 5, 17, 18],
+    29: [12, 22, 31, 52],
+    40: [39],
+    47: [53, 54],
+    56: [58, 59],
+}
