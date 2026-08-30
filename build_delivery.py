@@ -221,6 +221,7 @@ window.addEventListener('hashchange', openFromHash);
                 .replace("__NP__", str(len(picks)))
                 .replace("__FOLDER__", FOLDER_URL)
                 .replace("__ZIP__", ZIP_URL))
+    html = draft_mode(html)
     open(PAGE_OUT, "w").write(html)
     missing = [r["n"] for r in data_all if not r["d"]]
     print(f"wrote delivery.html ({len(keep)} frames, {len(picks)} picks; "
@@ -228,6 +229,59 @@ window.addEventListener('hashchange', openFromHash);
     print(f"  book lane: {len(seed)} frames" +
           (f", {len(extra)} of them set aside from the gallery: "
            f"{[r['n'] for r in extra]}" if extra else ""))
+
+
+def draft_mode(html):
+    """When img/bookdraft/ holds Fundy-rendered spreads, the Book layout tab
+    shows THE DRAFT instead of the build-your-own picker (Noah, 2026-08-30:
+    'everything in one place... it replaces the layout page we have'). The
+    picker's markup stays in the page, hidden, so removing img/bookdraft and
+    rebuilding restores it untouched. Kingswood-only: this lives here, never
+    in the shared book_layout module."""
+    ddir = os.path.join(HERE, "img", "bookdraft")
+    if not os.path.isdir(ddir):
+        return html
+    spreads = sorted(f for f in os.listdir(ddir) if f[0].isdigit() and f.endswith(".jpg"))
+    if not spreads:
+        return html
+    seq = (["Cover.jpg"] if os.path.exists(os.path.join(ddir, "Cover.jpg")) else []) \
+        + spreads \
+        + (["BackCover.jpg"] if os.path.exists(os.path.join(ddir, "BackCover.jpg")) else [])
+    cards = []
+    for f in seq:
+        if f == "Cover.jpg":
+            lab = "The cover"
+        elif f == "BackCover.jpg":
+            lab = "The back cover"
+        else:
+            a, b = f.replace(".jpg", "").split("-")
+            lab = f"Pages {int(a)}&ndash;{int(b)}"
+        cards.append(f'<figure class=bdft><img loading=lazy src="img/bookdraft/{f}" '
+                     f'alt=""><figcaption>{lab}</figcaption></figure>')
+    draft = f"""
+ <div class="wrap bkdraft">
+  <p class=bklede><b>Jodi</b>, this is the book's first draft, page by page, the
+  way it will print. Anything can change: swap a photograph, cut one, make one
+  bigger, add one that belongs. The pages are numbered under each spread, and
+  every photograph in the Gallery tab carries its own number, so a note like
+  &ldquo;pages 11&ndash;12: swap the left photo for 214&rdquo; is all it takes.</p>
+  {''.join(cards)}
+  <p class=bdcta><a href="mailto:noah@abba-photo.com?subject=Kingswood%20book%20notes">Send your notes</a></p>
+ </div>
+<style>
+#tab-book>.wrap:not(.bkdraft){{display:none}}
+#bklane{{display:none!important}}
+.bkdraft .bdft{{margin:0 0 30px}}
+.bkdraft .bdft img{{width:100%;height:auto;display:block;background:#04202F;
+ box-shadow:0 12px 38px rgba(0,0,0,.4)}}
+.bkdraft .bdft figcaption{{opacity:.65;font-size:12.5px;letter-spacing:.09em;
+ text-transform:uppercase;margin-top:7px;text-align:center}}
+.bkdraft .bdcta{{text-align:center;margin:36px 0 60px}}
+.bkdraft .bdcta a{{display:inline-block;background:var(--accent,#DB3A00);color:#fff;
+ text-decoration:none;padding:13px 24px;border-radius:4px;font-size:13px;
+ letter-spacing:.12em;text-transform:uppercase}}
+</style>"""
+    return html.replace("<div id=tab-book>", "<div id=tab-book>" + draft, 1)
 
 
 sys.path.insert(0, os.path.expanduser("~/Abba_Photo/dashboard/tools"))
