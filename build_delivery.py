@@ -270,18 +270,13 @@ def draft_mode(html):
         u = open(purl).read().strip()
         if u:
             proof = (f'<p class=bdproof>The same book on the <a href="{u}" target=_blank '
-                     f'rel=noopener>proofing page</a>, where you can write on a spread '
-                     f'and see it larger. Notes from either place reach me.</p>')
+                     f'rel=noopener>proofing page</a>, for a closer look.</p>')
     draft = f"""
  <div class="wrap bkdraft">
   <p class=bklede><b>Jodi</b>, this is the book, page by page, the way it will
-  print, rebuilt from the finished masters. Anything can change: swap a
-  photograph, cut one, make one bigger, add one that belongs. The pages are
-  numbered under each spread, and every photograph in the Gallery tab carries
-  its own number, so a note like &ldquo;pages 11&ndash;12: swap the left photo
-  for 214&rdquo; is all it takes. Each spread has its own note link; one email
-  per thought or everything at once, either works. We go back and forth here,
-  and each new draft replaces the last one on this page.</p>
+  print. To change anything, click the note under the spread and tell me what
+  moves: &ldquo;pages 11&ndash;12: swap the left photo for 214.&rdquo; The
+  gallery numbers every photo. Each new draft replaces this one here.</p>
   {proof}
   {''.join(cards)}
   <p class=bdcta><a href="mailto:noah@abba-photo.com?subject=Kingswood%20book%20notes">Send your notes</a></p>
