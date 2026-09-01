@@ -231,6 +231,9 @@ window.addEventListener('hashchange', openFromHash);
            f"{[r['n'] for r in extra]}" if extra else ""))
 
 
+from urllib.parse import quote
+
+
 def draft_mode(html):
     """When img/bookdraft/ holds Fundy-rendered spreads, the Book layout tab
     shows THE DRAFT instead of the build-your-own picker (Noah, 2026-08-30:
@@ -256,15 +259,30 @@ def draft_mode(html):
         else:
             a, b = f.replace(".jpg", "").split("-")
             lab = f"Pages {int(a)}&ndash;{int(b)}"
+        plain = lab.replace("&ndash;", "-").lower()
+        subj = quote(f"Kingswood book: {plain}")
         cards.append(f'<figure class=bdft><img loading=lazy src="img/bookdraft/{f}" '
-                     f'alt=""><figcaption>{lab}</figcaption></figure>')
+                     f'alt=""><figcaption>{lab} <a class=bdnote '
+                     f'href="mailto:noah@abba-photo.com?subject={subj}">note</a></figcaption></figure>')
+    purl = os.path.join(ddir, "proof_url.txt")
+    proof = ""
+    if os.path.exists(purl):
+        u = open(purl).read().strip()
+        if u:
+            proof = (f'<p class=bdproof>The same book on the <a href="{u}" target=_blank '
+                     f'rel=noopener>proofing page</a>, where you can write on a spread '
+                     f'and see it larger. Notes from either place reach me.</p>')
     draft = f"""
  <div class="wrap bkdraft">
-  <p class=bklede><b>Jodi</b>, this is the book's first draft, page by page, the
-  way it will print. Anything can change: swap a photograph, cut one, make one
-  bigger, add one that belongs. The pages are numbered under each spread, and
-  every photograph in the Gallery tab carries its own number, so a note like
-  &ldquo;pages 11&ndash;12: swap the left photo for 214&rdquo; is all it takes.</p>
+  <p class=bklede><b>Jodi</b>, this is the book, page by page, the way it will
+  print, rebuilt from the finished masters. Anything can change: swap a
+  photograph, cut one, make one bigger, add one that belongs. The pages are
+  numbered under each spread, and every photograph in the Gallery tab carries
+  its own number, so a note like &ldquo;pages 11&ndash;12: swap the left photo
+  for 214&rdquo; is all it takes. Each spread has its own note link; one email
+  per thought or everything at once, either works. We go back and forth here,
+  and each new draft replaces the last one on this page.</p>
+  {proof}
   {''.join(cards)}
   <p class=bdcta><a href="mailto:noah@abba-photo.com?subject=Kingswood%20book%20notes">Send your notes</a></p>
  </div>
@@ -276,6 +294,9 @@ def draft_mode(html):
  box-shadow:0 12px 38px rgba(0,0,0,.4)}}
 .bkdraft .bdft figcaption{{opacity:.65;font-size:12.5px;letter-spacing:.09em;
  text-transform:uppercase;margin-top:7px;text-align:center}}
+.bkdraft .bdproof{{opacity:.8;font-size:14px;text-align:center;margin:-6px 0 30px}}
+.bkdraft .bdproof a{{color:inherit;text-decoration:underline;text-underline-offset:3px}}
+.bkdraft .bdft figcaption a{{color:inherit;text-decoration:underline;text-underline-offset:3px;margin-left:6px}}
 .bkdraft .bdcta{{text-align:center;margin:36px 0 60px}}
 .bkdraft .bdcta a{{display:inline-block;background:var(--accent,#DB3A00);color:#fff;
  text-decoration:none;padding:13px 24px;border-radius:4px;font-size:13px;
