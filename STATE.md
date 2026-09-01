@@ -211,3 +211,4 @@ owner relays them (screenshot or paste) to the same inbox.
   up," To Jodi cc Vessel, ABBA-0006 attached (verified in Sent). He also texted Jodi the
   bleedhero spread proof directly. The delivery is CLOSED as a build; what remains is her reply,
   the book conversation the spread opens, and payment due Sep 8.
+- 2026-09-01 (STAGED): the book rebuilt in Fundy from the Kwood_827 canon masters (twenty spreads plus covers, proofs published 5:11pm); review email STAGED as a Gmail draft for Noah's send, linking the Fundy proofer page for Jodi's notes; cover render hosted at img/mail/ for the email. The hub's book tab still shows the previous draft; refresh it from the new proofs after her notes land.
