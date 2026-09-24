@@ -223,6 +223,7 @@ window.addEventListener('hashchange', openFromHash);
                 .replace("__ZIP__", ZIP_URL))
     html = draft_mode(html)
     html = kw_picks(html)
+    html = kw_covers(html)
     open(PAGE_OUT, "w").write(html)
     missing = [r["n"] for r in data_all if not r["d"]]
     print(f"wrote delivery.html ({len(keep)} frames, {len(picks)} picks; "
@@ -325,6 +326,65 @@ btn.onclick=async function(){var n=nums(),t=w.value.trim();
     assert "</body>" in html
     i = html.rindex("</body>")
     return html[:i] + panel + html[i:]
+
+
+def kw_covers(html):
+    """Kingswood only (Noah, 2026-09-23): the cover choices for the Bader book, shown
+    on the book tab above the spreads. Charcoal linen first (it is what the layout
+    shows now), then natural and cream linen, then a photograph. Her tap rides the
+    notes she sends (a hidden notes field), so there is one Send button, not two.
+    Swatches: Miller's Signature Book linen (Tundra, Sand, Tusk), from their covers page."""
+    if "id=bdcov" in html:
+        return html
+    opts = [("tundra", "Charcoal linen", "What the layout shows now. Title stamped on the front.",
+             "Charcoal linen (Miller's Tundra), title stamped"),
+            ("sand", "Natural linen", "Title stamped on the front.",
+             "Natural linen (Miller's Sand), title stamped"),
+            ("tusk", "Cream linen", "Title stamped on the front.",
+             "Cream linen (Miller's Tusk), title stamped"),
+            ("photo", "A photograph", "Any photo from the gallery, printed on the cover. This one is only an example.",
+             "A photograph on the cover")]
+    cards = "".join(
+        f'<button type=button class=cv data-cv="{v}"><img loading=lazy src="img/covers/cover-{k}.jpg" alt="">'
+        f'<span class=cvt><b>{t}</b>{d}</span></button>' for k, t, d, v in opts)
+    block = (f'<div class=bdcov id=bdcov><h3>Pick the cover</h3>'
+             f'<p>Tap the one you want. It goes to me with your notes when you press Send at the bottom. '
+             f'For linen, write the words for the title in the box under the cover.</p>'
+             f'<div class=cvgrid>{cards}</div>'
+             f'<p class=cvcost>Linen is $102.50 a copy, plus $7 for the stamped title. The photo cover is $112.50 a copy.</p>'
+             f'<textarea class="bdta cvhidden" data-lab="Cover choice" hidden></textarea></div>\n  ')
+    anchor = "<figure class=bdft>"
+    i = html.find("<div class=\"wrap bkdraft\">")
+    assert i >= 0, "bkdraft"
+    j = html.index(anchor, i)
+    html = html[:j] + block + html[j:]
+    tail = r"""
+<style>
+.bkdraft .bdcov{margin:0 0 44px}
+.bkdraft .bdcov h3{font-size:20px;font-weight:800;text-align:center;margin:0 0 6px}
+.bkdraft .bdcov>p{text-align:center;opacity:.8;font-size:14.5px;margin:0 auto 18px;max-width:60ch}
+.bkdraft .cvgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+@media(min-width:760px){.bkdraft .cvgrid{grid-template-columns:repeat(4,1fr)}}
+.bkdraft .cv{display:block;text-align:left;background:none;border:2px solid transparent;border-radius:6px;
+ padding:0;color:inherit;font:inherit;cursor:pointer;overflow:hidden}
+.bkdraft .cv img{width:100%;aspect-ratio:3/2;object-fit:cover;display:block;box-shadow:0 8px 22px rgba(0,0,0,.4)}
+.bkdraft .cvt{display:block;padding:8px 4px 6px;font-size:13px;line-height:1.4;opacity:.85}
+.bkdraft .cvt b{display:block;font-size:14.5px;opacity:1}
+.bkdraft .cv.on{border-color:#DB3A00}
+.bkdraft .cv.on .cvt b::after{content:"  \2713  picked";color:#DB3A00;font-weight:700}
+.bkdraft .cvcost{text-align:center;font-size:13px;opacity:.65;margin:14px 0 0}
+</style>
+<script>
+(function(){var h=document.querySelector('#bdcov textarea.cvhidden');if(!h)return;
+var cs=[].slice.call(document.querySelectorAll('#bdcov .cv'));
+function mark(){cs.forEach(function(c){c.classList.toggle('on',c.dataset.cv===h.value)})}
+cs.forEach(function(c){c.addEventListener('click',function(){h.value=(h.value===c.dataset.cv?'':c.dataset.cv);
+  h.dispatchEvent(new Event('input'));mark();})});
+mark();})();
+</script>
+"""
+    k = html.rindex("</body>")
+    return html[:k] + tail + html[k:]
 
 
 from urllib.parse import quote
