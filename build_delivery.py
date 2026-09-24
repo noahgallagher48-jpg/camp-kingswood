@@ -342,7 +342,7 @@ def kw_covers(html):
         f'<button type=button class=cv data-cv="{v}"><img loading=lazy src="img/covers/cover-{k}.jpg" alt="">'
         f'<span class=cvt><b>{t}</b>{d}</span></button>' for k, t, d, v in opts)
     block = (f'<div class=bdcov id=bdcov><h3>Pick the cover</h3>'
-             f'<p>Two photo covers. The photo is printed on the cover; the strip under each shows how it wraps. '
+             f'<p>Two photo covers. The photo is printed on photo paper and wrapped around the whole cover; the strip under each shows the wrap laid flat. '
              f'Tap the one you want; it goes to me with your notes when you press Send at the bottom.</p>'
              f'<div class=cvgrid>{cards}</div>'
              f'<p class=cvcost>$112.50 a copy.</p>'
