@@ -244,8 +244,8 @@ def kw_picks(html):
         return html
     call = ("<div class=kwpickcall id=kwpickcall><p><b>Jodi, for the Bader book:</b> tap "
             "<button type=button class=kwlnk id=kwpickgo>Pick photos for the book</button>, "
-            "tap every photo you want to be sure is in it, then press <b>Send to Noah</b> "
-            "in the bar at the bottom. Add any words you want in the book there too. "
+            "tap the photos you want to be sure are in it, then tap <b>Done</b>. "
+            "You can add words for the book there too. It comes straight to me, and "
             "I&rsquo;ll send you a new proof.</p></div>\n  ")
     anchor = "<div class=secthead><h2>The photographs</h2>"
     assert anchor in html, "gallery anchor"
@@ -280,13 +280,21 @@ def kw_picks(html):
  font:inherit;font-size:13px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer}
 #kwgo:disabled{opacity:.6;cursor:default}
 #kwmsg{margin-top:14px}
+body.kwbook #selbar .act{display:none}
+body.kwbook #seldone{background:#DB3A00;color:#fff;border-color:#DB3A00;font-weight:700}
 </style>
 <script>
 (function(){
 function nums(){try{return selectedRows().map(function(r){return r.n!==undefined?r.n:r.id;});}catch(e){return [];}}
-var go=document.getElementById('kwpickgo'),sm=document.getElementById('selmode');
-if(go&&sm)go.onclick=function(){sm.click();
-  var g=document.getElementById('grid');if(g)g.scrollIntoView({behavior:'smooth'});};
+var sm=document.getElementById('selmode'),dn=document.getElementById('seldone'),go=document.getElementById('kwpickgo');
+var origDone=dn?dn.onclick:null,kwBook=false;
+function enterBook(){if(sm)sm.click();kwBook=true;document.body.classList.add('kwbook');
+  if(dn)dn.textContent='Done: send to Noah';
+  var g=document.getElementById('grid');if(g)g.scrollIntoView({behavior:'smooth'});}
+function leaveBook(){kwBook=false;document.body.classList.remove('kwbook');if(dn)dn.textContent='Done';
+  if(origDone)origDone.call(dn);}
+if(go&&sm)go.onclick=enterBook;
+if(dn)dn.onclick=function(e){if(kwBook)openKw();else if(origDone)origDone.call(dn,e);};
 var act=document.querySelector('#selbar .act');
 if(act){var b=document.createElement('button');b.className='lnk';b.id='selsend';b.type='button';
   b.textContent='Send to Noah';act.insertBefore(b,act.firstChild);b.onclick=openKw;}
@@ -306,8 +314,10 @@ btn.onclick=async function(){var n=nums(),t=w.value.trim();
   try{var r=await fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},
     body:JSON.stringify({access_key:'__KWKEY__',subject:'Kingswood book: Jodi’s photo picks',from_name:'Camp Kingswood gallery',message:msg})});
     var j=await r.json();if(!r.ok||!j.success)throw 0;
-    m.textContent='Sent. Noah has your picks and will send you a new proof. You can add more and send again.';m.hidden=false;
-    btn.textContent='Sent';setTimeout(function(){btn.disabled=false;btn.textContent='Send to Noah'},4000)}
+    btn.textContent='Sent';
+    m.innerHTML='<b>Sent.</b> Noah has your '+(n.length?n.length+' photo'+(n.length>1?'s':''):'note')+' and will send you a new proof.';m.hidden=false;
+    setTimeout(function(){document.getElementById('kwsend').className='';btn.disabled=false;btn.textContent='Send to Noah';
+      if(kwBook)leaveBook();},3500)}
   catch(x){btn.disabled=false;btn.textContent='Send to Noah';m.textContent='That did not send. Email Noah the numbers at noah@abba-photo.com.';m.hidden=false}};
 })();
 </script>
