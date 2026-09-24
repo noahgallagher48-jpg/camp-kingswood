@@ -262,8 +262,8 @@ def draft_mode(html):
         plain = lab.replace("&ndash;", "-").lower()
         subj = quote(f"Kingswood book: {plain}")
         cards.append(f'<figure class=bdft><img loading=lazy src="img/bookdraft/{f}" '
-                     f'alt=""><figcaption>{lab} <a class=bdnote '
-                     f'href="mailto:noah@abba-photo.com?subject={subj}">note</a></figcaption></figure>')
+                     f'alt=""><figcaption>{lab}</figcaption><textarea class=bdta data-lab="{lab}" rows=2 '
+                     f'placeholder="What should change here?"></textarea></figure>')
     purl = os.path.join(ddir, "proof_url.txt")
     proof = ""
     if os.path.exists(purl):
@@ -274,12 +274,11 @@ def draft_mode(html):
     draft = f"""
  <div class="wrap bkdraft">
   <p class=bklede><b>Jodi</b>, this is the book, page by page, the way it will
-  print. To change anything, click the note under the spread and tell me what
-  moves: &ldquo;pages 11&ndash;12: swap the left photo for 214.&rdquo; The
+  print. To change anything, write it under the spread and press Send at the bottom; it comes straight to me: &ldquo;pages 11&ndash;12: swap the left photo for 214.&rdquo; The
   gallery numbers every photo. Each new draft replaces this one here.</p>
   {proof}
   {''.join(cards)}
-  <p class=bdcta><a href="mailto:noah@abba-photo.com?subject=Kingswood%20book%20notes">Send your notes</a></p>
+  <div class=bdall><label for=bdany>Anything else</label><textarea id=bdany class=bdta data-lab="Anything else" rows=3 placeholder="The cover words, the order, anything"></textarea></div><p class=bdcta><button type=button id=bdsend>Send your notes</button></p><p class=bdmsg id=bdmsg role=status hidden></p>
  </div>
 <style>
 #tab-book>.wrap:not(.bkdraft){{display:none}}
@@ -293,10 +292,20 @@ def draft_mode(html):
 .bkdraft .bdproof a{{color:inherit;text-decoration:underline;text-underline-offset:3px}}
 .bkdraft .bdft figcaption a{{color:inherit;text-decoration:underline;text-underline-offset:3px;margin-left:6px}}
 .bkdraft .bdcta{{text-align:center;margin:36px 0 60px}}
+.bkdraft textarea.bdta{{width:100%;box-sizing:border-box;margin-top:8px;padding:10px 12px;font:inherit;font-size:15px;color:#fff;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.22);border-radius:4px;resize:vertical}}
+.bkdraft textarea.bdta:focus{{outline:none;border-color:var(--accent,#DB3A00)}}
+.bkdraft .bdall{{margin:10px 0 0}}
+.bkdraft .bdall label{{display:block;opacity:.65;font-size:12.5px;letter-spacing:.09em;text-transform:uppercase;text-align:center}}
+.bkdraft .bdcta button{{display:inline-block;background:var(--accent,#DB3A00);color:#fff;border:0;cursor:pointer;padding:13px 24px;border-radius:4px;font:inherit;font-size:13px;letter-spacing:.12em;text-transform:uppercase}}
+.bkdraft .bdcta button:disabled{{opacity:.6;cursor:default}}
+.bkdraft .bdmsg{{text-align:center;margin:-40px 0 60px;opacity:.85}}
 .bkdraft .bdcta a{{display:inline-block;background:var(--accent,#DB3A00);color:#fff;
  text-decoration:none;padding:13px 24px;border-radius:4px;font-size:13px;
  letter-spacing:.12em;text-transform:uppercase}}
-</style>"""
+</style>
+<script>
+(function(){{var K='kw-book-notes';var tas=[].slice.call(document.querySelectorAll('.bkdraft textarea.bdta'));try{{var s=JSON.parse(localStorage.getItem(K)||'{{}}');tas.forEach(function(t){{if(s[t.dataset.lab])t.value=s[t.dataset.lab]}})}}catch(e){{}}function save(){{try{{var o={{}};tas.forEach(function(t){{if(t.value.trim())o[t.dataset.lab]=t.value}});localStorage.setItem(K,JSON.stringify(o))}}catch(e){{}}}}tas.forEach(function(t){{t.addEventListener('input',save)}});var b=document.getElementById('bdsend'),m=document.getElementById('bdmsg');if(!b)return;b.addEventListener('click',async function(){{var lines=[];tas.forEach(function(t){{var v=t.value.trim();if(v)lines.push(t.dataset.lab.replace(/\\u2013/g,'-')+': '+v)}});if(!lines.length){{m.textContent='Nothing written yet. Add a note under any spread, or under Anything else.';m.hidden=false;return}}b.disabled=true;b.textContent='Sending';try{{var r=await fetch('https://api.web3forms.com/submit',{{method:'POST',headers:{{'Content-Type':'application/json',Accept:'application/json'}},body:JSON.stringify({{access_key:'b3bc124c-7812-4c4e-8fce-6ea6b9d1c5a2',subject:'Kingswood book: Jodi\\u2019s notes',from_name:'Camp Kingswood book page',message:lines.join('\\n\\n')}})}});var j=await r.json();if(!r.ok||!j.success)throw 0;m.textContent='Sent. Noah has your notes. Change anything and send again; he gets the whole list each time.';m.hidden=false;b.textContent='Sent';setTimeout(function(){{b.disabled=false;b.textContent='Send your notes'}},4000)}}catch(x){{b.disabled=false;b.textContent='Send your notes';m.textContent='That did not send. Email Noah at noah@abba-photo.com.';m.hidden=false}}}});}})();
+</script>"""
     return html.replace("<div id=tab-book>", "<div id=tab-book>" + draft, 1)
 
 
