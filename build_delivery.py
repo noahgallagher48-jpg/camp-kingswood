@@ -222,6 +222,7 @@ window.addEventListener('hashchange', openFromHash);
                 .replace("__FOLDER__", FOLDER_URL)
                 .replace("__ZIP__", ZIP_URL))
     html = draft_mode(html)
+    html = kw_picks(html)
     open(PAGE_OUT, "w").write(html)
     missing = [r["n"] for r in data_all if not r["d"]]
     print(f"wrote delivery.html ({len(keep)} frames, {len(picks)} picks; "
@@ -229,6 +230,91 @@ window.addEventListener('hashchange', openFromHash);
     print(f"  book lane: {len(seed)} frames" +
           (f", {len(extra)} of them set aside from the gallery: "
            f"{[r['n'] for r in extra]}" if extra else ""))
+
+
+KW_KEY = "b3bc124c-7812-4c4e-8fce-6ea6b9d1c5a2"
+
+
+def kw_picks(html):
+    """Kingswood only (Noah, 2026-09-23): Jodi picks photos on the gallery that she
+    wants to be sure are in the Bader book, adds any words for the book, and one
+    button emails the frame numbers and her words to Noah (Web3Forms). He answers
+    with a new proof. Lives here, never in the shared selection_actions module."""
+    if "id=kwpickcall" in html:
+        return html
+    call = ("<div class=kwpickcall id=kwpickcall><p><b>Jodi, for the Bader book:</b> tap "
+            "<button type=button class=kwlnk id=kwpickgo>Pick photos for the book</button>, "
+            "tap every photo you want to be sure is in it, then press <b>Send to Noah</b> "
+            "in the bar at the bottom. Add any words you want in the book there too. "
+            "I&rsquo;ll send you a new proof.</p></div>\n  ")
+    anchor = "<div class=secthead><h2>The photographs</h2>"
+    assert anchor in html, "gallery anchor"
+    html = html.replace(anchor, call + anchor, 1)
+    panel = r"""
+<div id=kwsend><div class=in>
+ <button type=button class=x id=kwsx aria-label=Close>&times;</button>
+ <h3>Send to Noah for the book</h3>
+ <p class=kwnums id=kwnums></p>
+ <label for=kwwords>Words for the book (a dedication, a caption, the cover title), if you want any</label>
+ <textarea id=kwwords rows=5></textarea>
+ <button type=button id=kwgo>Send to Noah</button>
+ <p id=kwmsg role=status hidden></p>
+</div></div>
+<style>
+.kwpickcall{max-width:760px;margin:0 auto 26px;padding:16px 20px;border:1px solid rgba(219,58,0,.55);
+ border-radius:6px;background:rgba(219,58,0,.08);font-size:15px;line-height:1.55}
+.kwpickcall p{margin:0}
+.kwlnk{background:#DB3A00;color:#fff;border:0;border-radius:4px;padding:5px 11px;font:inherit;
+ font-size:14px;font-weight:600;cursor:pointer}
+#selbar #selsend{font-weight:700}
+#kwsend{position:fixed;inset:0;z-index:60;display:none;overflow-y:auto;background:#06121C;padding:40px 18px}
+#kwsend.on{display:block}
+#kwsend .in{max-width:620px;margin:0 auto;position:relative}
+#kwsend .x{position:absolute;right:0;top:-10px;background:none;border:0;color:#fff;font-size:30px;cursor:pointer}
+#kwsend h3{font-size:22px;font-weight:800;margin:0 0 12px}
+#kwsend .kwnums{font-size:15px;line-height:1.6;opacity:.9;margin:0 0 18px}
+#kwsend label{display:block;font-size:13px;opacity:.75;margin-bottom:6px}
+#kwsend textarea{width:100%;box-sizing:border-box;padding:10px 12px;font:inherit;font-size:15px;color:#fff;
+ background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.25);border-radius:4px;resize:vertical}
+#kwgo{margin-top:16px;background:#DB3A00;color:#fff;border:0;border-radius:4px;padding:13px 24px;
+ font:inherit;font-size:13px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer}
+#kwgo:disabled{opacity:.6;cursor:default}
+#kwmsg{margin-top:14px}
+</style>
+<script>
+(function(){
+function nums(){try{return selectedRows().map(function(r){return r.n!==undefined?r.n:r.id;});}catch(e){return [];}}
+var go=document.getElementById('kwpickgo'),sm=document.getElementById('selmode');
+if(go&&sm)go.onclick=function(){sm.click();
+  var g=document.getElementById('grid');if(g)g.scrollIntoView({behavior:'smooth'});};
+var act=document.querySelector('#selbar .act');
+if(act){var b=document.createElement('button');b.className='lnk';b.id='selsend';b.type='button';
+  b.textContent='Send to Noah';act.insertBefore(b,act.firstChild);b.onclick=openKw;}
+var K='kw-book-words',w=document.getElementById('kwwords');
+try{w.value=localStorage.getItem(K)||''}catch(e){}
+w.addEventListener('input',function(){try{localStorage.setItem(K,w.value)}catch(e){}});
+function openKw(){var n=nums();document.getElementById('kwnums').innerHTML=n.length?
+  ('<b>'+n.length+' photo'+(n.length>1?'s':'')+':</b> '+n.map(function(x){return '#'+x}).join(', ')):
+  'No photos picked yet. Close this and tap the photos you want, or just send words.';
+  document.getElementById('kwmsg').hidden=true;document.getElementById('kwsend').className='on';}
+document.getElementById('kwsx').onclick=function(){document.getElementById('kwsend').className='';};
+var btn=document.getElementById('kwgo'),m=document.getElementById('kwmsg');
+btn.onclick=async function(){var n=nums(),t=w.value.trim();
+  if(!n.length&&!t){m.textContent='Pick at least one photo or write something first.';m.hidden=false;return}
+  btn.disabled=true;btn.textContent='Sending';
+  var msg='Photos she wants in the book ('+n.length+'): '+(n.length?n.join(', '):'none')+'\n\nWords for the book: '+(t||'none');
+  try{var r=await fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},
+    body:JSON.stringify({access_key:'__KWKEY__',subject:'Kingswood book: Jodi’s photo picks',from_name:'Camp Kingswood gallery',message:msg})});
+    var j=await r.json();if(!r.ok||!j.success)throw 0;
+    m.textContent='Sent. Noah has your picks and will send you a new proof. You can add more and send again.';m.hidden=false;
+    btn.textContent='Sent';setTimeout(function(){btn.disabled=false;btn.textContent='Send to Noah'},4000)}
+  catch(x){btn.disabled=false;btn.textContent='Send to Noah';m.textContent='That did not send. Email Noah the numbers at noah@abba-photo.com.';m.hidden=false}};
+})();
+</script>
+""".replace("__KWKEY__", KW_KEY)
+    assert "</body>" in html
+    i = html.rindex("</body>")
+    return html[:i] + panel + html[i:]
 
 
 from urllib.parse import quote
